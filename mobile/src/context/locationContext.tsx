@@ -8,19 +8,14 @@ export type LocationCoords = {
  }| null;
 
 type LocationContextType = {
-  destinationCoords: LocationCoords;
   originCoords: LocationCoords; 
+  destinationCoords: LocationCoords;
   setOriginCoords: (loc: LocationCoords) => void;
   setDestinationCoords: (loc: LocationCoords) => void;
   //getLocation: () => Promise<void>;
 };
 
-export const LocationContext = createContext<LocationContextType>({
-  destinationCoords: null,
-  originCoords: null, 
-  setOriginCoords: () => {},
-  setDestinationCoords: () => {}, 
-});
+export const LocationContext = createContext({} as LocationContextType)
 
 export const LocationProvider = ({ children }: { children: ReactNode }) => {
   const [originCoords, setOriginCoords] = useState<LocationCoords>(null);
@@ -31,8 +26,7 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
       originCoords, 
       setOriginCoords,
       destinationCoords,
-      setDestinationCoords,
-      //getLocation
+      setDestinationCoords
     }}>
       {children}
     </LocationContext.Provider>

@@ -12,7 +12,7 @@ import { PlaceProps } from "@/components/place"
 import { Categories, CategoriesProps } from "@/components/categories"
 import MapViewDirections from "react-native-maps-directions"
 import { useLocation } from "@/context/locationContext"
-import { LocationCoords } from "@/context/locationContext"
+import { LocationCoords, LocationContext, LocationProvider } from "@/context/locationContext"
 
 type MarketsProps = PlaceProps & {
   latitude: number
@@ -25,10 +25,7 @@ export default function Home() {
   const [categories, setCategories] = useState<CategoriesProps>([])
   const [category, setCategory] = useState("")
   const [markets, setMarkets] = useState<MarketsProps[]>([])
-  const [origen, setOrigen] = useState({
-    latitude: 1.8017427763217277,
-    longitude: 10.684559752006317
-  })
+  const [origin, setorigin] = useState<LocationCoords>({latitude: 1.8017427763217277, longitude: 10.684559752006317})
   
   const [destination, setDestination] = useState<LocationCoords>(null)
   const { originCoords, destinationCoords } = useLocation();
@@ -67,7 +64,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       if (originCoords && destinationCoords) {
-        setOrigen(originCoords)
+        setorigin(originCoords)
         setDestination(destinationCoords)
         console.log("Origin:", originCoords)
         console.log("Destination:", destinationCoords)
@@ -76,11 +73,11 @@ export default function Home() {
   }, [originCoords, destinationCoords])
 
   return (
-    
+    <LocationContext.Provider value={{ originCoords, destinationCoords, setOriginCoords: setorigin, setDestinationCoords: setDestination }}>
       <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
         <Categories
           data={categories}
-          onSelect={setCategory}
+          onSelect={setCategory} 
           selected={category}
         />
 
@@ -89,15 +86,16 @@ export default function Home() {
           provider={PROVIDER_GOOGLE}
           style={{ flex: 1 }}
           initialRegion={{
-            latitude: origen.latitude,
-            longitude: origen.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
+            latitude: 1.8575468799281134, 
+            longitude: 9.773508861048843,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
           }}
         >
           <Marker
             identifier="current"
-            coordinate={origen}
+            coordinate={{latitude: 1.8575468799281134, 
+            longitude: 9.773508861048843}}
             image={require("@/assets/location.png")}
           />
 
@@ -136,13 +134,13 @@ export default function Home() {
             </Marker>
           ))}
 
-          {origen && destination && (
+          {origin && destination && (
             <>
               <MapViewDirections
-                key={`route-${origen.latitude}-${origen.longitude}`}
+                key={`route-${origin.latitude}-${origin.longitude}`}
                 origin={{
-                  latitude: origen.latitude,
-                  longitude: origen.longitude
+                  latitude: origin.latitude,
+                  longitude: origin.longitude
                 }}
                 destination={{
                   latitude: destination.latitude,
@@ -167,7 +165,7 @@ export default function Home() {
                 }
               />
               {/* <Marker
-                coordinate={origen}
+                coordinate={origin}
                 title="Starting Point"
               />
               <Marker
@@ -184,6 +182,6 @@ export default function Home() {
 
         <Places data={markets} />
       </View>
+      </LocationContext.Provider>
   )
 }
-
