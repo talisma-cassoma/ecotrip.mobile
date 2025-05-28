@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { View, Alert, Text } from "react-native"
-import MapView, { Callout, Marker } from "react-native-maps"
-import * as Location from "expo-location"
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps"
+
 import { router } from "expo-router"
 
 import { api } from "@/services/api"
@@ -10,21 +10,29 @@ import { fontFamily, colors } from "@/styles/theme"
 import { Places } from "@/components/places"
 import { PlaceProps } from "@/components/place"
 import { Categories, CategoriesProps } from "@/components/categories"
+import MapViewDirections from "react-native-maps-directions"
+import { useLocation } from "@/context/locationContext"
+import { LocationCoords } from "@/context/locationContext"
 
 type MarketsProps = PlaceProps & {
   latitude: number
   longitude: number
 }
 
-const currentLocation = {
-  latitude: -23.561187293883442,
-  longitude: -46.656451388116494,
-}
-
 export default function Home() {
+  const mapRef = useRef<MapView>(null)
+
   const [categories, setCategories] = useState<CategoriesProps>([])
   const [category, setCategory] = useState("")
   const [markets, setMarkets] = useState<MarketsProps[]>([])
+  const [origen, setOrigen] = useState({
+    latitude: 1.8017427763217277,
+    longitude: 10.684559752006317
+  })
+  
+  const [destination, setDestination] = useState<LocationCoords>(null)
+  const { originCoords, destinationCoords } = useLocation();
+
 
   async function fetchCategories() {
     try {
@@ -39,28 +47,12 @@ export default function Home() {
 
   async function fetchMarkets() {
     try {
-      if (!category) {
-        return
-      }
-
+      if (!category) return
       const { data } = await api.get("/markets/category/" + category)
       setMarkets(data)
     } catch (error) {
       console.log(error)
       Alert.alert("Locais", "Não foi possível carregar os locais.")
-    }
-  }
-
-  async function getCurrentLocation() {
-    try {
-      const { granted } = await Location.requestForegroundPermissionsAsync()
-
-      if (granted) {
-        const location = await Location.getCurrentPositionAsync()
-        console.log(location)
-      }
-    } catch (error) {
-      console.log(error)
     }
   }
 
@@ -72,70 +64,126 @@ export default function Home() {
     fetchMarkets()
   }, [category])
 
-  return (
-    <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
-      <Categories
-        data={categories}
-        onSelect={setCategory}
-        selected={category}
-      />
+  useEffect(() => {
+    (async () => {
+      if (originCoords && destinationCoords) {
+        setOrigen(originCoords)
+        setDestination(destinationCoords)
+        console.log("Origin:", originCoords)
+        console.log("Destination:", destinationCoords)
+      }
+    })()
+  }, [originCoords, destinationCoords])
 
-      <MapView
-        style={{ flex: 1 }}
-        initialRegion={{
-          latitude: currentLocation.latitude,
-          longitude: currentLocation.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-      >
-        <Marker
-          identifier="current"
-          coordinate={{
-            latitude: currentLocation.latitude,
-            longitude: currentLocation.longitude,
-          }}
-          image={require("@/assets/location.png")}
+  return (
+    
+      <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
+        <Categories
+          data={categories}
+          onSelect={setCategory}
+          selected={category}
         />
 
-        {markets.map((item) => (
+        <MapView
+          ref={mapRef}
+          provider={PROVIDER_GOOGLE}
+          style={{ flex: 1 }}
+          initialRegion={{
+            latitude: origen.latitude,
+            longitude: origen.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+        >
           <Marker
-            key={item.id}
-            identifier={item.id}
-            coordinate={{
-              latitude: item.latitude,
-              longitude: item.longitude,
-            }}
-            image={require("@/assets/pin.png")}
-          >
-            <Callout onPress={() => router.navigate(`/market/${item.id}`)}>
-              <View>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    color: colors.gray[600],
-                    fontFamily: fontFamily.medium,
-                  }}
-                >
-                  {item.name}
-                </Text>
+            identifier="current"
+            coordinate={origen}
+            image={require("@/assets/location.png")}
+          />
 
-                <Text
-                  style={{
-                    fontSize: 12,
-                    color: colors.gray[600],
-                    fontFamily: fontFamily.regular,
-                  }}
-                >
-                  {item.address}
-                </Text>
-              </View>
-            </Callout>
-          </Marker>
-        ))}
-      </MapView>
+          {markets.map((item) => (
+            <Marker
+              key={item.id}
+              identifier={item.id}
+              coordinate={{
+                latitude: item.latitude,
+                longitude: item.longitude,
+              }}
+              image={require("@/assets/pin.png")}
+            >
+              <Callout onPress={() => router.navigate(`/market/${item.id}`)}>
+                <View>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: colors.gray[600],
+                      fontFamily: fontFamily.medium,
+                    }}
+                  >
+                    {item.name}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: colors.gray[600],
+                      fontFamily: fontFamily.regular,
+                    }}
+                  >
+                    {item.address}
+                  </Text>
+                </View>
+              </Callout>
+            </Marker>
+          ))}
 
-      <Places data={markets} />
-    </View>
+          {origen && destination && (
+            <>
+              <MapViewDirections
+                key={`route-${origen.latitude}-${origen.longitude}`}
+                origin={{
+                  latitude: origen.latitude,
+                  longitude: origen.longitude
+                }}
+                destination={{
+                  latitude: destination.latitude,
+                  longitude: destination.longitude
+
+                }}
+                apikey={String(process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY)}
+                strokeWidth={4}
+                strokeColor="blue"
+                onReady={(result) => {
+                  mapRef.current?.fitToCoordinates(result.coordinates, {
+                    edgePadding: {
+                      top: 50,
+                      right: 50,
+                      bottom: 50,
+                      left: 50,
+                    },
+                  })
+                }}
+                onError={(error) =>
+                  console.warn("Erro ao calcular rota:", error)
+                }
+              />
+              {/* <Marker
+                coordinate={origen}
+                title="Starting Point"
+              />
+              <Marker
+                coordinate={{
+                  latitude: 34.25125262015284,
+                  longitude: -6.5724847169095355
+
+                }}
+                title="Destination Point"
+              /> */}
+            </>
+          )}
+        </MapView>
+
+        <Places data={markets} />
+      </View>
   )
 }
+

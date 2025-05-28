@@ -5,13 +5,14 @@ import { s } from "./styles"
 export function Welcome() {
   return (
     <View>
-      <Image source={require("@/assets/logo.png")} style={s.logo} />
 
-      <Text style={s.title}>Boas vindas ao Nearby!</Text>
+      <Image source={require("@/assets/logoPreta.png")} style={s.logo} />
+
+      <Text style={s.title}>¡Bienvenido a EcoTrip!</Text>
 
       <Text style={s.subtitle}>
-        Tenha cupons de vantagem para usar em {"\n"}
-        seus estabelecimentos favoritos.
+        Puedes pedir o realizar viajes en nuestra{"\n"}
+        plataforma.
       </Text>
     </View>
   )

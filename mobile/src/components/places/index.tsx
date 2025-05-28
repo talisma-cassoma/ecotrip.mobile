@@ -5,6 +5,7 @@ import { router } from "expo-router"
 
 import { s } from "./styles"
 import { Place, PlaceProps } from "../place"
+import { BookRideDialog } from "../bookRideDialog"
 
 type Props = {
   data: PlaceProps[]
@@ -27,6 +28,7 @@ export function Places({ data }: Props) {
       backgroundStyle={s.container}
       enableOverDrag={false}
     >
+       <BookRideDialog />
       <BottomSheetFlatList
         data={data}
         keyExtractor={(item) => item.id}

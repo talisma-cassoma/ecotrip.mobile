@@ -1,5 +1,5 @@
 import { View, Text } from "react-native"
-import { IconMapPin, IconQrcode, IconTicket } from "@tabler/icons-react-native"
+import { IconMapPin, IconCoinFilled, IconCarFilled, IconCar, IconCoin  } from "@tabler/icons-react-native"
 
 import { s } from "./styles"
 import { Step } from "../step"
@@ -11,20 +11,20 @@ export function Steps() {
 
       <Step
         icon={IconMapPin}
-        title="Encontre estabelecimentos"
-        description="Veja locais perto de você que são parceiros Nearby"
+        title="Solicita viajes"
+        description="Elige un origen y un destino para tu viaje"
       />
 
       <Step
-        icon={IconQrcode}
-        title="Ative o cupom com QR Code"
-        description="Escaneie o código no estabelecimento para usar o benefício"
+        icon={IconCoin}
+        title="Acuerda el precio"
+        description="Selecciona una tarifa o establece tu precio"
       />
 
       <Step
-        icon={IconTicket}
-        title="Garanta vantagens perto de você"
-        description="Ative cupons onde estiver, em diferentes tipos de estabelecimento"
+        icon={IconCar}
+        title="Selecciona un conductor"
+        description="Elige al conductor adecuado para el viaje"
       />
     </View>
   )
