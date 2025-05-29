@@ -10,6 +10,7 @@ import { useLocation } from '../../context/locationContext';
 import { Button } from '../button';
 import { LocationProvider } from '../../context/locationContext';
 import VerticalDashedLine from '../dottedLine';
+import { colors} from "@/styles/theme"
 
 export function BookRideDialog() {
   const [locatePressed, setLocatePressed] = useState(false);
@@ -60,7 +61,7 @@ return (
           
             <View style={[styles.autocompleteWrapper, styles.originInputMargin]}> 
               <GooglePlacesAutocomplete
-                placeholder="Mi Localisation"
+                placeholder="Ubicación actual"
                 nearbyPlacesAPI='GooglePlacesSearch'
                 debounce={400}
                 fetchDetails={true}
@@ -104,7 +105,7 @@ return (
                     // shadowRadius: 3,
                   },
                   row: { padding: 13, flexDirection: 'row', backgroundColor: 'white' }, 
-                  description: { fontSize: 15, color: '#333', flex: 1 }, 
+                  description: { fontSize: 15, color: colors.gray[600], flex: 1 }, 
                 }}
               />
             </View>
@@ -145,7 +146,7 @@ return (
                        shadowRadius: 3,
                    },
                    row: { padding: 13, flexDirection: 'row', backgroundColor: 'white' },
-                   description: { fontSize: 15, color: '#333', flex: 1 },
+                   description: { fontSize: 15, color: `${colors.gray[600]}`, flex: 1 },
                 }}
               />
             </View>
@@ -161,7 +162,7 @@ return (
             </TouchableOpacity>
              {/* Wrapper para a linha tracejada */}
             <View style={styles.dashedLineWrapper}>
-              <VerticalDashedLine height={45} width={0} color='#333'/> 
+              <VerticalDashedLine height={45} width={0} color={colors.gray[600]}/> 
             </View>
             <TouchableOpacity onPress={() => { /* swap logic */ }}>
               <MaterialCommunityIcons name="swap-vertical" size={20} color="#aaa" />

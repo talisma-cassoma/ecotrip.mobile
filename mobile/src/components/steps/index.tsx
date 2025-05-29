@@ -7,11 +7,11 @@ import { Step } from "../step"
 export function Steps() {
   return (
     <View style={s.container}>
-      <Text style={s.title}>Veja como funciona:</Text>
+      <Text style={s.title}>cómo funciona:</Text>
 
       <Step
         icon={IconMapPin}
-        title="Solicita viajes"
+        title="Solicita tu viaje"
         description="Elige un origen y un destino para tu viaje"
       />
 

@@ -273,10 +273,10 @@ export default function Home() {
             identifier="current"
             coordinate={{latitude: 1.8575468799281134, 
             longitude: 9.773508861048843}}
-            image={require("@/assets/location.png")}
+            // image={require("@/assets/location.png")}
           />
 
-          {markets.map((item) => (
+          {/* {markets.map((item) => (
             <Marker
               key={item.id}
               identifier={item.id}
@@ -309,7 +309,7 @@ export default function Home() {
                 </View>
               </Callout>
             </Marker>
-          ))}
+          ))} */}
 
           {origin && destination && (
             <>
@@ -341,18 +341,25 @@ export default function Home() {
                   console.warn("Erro ao calcular rota:", error)
                 }
               />
-              {/* <Marker
-                coordinate={origin}
+              <Marker
+                key={`origin-${origin.latitude}-${origin.longitude}`}
+                coordinate={{
+                  latitude: origin.latitude,
+                  longitude: origin.longitude
+                }}
+                image={require("@/assets/location.png")}
                 title="Starting Point"
               />
               <Marker
+                key={`destination-${destination.latitude}-${destination.longitude}`}
                 coordinate={{
-                  latitude: 34.25125262015284,
-                  longitude: -6.5724847169095355
+                  latitude: destination.latitude,
+                  longitude: destination.longitude
 
                 }}
+                image={require("@/assets/pin.png")}
                 title="Destination Point"
-              /> */}
+              />
             </>
           )}
         </MapView>

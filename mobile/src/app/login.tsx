@@ -34,7 +34,7 @@ export default function Login() {
                 EcoTrip
             </Text>
 
-            <Text style={styles.subtitle}>Insira seu e-mail e senha para acessar sua conta.</Text>
+            <Text style={styles.subtitle}>introduce tu correo para acceder a tu cuenta</Text>
             <TextInput
                 style={styles.input}
                 placeholder="email@exemplo.com"

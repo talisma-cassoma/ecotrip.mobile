@@ -27,7 +27,7 @@ export function Details({ data }: Props) {
       <Text style={s.description}>{data.description}</Text>
 
       <View style={s.group}>
-        <Text style={s.title}>Informações</Text>
+        <Text style={s.title}>Informaciónes</Text>
 
         {/* <Info
           icon={IconTicket}
@@ -38,7 +38,7 @@ export function Details({ data }: Props) {
       </View>
 
       <View style={s.group}>
-        <Text style={s.title}>Regulamento</Text>
+        <Text style={s.title}>Horarios</Text>
         {data.rules.map((item) => (
           <Text key={item.id} style={s.rule}>
             {`\u2022 ${item.description}`}
