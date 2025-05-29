@@ -29,10 +29,10 @@ export function Details({ data }: Props) {
       <View style={s.group}>
         <Text style={s.title}>Informações</Text>
 
-        <Info
+        {/* <Info
           icon={IconTicket}
           description={`${data.coupons} cupons disponíveis`}
-        />
+        /> */}
         <Info icon={IconMapPin} description={data.address} />
         <Info icon={IconPhone} description={data.phone} />
       </View>

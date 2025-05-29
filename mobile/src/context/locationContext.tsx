@@ -1,6 +1,4 @@
-// src/context/LocationContext.tsx
-import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-//import * as Location from 'expo-location';
+import React, { createContext, useState, ReactNode, useContext } from 'react';
 
 export type LocationCoords = {
   latitude: number;

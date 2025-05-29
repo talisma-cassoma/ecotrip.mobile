@@ -40,7 +40,7 @@ export function Places({ data }: Props) {
         )}
         contentContainerStyle={s.content}
         ListHeaderComponent={() => (
-          <Text style={s.title}>Explore locais perto de você</Text>
+          <Text style={s.title}>Lugares cercanos de interes</Text>
         )}
         showsVerticalScrollIndicator={false}
       />

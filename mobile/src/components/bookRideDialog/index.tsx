@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { IconCurrentLocation, IconMapPinFilled, IconRadar2 } from "@tabler/icons-react-native"
 import 'react-native-get-random-values'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -9,7 +9,7 @@ import styles from './styles';
 import { useLocation } from '../../context/locationContext';
 import { Button } from '../button';
 import { LocationProvider } from '../../context/locationContext';
-import { s } from '../button/styles';
+import VerticalDashedLine from '../dottedLine';
 
 export function BookRideDialog() {
   const [locatePressed, setLocatePressed] = useState(false);
@@ -39,82 +39,143 @@ export function BookRideDialog() {
     // ... restante da lógica
   }, [originCoords, destinationCoords]);
 
-  return (
+return (
     <LocationProvider>
       <View style={styles.container}>
-        {/* Origem */}
-        <View style={styles.row}>
-          <IconRadar2
-            size={20}
-            color='#aaa'
-          />
-          <GooglePlacesAutocomplete
-            placeholder="Mi Localisation"
-            fetchDetails={true}
-            onPress={(data, details = null) => {
-              if (!details || !details.geometry) return;
-              const { lat, lng } = details.geometry.location;
-              setOriginCoords({ latitude: lat, longitude: lng });
-              console.log("origem:", originCoords)
-              setLocatePressed(false); // resetar se o usuário digitou
-            }}
+        {/* Container principal das 3 colunas */}
+        <View style={styles.threeColumnRow}> 
 
-            query={{
-              key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY,
-              language: 'es',
-              components: 'country:gq',
-            }}
-            styles={{
-              textInput: styles.input,
-              textInputContainer: { flex: 1 },
-            }}
-          />
-          <TouchableOpacity onPress={handleGetLocation}>
-            <IconCurrentLocation
-              size={20}
-              color={locatePressed ? '#007bc9' : '#aaa'}
-            />
-          </TouchableOpacity>
+          {/* Coluna Esquerda (Ícones Origem/Destino) */}
+          <View style={styles.iconColumn}> 
+            <IconRadar2 size={20} color='#aaa' />
+          
+            <View style={styles.dashedLineWrapper}> 
+                 <VerticalDashedLine height={45} width={4} color='#aaa'/> 
+            </View>
+            <IconMapPinFilled size={20} fill='#aaa' />
+          </View>
+
+          {/* Coluna Central (Inputs) */}
+          <View style={styles.inputColumn}> 
+          
+            <View style={[styles.autocompleteWrapper, styles.originInputMargin]}> 
+              <GooglePlacesAutocomplete
+                placeholder="Mi Localisation"
+                nearbyPlacesAPI='GooglePlacesSearch'
+                debounce={400}
+                fetchDetails={true}
+                onPress={(data, details = null) => {
+                  if (!details || !details.geometry) return;
+                  const { lat, lng } = details.geometry.location;
+                  setOriginCoords({ latitude: lat, longitude: lng });
+                  console.log("origem selecionada:", { latitude: lat, longitude: lng }); // 
+                  setLocatePressed(false);
+                }}
+                query={{
+                  key: GOOGLE_API_KEY,
+                  language: 'es',
+                  components: 'country:gq',
+                }}
+                styles={{
+                  container: { flex: 1 },
+                  textInputContainer: {
+                     flex: 1, // 
+                     backgroundColor: 'transparent', 
+                     paddingHorizontal: 0, 
+                     height: 45, 
+                  },
+                 
+                  textInput: {
+                    ...styles.input, 
+                    paddingVertical: 0, 
+                    height: 45, 
+                  },
+                  // Estilos da lista de sugestões
+                  listView: {
+                    zIndex: 1000, // 
+                    backgroundColor: 'white',
+                    position: 'absolute', 
+                    top: 45, 
+                    left: 0, right: 0, 
+                    // elevation: 5, // Sombra no Android
+                    // shadowColor: '#000', // Sombra no iOS
+                    // shadowOpacity: 0.2,
+                    // shadowOffset: { height: 2, width: 0 },
+                    // shadowRadius: 3,
+                  },
+                  row: { padding: 13, flexDirection: 'row', backgroundColor: 'white' }, 
+                  description: { fontSize: 15, color: '#333', flex: 1 }, 
+                }}
+              />
+            </View>
+
+            {/* Wrapper para o Input de Destino */}
+            <View style={styles.autocompleteWrapper}>
+              <GooglePlacesAutocomplete
+                placeholder="Destino (Ex: bata ou malabo)"
+                fetchDetails={true}
+                onPress={(data, details = null) => {
+                  if (!details || !details.geometry) {
+                    console.log('Detalhes de destino não encontrados');
+                    return;
+                  }
+                  const { lat, lng } = details.geometry.location;
+                  setDestinationCoords({ latitude: lat, longitude: lng });
+                  console.log("destino selecionado:", { latitude: lat, longitude: lng }); 
+                }}
+                query={{
+                  key: GOOGLE_API_KEY,
+                  language: 'es',
+                  components: 'country:gq',
+                }}
+                styles={{
+                   container: { flex: 1 },
+                   textInputContainer: { flex: 1, backgroundColor: 'transparent', paddingHorizontal: 0, height: 45 },
+                   textInput: { ...styles.input, paddingVertical: 0, height: 45 },
+                   listView: {
+                      zIndex: 1000,
+                      backgroundColor: 'white',
+                      position: 'absolute',
+                      top: 45,
+                      left: 0, right: 0,
+                       elevation: 5,
+                       shadowColor: '#000',
+                       shadowOpacity: 0.2,
+                       shadowOffset: { height: 2, width: 0 },
+                       shadowRadius: 3,
+                   },
+                   row: { padding: 13, flexDirection: 'row', backgroundColor: 'white' },
+                   description: { fontSize: 15, color: '#333', flex: 1 },
+                }}
+              />
+            </View>
+          </View>
+
+          {/* Coluna Direita (Ícones Ação/Swap) */}
+          <View style={styles.iconColumn}> 
+            <TouchableOpacity onPress={handleGetLocation}>
+              <IconCurrentLocation
+                size={20}
+                color={locatePressed ? '#007bc9' : '#aaa'}
+              />
+            </TouchableOpacity>
+             {/* Wrapper para a linha tracejada */}
+            <View style={styles.dashedLineWrapper}>
+              <VerticalDashedLine height={45} width={0} color='#333'/> 
+            </View>
+            <TouchableOpacity onPress={() => { /* swap logic */ }}>
+              <MaterialCommunityIcons name="swap-vertical" size={20} color="#aaa" />
+            </TouchableOpacity>
+          </View>
+
         </View>
-            
-        {/* Destino */}
-        <View style={styles.row}>
-          <IconMapPinFilled
-            size={20}
-            fill='#aaa'
-          />
-          <GooglePlacesAutocomplete
-            placeholder="Destino (Ex: bata ou malabo)"
-            fetchDetails={true}
-            onPress={(data, details = null) => {
-              if (!details || !details.geometry) {
-                console.log('Detalhes não encontrados');
-                return;
-              }
-              const { lat, lng } = details.geometry.location;
-              setDestinationCoords({ latitude: lat, longitude: lng });
-              console.log("destino:", destinationCoords);
-            }}
-            query={{
-              key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY,
-              language: 'es',
-              components: 'country:gq',
-            }}
-            styles={{
-              textInput: styles.input,
-              textInputContainer: { flex: 1 },
-            }}
-          />
-          <TouchableOpacity onPress={() => { }}>
-            <MaterialCommunityIcons name="swap-vertical" size={20} color="#aaa" />
-          </TouchableOpacity>
-        </View>
-        <Button onPress={handleStartRide} style={{ marginTop: 40 }}>
+
+        <Button onPress={handleStartRide} style={{ marginTop: 10 }}> 
           <Button.Title>
             Comenzar viaje
           </Button.Title>
         </Button>
       </View>
-    </LocationProvider>
+    </LocationProvider >
   );
 }

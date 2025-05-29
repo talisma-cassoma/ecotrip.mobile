@@ -5,7 +5,7 @@ import {
   View,
   Image,
 } from "react-native"
-import { IconTicket } from "@tabler/icons-react-native"
+import { IconInfoCircleFilled} from "@tabler/icons-react-native"
 
 import { s } from "./styles"
 import { colors } from "@/styles/theme"
@@ -35,8 +35,8 @@ export function Place({ data, ...rest }: Props) {
         </Text>
 
         <View style={s.footer}>
-          <IconTicket size={16} color={colors.red.base} />
-          <Text style={s.tickets}>{data.coupons} cupons disponíveis</Text>
+          <IconInfoCircleFilled size={16} fill={colors.green.base} />
+          <Text style={s.tickets}>{/*data.coupons*/} clique para mais informaciones</Text>
         </View>
       </View>
     </TouchableOpacity>

@@ -3,11 +3,11 @@ import { prisma } from "@/database/prisma"
 async function seed() {
   await prisma.category.createMany({
     data: [
-      { id: "146b1a88-b3d3-4232-8b8f-c1f006f1e86d", name: "Alimentação" },
+      { id: "146b1a88-b3d3-4232-8b8f-c1f006f1e86d", name: "Alimentación" },
       { id: "52e81585-f71a-44cd-8bd0-49771e45da44", name: "Compras" },
-      { id: "57d6e5ff-35f6-4d21-a521-84f23d511d25", name: "Hospedagem" },
-      { id: "826910d4-187d-4c15-88f4-382b7e056739", name: "Cinema" },
-      { id: "abce52cf-b33b-4b3c-8972-eb72c66c83e4", name: "Padaria" },
+      { id: "57d6e5ff-35f6-4d21-a521-84f23d511d25", name: "Alojamiento" },
+      { id: "826910d4-187d-4c15-88f4-382b7e056739", name: "Cine" },
+      { id: "abce52cf-b33b-4b3c-8972-eb72c66c83e4", name: "Panadería" },
     ],
   })
 
@@ -18,12 +18,14 @@ async function seed() {
         id: "012576ea-4441-4b8a-89e5-d5f32104c7c4",
         categoryId: "146b1a88-b3d3-4232-8b8f-c1f006f1e86d",
         name: "Sabor Grill",
+        // Descrição em espanhol
         description:
-          "Churrascaria com cortes nobres e buffet variado. Experiência completa para os amantes de carne.",
-        latitude: -23.55974230991911,
-        longitude: -46.65814845249887,
+          "Churrasquería con cortes nobles y buffet variado. Experiencia completa para los amantes de la carne.",
+        // Localização: Malabo
+        latitude: 3.7500,
+        longitude: 8.7833,
         coupons: 10,
-        address: "Av. Paulista - Bela Vista",
+        address: "Malabo", // Endereço original mantido
         phone: "(11) 94567-1212",
         cover:
           "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=400&h=300",
@@ -33,11 +35,12 @@ async function seed() {
         categoryId: "146b1a88-b3d3-4232-8b8f-c1f006f1e86d",
         name: "Café Central",
         description:
-          "Café aconchegante com opções de lanches e bebidas artesanais. Perfeito para uma pausa.",
-        latitude: -23.559457108504436,
-        longitude: -46.66252581753144,
+          "Café acogedor con opciones de bocadillos y bebidas artesanales. Perfecto para una pausa.",
+        // Localização: Bata
+        latitude: 1.8639,
+        longitude: 9.7656,
         coupons: 10,
-        address: "Alameda Jaú - Jardim Paulista",
+        address: "Bata",
         phone: "(12) 3456-7890",
         cover:
           "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300",
@@ -47,11 +50,12 @@ async function seed() {
         categoryId: "146b1a88-b3d3-4232-8b8f-c1f006f1e86d",
         name: "Burguer Up",
         description:
-          "Hambúrgueres gourmet preparados na hora. Ingredientes frescos e combinações únicas.",
-        latitude: -23.56011117635681,
-        longitude: -46.65636680690605,
+          "Hamburguesas gourmet preparadas al momento. Ingredientes frescos y combinaciones únicas.",
+        // Localização: Luba
+        latitude: 3.4597,
+        longitude: 8.5500,
         coupons: 10,
-        address: "Rua Peixoto Gomide - Jardim Paulista",
+        address: "Luba",
         phone: "(13) 98765-4321",
         cover:
           "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=400&h=300",
@@ -61,11 +65,12 @@ async function seed() {
         categoryId: "146b1a88-b3d3-4232-8b8f-c1f006f1e86d",
         name: "Doce & Delícia",
         description:
-          "Confeitaria com doces e sobremesas incríveis. Bolo de vitrine e especialidades artesanais.",
-        latitude: -23.562559674925577,
-        longitude: -46.6529362971225,
+          "Confitería con dulces y postres increíbles. Pastel de vitrina y especialidades artesanales.",
+        // Localização: Ebebiyín
+        latitude: 2.1514,
+        longitude: 11.3167,
         coupons: 10,
-        address: "Rua Treze de Maio - Jardim Paulista",
+        address: "Ebebiyín",
         phone: "(14) 2345-6789",
         cover:
           "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300",
@@ -75,11 +80,12 @@ async function seed() {
         categoryId: "146b1a88-b3d3-4232-8b8f-c1f006f1e86d",
         name: "Verde Vida",
         description:
-          "Restaurante vegano com pratos saudáveis e saborosos. Comida natural em um ambiente acolhedor.",
-        latitude: -23.563839021677836,
-        longitude: -46.65801352185607,
+          "Restaurante vegano con platos saludables y sabrosos. Comida natural en un ambiente acogedor.",
+        // Localização: Mongomo
+        latitude: 1.9200,
+        longitude: 11.3167,
         coupons: 10,
-        address: "Alameda Jaú - Jardim Paulista",
+        address: "Mongomo",
         phone: "(15) 9876-5432",
         cover:
           "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&h=300",
@@ -90,11 +96,12 @@ async function seed() {
         categoryId: "52e81585-f71a-44cd-8bd0-49771e45da44",
         name: "Loja Nova",
         description:
-          "Roupas e acessórios modernos para o dia a dia. Estilo casual com ótimos preços.",
-        latitude: -23.564580184943406,
-        longitude: -46.66202724389377,
+          "Ropa y accesorios modernos para el día a día. Estilo casual con excelentes precios.",
+        // Localização: San Antonio de Palé (Annobón)
+        latitude: -1.4033,
+        longitude: 5.6322,
         coupons: 10,
-        address: "Rua José Maria Lisboa - Jardim Paulista",
+        address: "San Antonio de Palé (Annobón)",
         phone: "(16) 3456-7890",
         cover:
           "https://images.unsplash.com/photo-1504593811423-6dd665756598?w=400&h=300",
@@ -104,11 +111,12 @@ async function seed() {
         categoryId: "52e81585-f71a-44cd-8bd0-49771e45da44",
         name: "Tech Plus",
         description:
-          "Loja de eletrônicos com produtos de última geração. Gadgets e acessórios para todos.",
-        latitude: -23.56183474903135,
-        longitude: -46.66355095952655,
+          "Tienda de electrónicos con productos de última generación. Gadgets y accesorios para todos.",
+        // Localização: Malabo (Ciclando na lista)
+        latitude: 3.7500,
+        longitude: 8.7833,
         coupons: 10,
-        address: "Alameda Franca - Cerqueira César",
+        address: "Malabo",
         phone: "(17) 9876-5432",
         cover:
           "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=300",
@@ -118,11 +126,12 @@ async function seed() {
         categoryId: "52e81585-f71a-44cd-8bd0-49771e45da44",
         name: "Casa Luxo",
         description:
-          "Decoração sofisticada para casa e escritório. Produtos exclusivos para ambientes elegantes.",
-        latitude: -23.55870738391179,
-        longitude: -46.66172705741049,
+          "Decoración sofisticada para hogar y oficina. Productos exclusivos para ambientes elegantes.",
+        // Localização: Bata
+        latitude: 1.8639,
+        longitude: 9.7656,
         coupons: 10,
-        address: "Alameda Santos - Jardim Paulista",
+        address: "Bata",
         phone: "(18) 2345-6789",
         cover:
           "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&h=300",
@@ -132,11 +141,12 @@ async function seed() {
         categoryId: "52e81585-f71a-44cd-8bd0-49771e45da44",
         name: "BookMart",
         description:
-          "Livraria especializada em best-sellers e clássicos. Espaço aconchegante para leitura.",
-        latitude: -23.556376883488902,
-        longitude: -46.65941413229616,
+          "Librería especializada en best-sellers y clásicos. Espacio acogedor para la lectura.",
+        // Localização: Luba
+        latitude: 3.4597,
+        longitude: 8.5500,
         coupons: 10,
-        address: "Rua Luís Coelho - Consolação",
+        address: "Luba",
         phone: "(19) 9876-5432",
         cover:
           "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=400&h=300",
@@ -146,11 +156,12 @@ async function seed() {
         categoryId: "52e81585-f71a-44cd-8bd0-49771e45da44",
         name: "Green Market",
         description:
-          "Produtos orgânicos e saudáveis para o seu dia a dia. Alimentos frescos e sustentáveis.",
-        latitude: -23.55473446617852,
-        longitude: -46.65859874077045,
+          "Productos orgánicos y saludables para tu día a día. Alimentos frescos y sostenibles.",
+        // Localização: Ebebiyín
+        latitude: 2.1514,
+        longitude: 11.3167,
         coupons: 10,
-        address: "Rua Matias Aires - Consolação",
+        address: "Ebebiyín",
         phone: "(11) 8765-4321",
         cover:
           "https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=400&h=300",
@@ -161,11 +172,12 @@ async function seed() {
         categoryId: "57d6e5ff-35f6-4d21-a521-84f23d511d25",
         name: "Hotel Céu Azul",
         description:
-          "Hotel moderno com quartos aconchegantes. Ideal para relaxar.",
-        latitude: -23.554120626142016,
-        longitude: -46.65203378772091,
+          "Hotel moderno con habitaciones acogedoras. Ideal para relajarse.",
+        // Localização: Mongomo
+        latitude: 1.9200,
+        longitude: 11.3167,
         coupons: 10,
-        address: "Rua Dr. Penaforte Mendes - Bela Vista ",
+        address: "Mongomo",
         phone: "(12) 1234-5678",
         cover:
           "https://images.unsplash.com/photo-1560347876-aeef00ee58a1?w=400&h=300",
@@ -175,11 +187,12 @@ async function seed() {
         categoryId: "57d6e5ff-35f6-4d21-a521-84f23d511d25",
         name: "Casa Serena",
         description:
-          "Pousada charmosa no coração da cidade, com ambiente tranquilo e serviço personalizado.",
-        latitude: -23.55165437523632,
-        longitude: -46.649795512210524,
+          "Posada encantadora en el corazón de la ciudad, con ambiente tranquilo y servicio personalizado.",
+        // Localização: San Antonio de Palé (Annobón)
+        latitude: -1.4033,
+        longitude: 5.6322,
         coupons: 10,
-        address: "Rua Frei Caneca - Consolação",
+        address: "San Antonio de Palé (Annobón)",
         phone: "(13) 9876-5432",
         cover:
           "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400&h=300",
@@ -189,11 +202,12 @@ async function seed() {
         categoryId: "57d6e5ff-35f6-4d21-a521-84f23d511d25",
         name: "Suites Urban",
         description:
-          "Acomodações sofisticadas no centro da cidade. Perfeito para viagens de negócios ou lazer.",
-        latitude: -23.55466938453421,
-        longitude: -46.65173990250655,
+          "Alojamientos sofisticados en el centro de la ciudad. Perfecto para viajes de negocios o placer.",
+        // Localização: Malabo (Ciclando)
+        latitude: 3.7500,
+        longitude: 8.7833,
         coupons: 10,
-        address: "R. Dr. Penaforte Mendes - Bela Vista, São Paulo",
+        address: "Malabo",
         phone: "(14) 2345-6789",
         cover:
           "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&h=300",
@@ -203,11 +217,12 @@ async function seed() {
         categoryId: "57d6e5ff-35f6-4d21-a521-84f23d511d25",
         name: "Villa Encanto",
         description:
-          "Chalés rústicos em uma área tranquila. Experiência de hospedagem exclusiva com total privacidade.",
-        latitude: -23.56516128294298,
-        longitude: -46.66117774949042,
+          "Chalets rústicos en una zona tranquila. Experiencia de alojamiento exclusiva con total privacidad.",
+        // Localização: Bata
+        latitude: 1.8639,
+        longitude: 9.7656,
         coupons: 10,
-        address: "Rua José Maria Lisboa - Jardins",
+        address: "Bata",
         phone: "(15) 9876-5432",
         cover:
           "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&h=300",
@@ -217,11 +232,12 @@ async function seed() {
         categoryId: "57d6e5ff-35f6-4d21-a521-84f23d511d25",
         name: "Estalagem Real",
         description:
-          "Hotel boutique com design clássico e atendimento de excelência. Uma estadia luxuosa e confortável.",
-        latitude: -23.56210372033115,
-        longitude: -46.65926304595067,
+          "Hotel boutique con diseño clásico y atención de excelencia. Una estancia lujosa y confortable.",
+        // Localização: Luba
+        latitude: 3.4597,
+        longitude: 8.5500,
         coupons: 10,
-        address: "Alameda Jaú - Jardim Paulista",
+        address: "Luba",
         phone: "(16) 3456-7890",
         cover:
           "https://images.unsplash.com/photo-1558979158-65a1eaa08691?w=400&h=300",
@@ -232,11 +248,12 @@ async function seed() {
         categoryId: "826910d4-187d-4c15-88f4-382b7e056739",
         name: "CineStar",
         description:
-          "Cinema moderno com salas confortáveis e tecnologia de última geração.",
-        latitude: -23.548482381146595,
-        longitude: -46.659142416446386,
+          "Cine moderno con salas cómodas y tecnología de última generación.",
+        // Localização: Ebebiyín
+        latitude: 2.1514,
+        longitude: 11.3167,
         coupons: 10,
-        address: "Av. Angélica - Consolação",
+        address: "Ebebiyín",
         phone: "(17) 9876-5432",
         cover:
           "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&h=300",
@@ -246,11 +263,12 @@ async function seed() {
         categoryId: "826910d4-187d-4c15-88f4-382b7e056739",
         name: "MovieLand",
         description:
-          "Espaço cultural com uma seleção variada de filmes e festivais exclusivos.",
-        latitude: -23.544459765576214,
-        longitude: -46.639557261292346,
+          "Espacio cultural con una selección variada de películas y festivales exclusivos.",
+        // Localização: Mongomo
+        latitude: 1.9200,
+        longitude: 11.3167,
         coupons: 10,
-        address: "R. 24 de Maio - República",
+        address: "Mongomo",
         phone: "(11) 2345-6789",
         cover:
           "https://images.unsplash.com/photo-1497493292307-31c376b6e479?w=400&h=300",
@@ -260,11 +278,12 @@ async function seed() {
         categoryId: "826910d4-187d-4c15-88f4-382b7e056739",
         name: "TelaMax",
         description:
-          "Cinema de bairro com atmosfera aconchegante e opções de filmes clássicos e lançamentos.",
-        latitude: -23.545525145028346,
-        longitude: -46.641431974786606,
+          "Cine de barrio con atmósfera acogedora y opciones de películas clásicas y estrenos.",
+        // Localização: San Antonio de Palé (Annobón)
+        latitude: -1.4033,
+        longitude: 5.6322,
         coupons: 10,
-        address: "Rua Sete de Abril - República",
+        address: "San Antonio de Palé (Annobón)",
         phone: "(19) 9876-5432",
         cover:
           "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=300",
@@ -275,11 +294,12 @@ async function seed() {
         categoryId: "abce52cf-b33b-4b3c-8972-eb72c66c83e4",
         name: "Grão Dourado",
         description:
-          "Famosa por seus croissants e pães de fermentação natural.",
-        latitude: -23.54000232292889,
-        longitude: -46.64680389012777,
+          "Famosa por sus croissants y panes de fermentación natural.",
+        // Localização: Malabo (Ciclando)
+        latitude: 3.7500,
+        longitude: 8.7833,
         coupons: 10,
-        address: "Av. Duque de Caxias  - Santa Ifigênia",
+        address: "Malabo",
         phone: "(11) 5432-1098",
         cover:
           "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&h=300",
@@ -289,11 +309,12 @@ async function seed() {
         categoryId: "abce52cf-b33b-4b3c-8972-eb72c66c83e4",
         name: "Pão & Cia",
         description:
-          "Padaria artesanal com pães frescos e quitutes caseiros todos os dias.",
-        latitude: -23.523537811033677,
-        longitude: -46.62669283245777,
+          "Panadería artesanal con panes frescos y delicias caseras todos los días.",
+        // Localização: Bata
+        latitude: 1.8639,
+        longitude: 9.7656,
         coupons: 10,
-        address: "Rua Guaporé - Luz ",
+        address: "Bata",
         phone: "(11) 8765-4321",
         cover:
           "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=400&h=300",
@@ -303,11 +324,12 @@ async function seed() {
         categoryId: "abce52cf-b33b-4b3c-8972-eb72c66c83e4",
         name: "Doce Massa",
         description:
-          "Especializada em doces e salgados, com opções de café da manhã completo.",
-        latitude: -23.529972517386824,
-        longitude: -46.62928337478692,
+          "Especializada en dulces y salados, con opciones de desayuno completo.",
+        // Localização: Luba
+        latitude: 3.4597,
+        longitude: 8.5500,
         coupons: 10,
-        address: "Rua Alfredo Maia - Luz",
+        address: "Luba",
         phone: "(11) 1234-5678",
         cover:
           "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300",
@@ -317,11 +339,12 @@ async function seed() {
         categoryId: "abce52cf-b33b-4b3c-8972-eb72c66c83e4",
         name: "Padaria da cidade",
         description:
-          "Padaria de bairro com pães rústicos e tradicionais assados na hora.",
-        latitude: -23.534594559751564,
-        longitude: -46.63463225944563,
+          "Panadería de barrio con panes rústicos y tradicionales horneados al momento.",
+        // Localização: Ebebiyín
+        latitude: 2.1514,
+        longitude: 11.3167,
         coupons: 10,
-        address: "Praça da Luz - Bom Retiro",
+        address: "Ebebiyín",
         phone: "(11) 9876-5432",
         cover:
           "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=300",

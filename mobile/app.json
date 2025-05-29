@@ -4,12 +4,12 @@
     "slug": "ecotrip",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/ecotrip-adaptive-icon.png",
+    "icon": "./assets/images/splash.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./src/assets/logo.png",
+      "image": "./assets/images/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#257F49"
     },
@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/logo.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#257F49"
       }
     },

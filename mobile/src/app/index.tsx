@@ -13,7 +13,7 @@ export default function Index() {
           <Welcome />
           <Steps />
 
-          <Button onPress={() => router.navigate("/home")}>
+          <Button onPress={() => router.navigate("/login")}>
             <Button.Title>
               Comenzar
             </Button.Title>

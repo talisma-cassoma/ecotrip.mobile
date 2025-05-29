@@ -11,6 +11,12 @@ import { Details, PropsDetails } from "@/components/market/details"
 
 import { api } from "@/services/api"
 
+import { useLocation } from '../../context/locationContext';
+import { LocationProvider } from '../../context/locationContext';
+
+const { originCoords, setOriginCoords, setDestinationCoords, destinationCoords } = useLocation();
+
+
 type DataProps = PropsDetails & {
   cover: string
 }
@@ -102,42 +108,44 @@ export default function Market() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <StatusBar barStyle="light-content" hidden={isVisibleCameraModal} />
+    <LocationProvider>
+      <View style={{ flex: 1 }}>
+        <StatusBar barStyle="light-content" hidden={isVisibleCameraModal} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Cover uri={data.cover} />
-        <Details data={data} />
-        {coupon && <Coupon code={coupon} />}
-      </ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Cover uri={data.cover} />
+          <Details data={data} />
+          {coupon && <Coupon code={coupon} />}
+        </ScrollView>
 
-      <View style={{ padding: 32 }}>
-        <Button onPress={handleOpenCamera}>
-          <Button.Title>Ler QR Code</Button.Title>
-        </Button>
-      </View>
-
-      <Modal style={{ flex: 1 }} visible={isVisibleCameraModal}>
-        <CameraView
-          style={{ flex: 1 }}
-          facing="back"
-          onBarcodeScanned={({ data }) => {
-            if (data && !qrLock.current) {
-              qrLock.current = true
-              setTimeout(() => handleUseCoupon(data), 500)
-            }
-          }}
-        />
-
-        <View style={{ position: "absolute", bottom: 32, left: 32, right: 32 }}>
-          <Button
-            onPress={() => setIsVisibleCameraModal(false)}
-            isLoading={couponIsFetching}
-          >
-            <Button.Title>Voltar</Button.Title>
+        <View style={{ padding: 32 }}>
+          <Button onPress={() => console.log("comerçar viagem")}>
+            <Button.Title>Comenzar Viaje</Button.Title>
           </Button>
         </View>
-      </Modal>
-    </View>
+
+        <Modal style={{ flex: 1 }} visible={isVisibleCameraModal}>
+          <CameraView
+            style={{ flex: 1 }}
+            facing="back"
+            onBarcodeScanned={({ data }) => {
+              if (data && !qrLock.current) {
+                qrLock.current = true
+                setTimeout(() => handleUseCoupon(data), 500)
+              }
+            }}
+          />
+
+          <View style={{ position: "absolute", bottom: 32, left: 32, right: 32 }}>
+            <Button
+              onPress={() => setIsVisibleCameraModal(false)}
+              isLoading={couponIsFetching}
+            >
+              <Button.Title>Voltar</Button.Title>
+            </Button>
+          </View>
+        </Modal>
+      </View>
+    </LocationProvider>
   )
 }

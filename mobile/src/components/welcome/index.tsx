@@ -6,7 +6,7 @@ export function Welcome() {
   return (
     <View>
 
-      <Image source={require("@/assets/logoPreta.png")} style={s.logo} />
+      <Image source={require("@/assets/logo.png")} style={s.logo} />
 
       <Text style={s.title}>¡Bienvenido a EcoTrip!</Text>
 
