@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { IconCurrentLocation, IconMapPinFilled, IconRadar2 } from "@tabler/icons-react-native"
 import 'react-native-get-random-values'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import * as Location from 'expo-location';
@@ -8,13 +9,14 @@ import styles from './styles';
 import { useLocation } from '../../context/locationContext';
 import { Button } from '../button';
 import { LocationProvider } from '../../context/locationContext';
+import { s } from '../button/styles';
 
 export function BookRideDialog() {
   const [locatePressed, setLocatePressed] = useState(false);
   const { originCoords, setOriginCoords, setDestinationCoords, destinationCoords } = useLocation();
 
   const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY;
- console.log("BookRideDialog is rendering."); 
+  console.log("BookRideDialog is rendering.");
   const handleGetLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -32,82 +34,87 @@ export function BookRideDialog() {
   const handleStartRide = async () => {
 
   }
-useEffect(() => {
+  useEffect(() => {
     console.log("useEffect triggered", { origin: originCoords, destination: destinationCoords });
     // ... restante da lógica
-}, [originCoords, destinationCoords]);
+  }, [originCoords, destinationCoords]);
 
   return (
     <LocationProvider>
-    <View style={styles.container}>
-      {/* Origem */}
-      <View style={styles.row}>
-        <View style={[styles.dot, { backgroundColor: 'blue' }]} />
-        <GooglePlacesAutocomplete
-          placeholder="Minha localização"
-          fetchDetails={true}
-          onPress={(data, details = null) => {
-            if (!details || !details.geometry) return;
-            const { lat, lng } = details.geometry.location;
-            setOriginCoords({ latitude: lat, longitude: lng });
-            console.log("origem:", originCoords )
-            setLocatePressed(false); // resetar se o usuário digitou
-          }}
-
-          query={{
-            key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY,
-            language: 'es',
-            components: 'country:gq',
-          }}
-          styles={{
-            textInput: styles.input,
-            textInputContainer: { flex: 1 },
-          }}
-        />
-        <TouchableOpacity onPress={handleGetLocation}>
-          <Ionicons
-            name="locate-outline"
+      <View style={styles.container}>
+        {/* Origem */}
+        <View style={styles.row}>
+          <IconRadar2
             size={20}
-            color={locatePressed ? 'blue' : '#aaa'}
+            color='#aaa'
           />
-        </TouchableOpacity>
-      </View>
+          <GooglePlacesAutocomplete
+            placeholder="Mi Localisation"
+            fetchDetails={true}
+            onPress={(data, details = null) => {
+              if (!details || !details.geometry) return;
+              const { lat, lng } = details.geometry.location;
+              setOriginCoords({ latitude: lat, longitude: lng });
+              console.log("origem:", originCoords)
+              setLocatePressed(false); // resetar se o usuário digitou
+            }}
 
-      {/* Destino */}
-      <View style={styles.row}>
-        <View style={[styles.dot, { backgroundColor: 'red' }]} />
-        <GooglePlacesAutocomplete
-          placeholder="Destino (Ex: Rua A, São Paulo)"
-          fetchDetails={true}
-          onPress={(data, details = null) => {
-            if (!details || !details.geometry) {
-              console.log('Detalhes não encontrados');
-              return;
-            }
-            const { lat, lng } = details.geometry.location;
-            setDestinationCoords({ latitude: lat, longitude: lng });
-            console.log("destino:", destinationCoords);
-          }}
-          query={{
-            key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY,
-            language: 'es',
-            components: 'country:gq',
-          }}
-          styles={{
-            textInput: styles.input,
-            textInputContainer: { flex: 1 },
-          }}
-        />
-        <TouchableOpacity onPress={() => { }}>
-          <MaterialCommunityIcons name="swap-vertical" size={20} color="#aaa" />
-        </TouchableOpacity>
+            query={{
+              key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY,
+              language: 'es',
+              components: 'country:gq',
+            }}
+            styles={{
+              textInput: styles.input,
+              textInputContainer: { flex: 1 },
+            }}
+          />
+          <TouchableOpacity onPress={handleGetLocation}>
+            <IconCurrentLocation
+              size={20}
+              color={locatePressed ? '#007bc9' : '#aaa'}
+            />
+          </TouchableOpacity>
+        </View>
+            
+        {/* Destino */}
+        <View style={styles.row}>
+          <IconMapPinFilled
+            size={20}
+            fill='#aaa'
+          />
+          <GooglePlacesAutocomplete
+            placeholder="Destino (Ex: bata ou malabo)"
+            fetchDetails={true}
+            onPress={(data, details = null) => {
+              if (!details || !details.geometry) {
+                console.log('Detalhes não encontrados');
+                return;
+              }
+              const { lat, lng } = details.geometry.location;
+              setDestinationCoords({ latitude: lat, longitude: lng });
+              console.log("destino:", destinationCoords);
+            }}
+            query={{
+              key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY,
+              language: 'es',
+              components: 'country:gq',
+            }}
+            styles={{
+              textInput: styles.input,
+              textInputContainer: { flex: 1 },
+            }}
+          />
+          <TouchableOpacity onPress={() => { }}>
+            <MaterialCommunityIcons name="swap-vertical" size={20} color="#aaa" />
+          </TouchableOpacity>
+        </View>
+        <Button onPress={handleStartRide} style={{ marginTop: 40 }}>
+          <Button.Title>
+            Comenzar viaje
+          </Button.Title>
+        </Button>
       </View>
-      <Button onPress={handleStartRide} style={{ marginTop: 40 }}>
-        <Button.Title>
-          Comenzar viaje
-        </Button.Title>
-      </Button>
-    </View>
     </LocationProvider>
   );
 }
