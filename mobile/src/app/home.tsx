@@ -311,7 +311,7 @@ export default function Home() {
             </Marker>
           ))} */}
 
-          {origin && destination && (
+          {origin?.latitude && destination?.latitude && (
             <>
               <MapViewDirections
                 key={`route-${origin.latitude}-${origin.longitude}`}

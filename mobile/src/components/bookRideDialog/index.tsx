@@ -10,14 +10,15 @@ import { useLocation } from '../../context/locationContext';
 import { Button } from '../button';
 import { LocationProvider } from '../../context/locationContext';
 import VerticalDashedLine from '../dottedLine';
-import { colors} from "@/styles/theme"
+import { colors } from "@/styles/theme"
 
 export function BookRideDialog() {
   const [locatePressed, setLocatePressed] = useState(false);
-  const { originCoords, setOriginCoords, setDestinationCoords, destinationCoords } = useLocation();
+  const {setOriginCoords, setDestinationCoords } = useLocation();
 
+  const VerticalDashedLineHeight = 45;
   const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY;
-  console.log("BookRideDialog is rendering.");
+
   const handleGetLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -36,30 +37,41 @@ export function BookRideDialog() {
 
   }
   useEffect(() => {
-    console.log("useEffect triggered", { origin: originCoords, destination: destinationCoords });
-    // ... restante da lógica
-  }, [originCoords, destinationCoords]);
+    const getLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Permiso de ubicación denegado. Por favor, habilite el acceso a la ubicación en la configuración de su dispositivo.');
+        await Location.requestForegroundPermissionsAsync();
+      }
+      const location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
 
-return (
+      setOriginCoords({ latitude, longitude });
+    };
+
+    getLocation();
+  }, []);
+
+  return (
     <LocationProvider>
       <View style={styles.container}>
         {/* Container principal das 3 colunas */}
-        <View style={styles.threeColumnRow}> 
+        <View style={styles.threeColumnRow}>
 
           {/* Coluna Esquerda (Ícones Origem/Destino) */}
-          <View style={styles.iconColumn}> 
+          <View style={styles.iconColumn}>
             <IconRadar2 size={20} color='#aaa' />
-          
-            <View style={styles.dashedLineWrapper}> 
-                 <VerticalDashedLine height={45} width={4} color='#aaa'/> 
+
+            <View style={styles.dashedLineWrapper}>
+              <VerticalDashedLine height={ VerticalDashedLineHeight} width={4} color='#aaa' />
             </View>
             <IconMapPinFilled size={20} fill='#aaa' />
           </View>
 
           {/* Coluna Central (Inputs) */}
-          <View style={styles.inputColumn}> 
-          
-            <View style={[styles.autocompleteWrapper, styles.originInputMargin]}> 
+          <View style={styles.inputColumn}>
+
+            <View style={[styles.autocompleteWrapper, styles.originInputMargin]}>
               <GooglePlacesAutocomplete
                 placeholder="Ubicación actual"
                 nearbyPlacesAPI='GooglePlacesSearch'
@@ -80,32 +92,27 @@ return (
                 styles={{
                   container: { flex: 1 },
                   textInputContainer: {
-                     flex: 1, // 
-                     backgroundColor: 'transparent', 
-                     paddingHorizontal: 0, 
-                     height: 45, 
+                    flex: 1, // 
+                    backgroundColor: 'transparent',
+                    paddingHorizontal: 0,
+                    height: 45,
                   },
-                 
+
                   textInput: {
-                    ...styles.input, 
-                    paddingVertical: 0, 
-                    height: 45, 
+                    ...styles.input,
+                    paddingVertical: 0,
+                    height: 45,
                   },
                   // Estilos da lista de sugestões
                   listView: {
                     zIndex: 1000, // 
                     backgroundColor: 'white',
-                    position: 'absolute', 
-                    top: 45, 
-                    left: 0, right: 0, 
-                    // elevation: 5, // Sombra no Android
-                    // shadowColor: '#000', // Sombra no iOS
-                    // shadowOpacity: 0.2,
-                    // shadowOffset: { height: 2, width: 0 },
-                    // shadowRadius: 3,
+                    position: 'absolute',
+                    top: 45,
+                    left: 0, right: 0,
                   },
-                  row: { padding: 13, flexDirection: 'row', backgroundColor: 'white' }, 
-                  description: { fontSize: 15, color: colors.gray[600], flex: 1 }, 
+                  row: { padding: 13, flexDirection: 'row', backgroundColor: 'white' },
+                  description: { fontSize: 15, color: colors.gray[600], flex: 1 },
                 }}
               />
             </View>
@@ -122,7 +129,7 @@ return (
                   }
                   const { lat, lng } = details.geometry.location;
                   setDestinationCoords({ latitude: lat, longitude: lng });
-                  console.log("destino selecionado:", { latitude: lat, longitude: lng }); 
+                  console.log("destino selecionado:", { latitude: lat, longitude: lng });
                 }}
                 query={{
                   key: GOOGLE_API_KEY,
@@ -130,39 +137,39 @@ return (
                   components: 'country:gq',
                 }}
                 styles={{
-                   container: { flex: 1 },
-                   textInputContainer: { flex: 1, backgroundColor: 'transparent', paddingHorizontal: 0, height: 45 },
-                   textInput: { ...styles.input, paddingVertical: 0, height: 45 },
-                   listView: {
-                      zIndex: 1000,
-                      backgroundColor: 'white',
-                      position: 'absolute',
-                      top: 45,
-                      left: 0, right: 0,
-                       elevation: 5,
-                       shadowColor: '#000',
-                       shadowOpacity: 0.2,
-                       shadowOffset: { height: 2, width: 0 },
-                       shadowRadius: 3,
-                   },
-                   row: { padding: 13, flexDirection: 'row', backgroundColor: 'white' },
-                   description: { fontSize: 15, color: `${colors.gray[600]}`, flex: 1 },
+                  container: { flex: 1 },
+                  textInputContainer: { flex: 1, backgroundColor: 'transparent', paddingHorizontal: 0, height: 45 },
+                  textInput: { ...styles.input, paddingVertical: 0, height: 45 },
+                  listView: {
+                    zIndex: 1000,
+                    backgroundColor: 'white',
+                    position: 'absolute',
+                    top: 45,
+                    left: 0, right: 0,
+                    elevation: 5,
+                    shadowColor: '#000',
+                    shadowOpacity: 0.2,
+                    shadowOffset: { height: 2, width: 0 },
+                    shadowRadius: 3,
+                  },
+                  row: { padding: 13, flexDirection: 'row', backgroundColor: 'white' },
+                  description: { fontSize: 15, color: `${colors.gray[600]}`, flex: 1 },
                 }}
               />
             </View>
           </View>
 
           {/* Coluna Direita (Ícones Ação/Swap) */}
-          <View style={styles.iconColumn}> 
+          <View style={styles.iconColumn}>
             <TouchableOpacity onPress={handleGetLocation}>
               <IconCurrentLocation
                 size={20}
                 color={locatePressed ? '#007bc9' : '#aaa'}
               />
             </TouchableOpacity>
-             {/* Wrapper para a linha tracejada */}
+            {/* Wrapper para a linha tracejada */}
             <View style={styles.dashedLineWrapper}>
-              <VerticalDashedLine height={45} width={0} color={colors.gray[600]}/> 
+              <VerticalDashedLine height={VerticalDashedLineHeight} width={0} color={colors.gray[600]} />
             </View>
             <TouchableOpacity onPress={() => { /* swap logic */ }}>
               <MaterialCommunityIcons name="swap-vertical" size={20} color="#aaa" />
@@ -171,7 +178,7 @@ return (
 
         </View>
 
-        <Button onPress={handleStartRide} style={{ marginTop: 10 }}> 
+        <Button onPress={handleStartRide} style={{ marginTop: 10 }}>
           <Button.Title>
             Comenzar viaje
           </Button.Title>

@@ -14,7 +14,6 @@ import { api } from "@/services/api"
 import { useLocation } from '../../context/locationContext';
 import { LocationProvider } from '../../context/locationContext';
 
-const { originCoords, setOriginCoords, setDestinationCoords, destinationCoords } = useLocation();
 
 
 type DataProps = PropsDetails & {
@@ -22,6 +21,9 @@ type DataProps = PropsDetails & {
 }
 
 export default function Market() {
+  
+  const { originCoords, setOriginCoords, setDestinationCoords, destinationCoords } = useLocation();
+  
   const [data, setData] = useState<DataProps>()
   const [coupon, setCoupon] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)

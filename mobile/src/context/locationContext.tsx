@@ -10,7 +10,6 @@ type LocationContextType = {
   destinationCoords: LocationCoords;
   setOriginCoords: (loc: LocationCoords) => void;
   setDestinationCoords: (loc: LocationCoords) => void;
-  //getLocation: () => Promise<void>;
 };
 
 export const LocationContext = createContext({} as LocationContextType)
