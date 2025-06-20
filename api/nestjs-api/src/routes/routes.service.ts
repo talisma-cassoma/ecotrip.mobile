@@ -102,11 +102,20 @@ export class RoutesService {
     return this.prismaService.route.findMany();
   }
 
-  findOne(id: string) {
-    return this.prismaService.route.findUniqueOrThrow({
-      where: { id },
-    });
-  }
+ async findOne(id: string) {
+  const route = await this.prismaService.route.findUniqueOrThrow({
+    where: { id },
+  });
+
+  console.log('steps', route.directions);
+  
+  return {
+    ...route,
+    directions: typeof route.directions === 'string'
+      ? JSON.parse(route.directions)
+      : route.directions,
+  };
+}
 
   update(id: string, updateRouteDto: UpdateRouteDto) {
     return this.prismaService.route.update({

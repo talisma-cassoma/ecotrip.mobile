@@ -16,7 +16,7 @@ async function bootstrap() {
         'group.id': 'nest-group',
         'client.id': `nest-group-${configService.get('HOSTNAME')}`,
         'max.poll.interval.ms': 10000,
-        'session.timeout.ms': 10000,
+        'session.timeout.ms': 10000, //heartbeat timeout
       },
     }),
   });

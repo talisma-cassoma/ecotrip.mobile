@@ -10,8 +10,17 @@ import { HttpModule } from '@nestjs/axios';
 import { RoutesDriverConsumer } from './routes-driver/routes-driver.consumer';
 
 @Module({
-  imports: [MapsModule, KafkaModule, HttpModule],
-  controllers: [RoutesController, RoutesConsumer, RoutesDriverConsumer],
-  providers: [RoutesService, RoutesDriverService, RoutesDriverGateway],
+  imports: [MapsModule, 
+    KafkaModule,
+    HttpModule],
+  controllers: [RoutesController, 
+    RoutesConsumer, 
+    RoutesDriverConsumer
+     ],
+  providers: [RoutesService, 
+    RoutesDriverService, 
+    RoutesDriverGateway
+    ]
+,
 })
 export class RoutesModule {}

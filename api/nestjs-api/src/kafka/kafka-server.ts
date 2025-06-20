@@ -17,7 +17,7 @@ export class KafkaServer extends Server implements CustomTransportStrategy {
   ) {
     super();
   }
-
+  
   /**
    * This method is triggered when you run "app.listen()".
    */

@@ -17,7 +17,7 @@ export class RoutesDriverConsumer {
     );
     const { route_id, lat, lng } = payload.messageValue;
     await this.httpService.axiosRef.post(
-      `http://localhost:3000/routes/${route_id}/process-route`,
+      `${process.env.NEST_API_URL}/routes/${route_id}/process-route`,
       {
         lat,
         lng,

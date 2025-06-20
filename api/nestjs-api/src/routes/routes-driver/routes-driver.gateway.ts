@@ -11,6 +11,7 @@ import { Logger } from '@nestjs/common';
     origin: '*',
   },
 })
+
 export class RoutesDriverGateway {
   @WebSocketServer()
   server: Server;
@@ -24,7 +25,7 @@ export class RoutesDriverGateway {
     const { route_id } = payload;
     console.log('route_id', route_id);
     const route = await this.routesService.findOne(route_id);
-    // @ts-expect-error - routes has not been defined
+     
     const { steps } = route.directions.routes[0].legs[0];
     for (const step of steps) {
       const { lat, lng } = step.start_location;

@@ -349,16 +349,26 @@ export default function Home() {
                 }}
                 image={require("@/assets/location.png")}
                 title="Starting Point"
+                onDragEnd={(event) => {
+                  const { latitude, longitude } = event.nativeEvent.coordinate;
+                  setorigin({ latitude, longitude });
+                  console.log("Origin updated:", { latitude, longitude });
+                }
+                }
               />
               <Marker
                 key={`destination-${destination.latitude}-${destination.longitude}`}
                 coordinate={{
                   latitude: destination.latitude,
                   longitude: destination.longitude
-
                 }}
                 image={require("@/assets/pin.png")}
                 title="Destination Point"
+                onDragEnd = {(event) => {
+                    const { latitude, longitude } = event.nativeEvent.coordinate;
+                    setDestination({ latitude, longitude });
+                    console.log("Destination updated:", { latitude, longitude });
+                  }}
               />
             </>
           )}

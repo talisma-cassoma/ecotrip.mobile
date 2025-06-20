@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RoutesDriverGateway } from './routes-driver.gateway';
-//import { DirectionsResponseData } from '@googlemaps/google-maps-services-js';
+// import { DirectionsResponseData } from '@googlemaps/google-maps-services-js';
 
 @Injectable()
 export class RoutesDriverService {
@@ -39,6 +39,7 @@ export class RoutesDriverService {
       },
     });
 
+    // para verificar se o ponto final foi atingido
     // const directions: DirectionsResponseData = routeDriver.route
     //   .directions as any;
 

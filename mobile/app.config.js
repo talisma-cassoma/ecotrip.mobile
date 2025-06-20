@@ -2,8 +2,8 @@ export default ({ config }) => ({
   ...config,
   expo: {
     ...config.expo,
-    name: "ecotrip",
-    slug: "ecotrip",
+    name: "EcoTrip",
+    slug: "EcoTrip",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
@@ -38,7 +38,7 @@ export default ({ config }) => ({
     web: {
       bundler: "metro",
       output: "static",
-      favicon: "./assets/images/icon.png"
+      favicon: "./assets/images/favicon.ico"
     },
     plugins: [
       "expo-router",
