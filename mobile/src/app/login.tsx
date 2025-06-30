@@ -5,17 +5,30 @@ import { api } from "@/services/api"
 import { fontFamily, colors } from "@/styles/theme"
 import { Button } from "@/components/button";
 
-
 import React, { useState } from 'react';
 import { Image, View, Text, TextInput, StyleSheet } from 'react-native';
+
+import { supabase } from "@/services/superbase";
 
 export default function Login() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         // Lógica de autenticação aqui
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            console.error('Erro ao fazer login:', error.message);
+            return;
+        }   
+        if (data.user) {
+            console.log('Usuário autenticado com sucesso:', data.user);
+        }
         console.log('Email:', email, 'Password:', password);
         router.navigate("/home")
     };
@@ -58,6 +71,7 @@ export default function Login() {
                     entrar
                 </Button.Title>
             </Button>
+            <Text style={styles.label}>¿No tienes cuenta? <Text onPress={() => router.navigate("/register")} style={{ color: colors.green.dark }}>Regístrate</Text></Text>
         </View>
     );
 };

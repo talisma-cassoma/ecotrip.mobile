@@ -1,0 +1,19 @@
+# no servidor nest tive que rodar npm start:dev e depois rodar o npx ts-node src/cmd/kafka.cmd.ts 
+para rodar o comando de consumir mensagens do kafka
+
+# rodei o frontend next localmente(nao em docker) pra envitar conflitos ao chamar o backend
+
+# precisei comentar os metodos on e wrap do kafka server para evitar erros na execucao do comando de consumir mensagens
+
+# o control center do kafka esta levando um tempo para subir, mas depois de subir consigo acessar o link http://localhost:9021/ e ver as mensagens que foram consumidas
+
+
+> Configure project :
+[ExpoRootProject] Using the following versions:
+  - buildTools:  35.0.0
+  - minSdk:      24
+  - compileSdk:  35
+  - targetSdk:   35
+  - ndk:         27.1.12297006
+  - kotlin:      2.0.21
+  - ksp:         2.0.21-1.0.28

@@ -13,8 +13,9 @@ import { Categories, CategoriesProps } from "@/components/categories"
 import MapViewDirections from "react-native-maps-directions"
 import { useLocation } from "@/context/locationContext"
 import { LocationCoords, LocationContext, LocationProvider } from "@/context/locationContext"
+import { DropDownMenu } from "@/components/dropDownMenu"
 
-type MarketsProps = PlaceProps & {
+type RidesProps = PlaceProps & {
   latitude: number
   longitude: number
 }
@@ -200,7 +201,7 @@ export default function Home() {
 
   const [categories, setCategories] = useState<CategoriesProps>([])
   const [category, setCategory] = useState("")
-  const [markets, setMarkets] = useState<MarketsProps[]>([])
+  const [rides, setRides] = useState<RidesProps[]>([])
   const [origin, setorigin] = useState<LocationCoords>({latitude: 1.8017427763217277, longitude: 10.684559752006317})
   
   const [destination, setDestination] = useState<LocationCoords>(null)
@@ -218,11 +219,11 @@ export default function Home() {
     }
   }
 
-  async function fetchMarkets() {
+  async function fetchRides() {
     try {
       if (!category) return
-      const { data } = await api.get("/markets/category/" + category)
-      setMarkets(data)
+      const { data } = await api.get("/rides/category/" + category)
+      setRides(data)
     } catch (error) {
       console.log(error)
       Alert.alert("Locais", "Não foi possível carregar os locais.")
@@ -234,7 +235,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    fetchMarkets()
+    fetchRides()
   }, [category])
 
   useEffect(() => {
@@ -250,6 +251,7 @@ export default function Home() {
 
   return (
     <LocationContext.Provider value={{ originCoords, destinationCoords, setOriginCoords: setorigin, setDestinationCoords: setDestination }}>
+       <DropDownMenu/>
       <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
         <Categories
           data={categories}
@@ -276,7 +278,7 @@ export default function Home() {
             // image={require("@/assets/location.png")}
           />
 
-          {/* {markets.map((item) => (
+          {/* {rides.map((item) => (
             <Marker
               key={item.id}
               identifier={item.id}
@@ -286,7 +288,7 @@ export default function Home() {
               }}
               image={require("@/assets/pin.png")}
             >
-              <Callout onPress={() => router.navigate(`/market/${item.id}`)}>
+              <Callout onPress={() => router.navigate(`/ride/${item.id}`)}>
                 <View>
                   <Text
                     style={{
@@ -374,7 +376,7 @@ export default function Home() {
           )}
         </MapView>
 
-        <Places data={markets} />
+        <Places data={rides} />
       </View>
       </LocationContext.Provider>
   )

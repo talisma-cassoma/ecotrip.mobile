@@ -35,7 +35,7 @@ export function Places({ data }: Props) {
         renderItem={({ item }) => (
           <Place
             data={item}
-            onPress={() => router.navigate(`/market/${item.id}`)}
+            onPress={() => router.navigate(`./ride/${item.id}`)}
           />
         )}
         contentContainerStyle={s.content}

@@ -5,9 +5,9 @@ import { useCameraPermissions, CameraView } from "expo-camera"
 
 import { Button } from "@/components/button"
 import { Loading } from "@/components/loading"
-import { Cover } from "@/components/market/cover"
-import { Coupon } from "@/components/market/coupon"
-import { Details, PropsDetails } from "@/components/market/details"
+import { Cover } from "@/components/ride/cover"
+import { Coupon } from "@/components/ride/coupon"
+import { Details, PropsDetails } from "@/components/ride/details"
 
 import { api } from "@/services/api"
 
@@ -38,7 +38,7 @@ export default function Market() {
 
   async function fetchMarket() {
     try {
-      const { data } = await api.get(`/markets/${params.id}`)
+      const { data } = await api.get(`/rides/${params.id}`)
       setData(data)
       setIsLoading(false)
     } catch (error) {
