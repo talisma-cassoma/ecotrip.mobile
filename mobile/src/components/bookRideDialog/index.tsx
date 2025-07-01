@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { IconCurrentLocation, IconMapPinFilled, IconRadar2 } from "@tabler/icons-react-native"
 import 'react-native-get-random-values'
@@ -10,11 +10,14 @@ import { useLocation } from '../../context/locationContext';
 import { Button } from '../button';
 import { LocationProvider } from '../../context/locationContext';
 import VerticalDashedLine from '../dottedLine';
+import { PriceInput } from '../priceInput';
 import { colors } from "@/styles/theme"
+import { router } from 'expo-router';
+
 
 export function BookRideDialog() {
   const [locatePressed, setLocatePressed] = useState(false);
-  const {setOriginCoords, setDestinationCoords } = useLocation();
+  const { setOriginCoords, setDestinationCoords, originCoords, destinationCoords } = useLocation();
 
   const VerticalDashedLineHeight = 45;
   const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY;
@@ -33,9 +36,11 @@ export function BookRideDialog() {
     console.log('Current location:', { latitude, longitude });
   };
 
-  const handleStartRide = async () => {
+  const handleRideRequest = async () => {
+    router.navigate("./selectADriver")
 
   }
+
   useEffect(() => {
     const getLocation = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -53,7 +58,7 @@ export function BookRideDialog() {
   }, []);
 
   return (
-    <LocationProvider>
+    <>
       <View style={styles.container}>
         {/* Container principal das 3 colunas */}
         <View style={styles.threeColumnRow}>
@@ -63,7 +68,7 @@ export function BookRideDialog() {
             <IconRadar2 size={20} color='#aaa' />
 
             <View style={styles.dashedLineWrapper}>
-              <VerticalDashedLine height={ VerticalDashedLineHeight} width={4} color='#aaa' />
+              <VerticalDashedLine height={VerticalDashedLineHeight} width={4} color='#aaa' />
             </View>
             <IconMapPinFilled size={20} fill='#aaa' />
           </View>
@@ -177,13 +182,25 @@ export function BookRideDialog() {
           </View>
 
         </View>
+        {originCoords && destinationCoords && (
+          <>
+            <View style={{ marginBottom: 10, marginTop: 10, alignItems: 'center' }}>
+              <Text >el tempo previsto de viaje es 100 min</Text>
+            </View>
 
-        <Button onPress={handleStartRide} style={{ marginTop: 10 }}>
-          <Button.Title>
-            Comenzar viaje
-          </Button.Title>
-        </Button>
+            <PriceInput
+              initialValue={10}
+              currencySymbol="$"
+              minPrice={7}
+              step={5}
+              onChange={(value) => console.log('Novo preço:', value)}
+            />
+            <Button onPress={handleRideRequest} style={{ marginTop: 16 }}>
+              <Button.Title>encontar un motorista</Button.Title>
+            </Button>
+          </>
+        )}
       </View>
-    </LocationProvider >
+    </ >
   );
 }

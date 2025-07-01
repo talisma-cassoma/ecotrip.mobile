@@ -26,13 +26,13 @@ export default function SignUp() {
         </TouchableOpacity>
       </View>
 
-      {role === "pasajero" && (
-        <PassengerSignUpForm  />
-      )}
-      
-      {role === "conductor" && (
-        <DriverSignUpForm  />
-      )}
+      <View style={{ minHeight: 200, marginBottom: 16 }}>
+        {role === "pasajero" ? (
+          <PassengerSignUpForm />
+        ) : role === "conductor" ? (
+          <DriverSignUpForm />
+        ) : null}
+      </View>
 
       {!role && (
         <Text style={{ textAlign: 'center', marginTop: 16 }}>Elige una opción para continuar con el registro</Text>
@@ -71,8 +71,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fontFamily.regular,
     color: colors.gray[500],
-    marginTop: 24,
-    textAlign: 'center',
+    marginTop: 4,
+    textAlign: 'center'
   },
   input: {
     color: '#333',

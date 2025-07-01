@@ -33,6 +33,16 @@ export default function Login() {
         router.navigate("/home")
     };
 
+    const handlePasswordReset = async () => {
+        // Lógica de redefinição de senha aqui
+        const { error } = await supabase.auth.resetPasswordForEmail(email);
+        if (error) {
+            console.error('Erro ao redefinir senha:', error.message);
+            return;
+        }
+        console.log('Email de redefinição de senha enviado com sucesso');
+    };      
+
     return (
         <View style={styles.container}>
             <Image source={require("@/assets/logo.png")} style={{
@@ -66,12 +76,15 @@ export default function Login() {
                 onChangeText={setPassword}
             />
 
-            <Button onPress={handleLogin} style={{ marginTop: 40 }}>
+            <Button onPress={handleLogin}>
                 <Button.Title>
                     entrar
                 </Button.Title>
             </Button>
-            <Text style={styles.label}>¿No tienes cuenta? <Text onPress={() => router.navigate("/register")} style={{ color: colors.green.dark }}>Regístrate</Text></Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+             <Text onPress={() => router.navigate("/register")} style={{ color: colors.green.dark }}>Regístrate</Text>
+             <Text onPress={handlePasswordReset} style={{ color: colors.green.dark }}>cambiar contrasenha</Text>
+            </View>
         </View>
     );
 };

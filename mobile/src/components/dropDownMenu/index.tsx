@@ -32,12 +32,22 @@ export function DropDownMenu() {
             </TouchableOpacity>
 
             {isOpen && (
-                <View style={styles.dropdown}>
-                    {menuOptions.map((option, index) => (
-                        <TouchableOpacity key={index} style={styles.option} onPress={() => handleOptionPress(option.screen)}>
-                            <Text style={styles.optionText}>{option.label}</Text>
-                        </TouchableOpacity>
-                    ))}
+                <View style={styles.dropdownWrapper}>
+                    <Svg.Svg width="30" height="10" viewBox="0 0 30 10" style={{ alignSelf: 'center', }}>
+                        <Svg.Polygon
+                            points="0,10 30,10 15,0"
+                            fill="#FFF"
+                            stroke="rgba(0,0,0,0.2)"
+                            strokeWidth={0.5}
+                        />
+                    </Svg.Svg>
+                    <View style={styles.dropdown}>
+                        {menuOptions.map((option, index) => (
+                            <TouchableOpacity key={index} style={styles.option} onPress={() => handleOptionPress(option.screen)}>
+                                <Text style={styles.optionText}>{option.label}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
                 </View>
             )}
         </View>
@@ -48,9 +58,15 @@ const styles = StyleSheet.create({
     wrapper: {
         position: "absolute",
         top: 40,
-        left: 20,
+        left: 2,
         zIndex: 10,
-        alignItems: "flex-start",
+        alignItems: "center",
+        width: 150,
+    },
+    dropdownWrapper: {
+        backgroundColor: 'transparent',
+        alignItems: 'center',
+        marginTop: 10,
     },
     container: {
         backgroundColor: "#fff",
@@ -62,7 +78,6 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     dropdown: {
-        marginTop: 10,
         backgroundColor: "#fff",
         borderRadius: 8,
         padding: 8,
@@ -70,7 +85,7 @@ const styles = StyleSheet.create({
         shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 2, height: 2 },
     },
     option: {
         paddingVertical: 8,

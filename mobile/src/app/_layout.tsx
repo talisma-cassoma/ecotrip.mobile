@@ -1,6 +1,7 @@
 import { Stack } from "expo-router"
 import { colors } from "@/styles/theme"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
+import { LocationProvider } from "@/context/locationContext"
 
 import {
   useFonts,
@@ -26,12 +27,15 @@ export default function Layout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.gray[100] },
-        }}
-      />
+      <LocationProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.gray[100] },
+          }}
+        />
+      </LocationProvider>
     </GestureHandlerRootView>
+
   )
 }

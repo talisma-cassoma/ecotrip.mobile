@@ -7,7 +7,7 @@ import { router } from "expo-router"
 import { api } from "@/services/api"
 import { fontFamily, colors } from "@/styles/theme"
 
-import { Places } from "@/components/places"
+import { RideModal } from "@/components/rideModal"
 import { PlaceProps } from "@/components/place"
 import { Categories, CategoriesProps } from "@/components/categories"
 import MapViewDirections from "react-native-maps-directions"
@@ -204,7 +204,7 @@ export default function Home() {
   const [rides, setRides] = useState<RidesProps[]>([])
   const [origin, setorigin] = useState<LocationCoords>({latitude: 1.8017427763217277, longitude: 10.684559752006317})
   
-  const [destination, setDestination] = useState<LocationCoords>(null)
+  // const [destination, setDestination] = useState<LocationCoords>(null)
   const { originCoords, destinationCoords } = useLocation();
 
 
@@ -238,19 +238,19 @@ export default function Home() {
     fetchRides()
   }, [category])
 
-  useEffect(() => {
-    (async () => {
-      if (originCoords && destinationCoords) {
-        setorigin(originCoords)
-        setDestination(destinationCoords)
-        console.log("Origin:", originCoords)
-        console.log("Destination:", destinationCoords)
-      }
-    })()
-  }, [originCoords, destinationCoords])
+  // useEffect(() => {
+  //   (async () => {
+  //     if (originCoords && destinationCoords) {
+  //       setorigin(originCoords)
+  //       setDestination(destinationCoords)
+  //       console.log("Origin:", originCoords)
+  //       console.log("Destination:", destinationCoords)
+  //     }
+  //   })()
+  // }, [originCoords, destinationCoords])
 
   return (
-    <LocationContext.Provider value={{ originCoords, destinationCoords, setOriginCoords: setorigin, setDestinationCoords: setDestination }}>
+    <>
        <DropDownMenu/>
       <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
         <Categories
@@ -313,17 +313,17 @@ export default function Home() {
             </Marker>
           ))} */}
 
-          {origin?.latitude && destination?.latitude && (
+          {originCoords?.latitude && destinationCoords?.latitude && (
             <>
               <MapViewDirections
-                key={`route-${origin.latitude}-${origin.longitude}`}
+                key={`route-${originCoords.latitude}-${originCoords.longitude}`}
                 origin={{
-                  latitude: origin.latitude,
-                  longitude: origin.longitude
+                  latitude: originCoords.latitude,
+                  longitude: originCoords.longitude
                 }}
                 destination={{
-                  latitude: destination.latitude,
-                  longitude: destination.longitude
+                  latitude: destinationCoords.latitude,
+                  longitude: destinationCoords.longitude
 
                 }}
                 apikey={String(process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY)}
@@ -344,10 +344,10 @@ export default function Home() {
                 }
               />
               <Marker
-                key={`origin-${origin.latitude}-${origin.longitude}`}
+                key={`origin-${originCoords.latitude}-${originCoords.longitude}`}
                 coordinate={{
-                  latitude: origin.latitude,
-                  longitude: origin.longitude
+                  latitude: originCoords.latitude,
+                  longitude: originCoords.longitude
                 }}
                 image={require("@/assets/location.png")}
                 title="Starting Point"
@@ -359,25 +359,20 @@ export default function Home() {
                 }
               />
               <Marker
-                key={`destination-${destination.latitude}-${destination.longitude}`}
+                key={`destination-${destinationCoords.latitude}-${destinationCoords.longitude}`}
                 coordinate={{
-                  latitude: destination.latitude,
-                  longitude: destination.longitude
+                  latitude: destinationCoords.latitude,
+                  longitude: destinationCoords.longitude
                 }}
                 image={require("@/assets/pin.png")}
                 title="Destination Point"
-                onDragEnd = {(event) => {
-                    const { latitude, longitude } = event.nativeEvent.coordinate;
-                    setDestination({ latitude, longitude });
-                    console.log("Destination updated:", { latitude, longitude });
-                  }}
               />
             </>
           )}
         </MapView>
 
-        <Places data={rides} />
+        <RideModal data={rides} />
       </View>
-      </LocationContext.Provider>
+      </>
   )
 }

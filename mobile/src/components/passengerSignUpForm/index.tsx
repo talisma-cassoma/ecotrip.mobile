@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
 import React, { useState } from 'react';
-import { Image, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { supabase } from "@/services/superbase";
 
 export function PassengerSignUpForm () {
@@ -30,6 +30,11 @@ export function PassengerSignUpForm () {
       
   return (
   <>
+  <ScrollView
+        style={{ flex: 1, padding: 24 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
+      >
     <TextInput
       style={styles.input}
       placeholder="email@exemplo.com"
@@ -47,9 +52,10 @@ export function PassengerSignUpForm () {
       value={password}
       onChangeText={setPassword}
     />
-    <Button onPress={handlePassengerSignUp} style={{ marginTop: 40 }}>
+    <Button onPress={handlePassengerSignUp}>
       <Button.Title>Registrarse como Pasajero</Button.Title>
     </Button>
+    </ScrollView>
   </>)
 };
 

@@ -11,13 +11,13 @@ type Props = {
   data: PlaceProps[]
 }
 
-export function Places({ data }: Props) {
+export function RideModal({ data }: Props) {
   const dimensions = useWindowDimensions()
   const bottomSheetRef = useRef<BottomSheet>(null)
 
   const snapPoints = {
-    min: 278,
-    max: dimensions.height - 128,
+    min: 378,
+    max: dimensions.height - 268,
   }
 
   return (
@@ -28,7 +28,7 @@ export function Places({ data }: Props) {
       backgroundStyle={s.container}
       enableOverDrag={false}
     >
-       <BookRideDialog />
+      <BookRideDialog />
       <BottomSheetFlatList
         data={data}
         keyExtractor={(item) => item.id}

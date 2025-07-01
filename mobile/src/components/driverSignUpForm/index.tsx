@@ -3,18 +3,17 @@ import { router } from "expo-router";
 import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
 import React, { useState } from 'react';
-import { Image, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { supabase } from "@/services/superbase";
 
 
-// Dummy components — replace with your actual ones
 export function DriverSignUpForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [licenseNumber, setLicenseNumber] = useState('');
   const [vehiclePlate, setVehiclePlate] = useState('');
   const [vehicleModel, setVehicleModel] = useState('');
-  const [driverName, setDriverName] = useState(''); // Assuming you want to capture driver's name
+  const [driverName, setDriverName] = useState('');
 
   const handleDriverSignUp = async () => {
     const { data, error } = await supabase.auth.signUp({
@@ -26,16 +25,20 @@ export function DriverSignUpForm() {
       console.error('Erro ao fazer login:', error.message);
       return;
     }
+
     if (data.user) {
       console.log('Usuário autenticado com sucesso:', data.user);
     }
 
-    console.log('Email:', email, 'Password:', password, 'Role:', "driver");
     router.navigate("/home");
   };
 
   return (
-    <>
+    <ScrollView
+      style={{ flex: 1, padding: 24 }}
+      contentContainerStyle={{ paddingBottom: 40 }}
+      showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
+    >
       <TextInput
         style={styles.input}
         placeholder="Nombre Completo"
@@ -44,27 +47,26 @@ export function DriverSignUpForm() {
         onChangeText={setDriverName}
         autoCapitalize="words"
       />
-
       <TextInput
         style={styles.input}
         placeholder="Número de licencia"
         placeholderTextColor="#aaa"
-        value={licenseNumber} // Replace with actual state for license number
-        onChangeText={setLicenseNumber} // Replace with actual state handler
+        value={licenseNumber}
+        onChangeText={setLicenseNumber}
       />
       <TextInput
         style={styles.input}
         placeholder="Placa del vehículo"
         placeholderTextColor="#aaa"
-        value={vehiclePlate} // Replace with actual state for vehicle plate
-        onChangeText={setVehiclePlate} // Replace with actual state handler
+        value={vehiclePlate}
+        onChangeText={setVehiclePlate}
       />
       <TextInput
         style={styles.input}
         placeholder="Modelo del vehículo"
         placeholderTextColor="#aaa"
-        value={vehicleModel} // Replace with actual state for vehicle model
-        onChangeText={setVehicleModel} // Replace with actual state handler
+        value={vehicleModel}
+        onChangeText={setVehicleModel}
       />
       <TextInput
         style={styles.input}
@@ -86,8 +88,10 @@ export function DriverSignUpForm() {
       <Button onPress={handleDriverSignUp} style={{ marginTop: 40 }}>
         <Button.Title>Registrarse como Conductor</Button.Title>
       </Button>
-    </>)
-};
+    </ScrollView>
+  );
+}
+
 
 const styles = StyleSheet.create({
   container: {
