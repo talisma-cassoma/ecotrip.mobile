@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
 import React, { useState } from 'react';
-import { Image, View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert} from 'react-native';
 import { supabase } from "@/services/superbase";
 
 
@@ -23,6 +23,7 @@ export function DriverSignUpForm() {
 
     if (error) {
       console.error('Erro ao fazer login:', error.message);
+      Alert.alert('Erro', 'Não foi possível fazer o registro, tente novamente.');
       return;
     }
 

@@ -57,8 +57,8 @@ export function DropDownMenu() {
 const styles = StyleSheet.create({
     wrapper: {
         position: "absolute",
-        top: 40,
-        left: 2,
+        top: 120,
+        left: 0,
         zIndex: 10,
         alignItems: "center",
         width: 150,

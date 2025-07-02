@@ -2,6 +2,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 //import { AuthContext } from '../contexts/AuthContext';
 //import api from '../services/api';
+import { IconPointFilled, IconMapPinFilled } from "@tabler/icons-react-native"
+import { VerticalDashedLine } from "../components/dottedLine"
+import { colors, fontFamily } from "@/styles/theme"
 
 interface Trip {
   id: string;
@@ -12,7 +15,7 @@ interface Trip {
   status: string;
 }
 
-const historicSample = [
+const historicMockData = [
   {
     id: 'trip1',
     origin: 'Avenida Paulista, São Paulo',
@@ -50,37 +53,37 @@ const historicSample = [
 
 export default function Historic() {
   //const { user } = useContext(AuthContext);
-  const [trips, setTrips] = useState<Trip[]>(historicSample);
+  const [trips, setTrips] = useState<Trip[]>(historicMockData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-//   useEffect(() => {  
-//     async function fetchTrips() {
-//       try {
-//         setLoading(true);
-//         setError(null);
-//         if (!user?.id || !user?.role) {
-//           setError('Usuário não autenticado.');
-//           setLoading(false);
-//           return;
-//         }
+  //   useEffect(() => {  
+  //     async function fetchTrips() {
+  //       try {
+  //         setLoading(true);
+  //         setError(null);
+  //         if (!user?.id || !user?.role) {
+  //           setError('Usuário não autenticado.');
+  //           setLoading(false);
+  //           return;
+  //         }
 
-//         const endpoint = user.role === 'driver' 
-//           ? `/trips/driver/${user.id}` 
-//           : `/trips/passenger/${user.id}`;
+  //         const endpoint = user.role === 'driver' 
+  //           ? `/trips/driver/${user.id}` 
+  //           : `/trips/passenger/${user.id}`;
 
-//         const response = await api.get<Trip[]>(endpoint);
-//         setTrips(response.data);
-//       } catch (err) {
-//         setError('Erro ao carregar histórico de viagens.');
-//         console.error(err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     }
+  //         const response = await api.get<Trip[]>(endpoint);
+  //         setTrips(response.data);
+  //       } catch (err) {
+  //         setError('Erro ao carregar histórico de viagens.');
+  //         console.error(err);
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     }
 
-//     fetchTrips();
-//   }, [user]);
+  //     fetchTrips();
+  //   }, [user]);
 
   if (!loading) {
     return (
@@ -109,10 +112,38 @@ export default function Historic() {
   function renderTrip({ item }: { item: Trip }) {
     return (
       <View style={styles.tripCard}>
-        <Text style={styles.route}>{item.origin} → {item.destination}</Text>
-        <Text>Data: {new Date(item.datetime).toLocaleString()}</Text>
-        {item.fare !== undefined && <Text>Valor: R$ {item.fare.toFixed(2)}</Text>}
-        <Text>Status: {item.status}</Text>
+
+        <View style={{
+          flexDirection: 'row',
+          height: 80,
+          justifyContent: 'space-between',
+          rowGap: 10,
+        }}>
+
+          <View style={{ flexDirection: "column", gap:2}}>
+            <IconPointFilled size={20} fill={colors.green.base} />
+            <View style={{
+              padding:4
+            }}>
+              <VerticalDashedLine height={28} width={4} color='#aaa' />
+            </View>
+            <IconMapPinFilled size={15} fill={colors.green.base} />
+          </View>
+
+          <View >
+            <Text> {new Date(item.datetime).toLocaleString()} </Text>
+            <Text style={{fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600]}}>{item.origin}</Text>
+            <Text  style={{marginTop:8}}> {new Date(item.datetime).toLocaleString()}</Text>
+            <Text style={{fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600]}}>{item.destination}</Text>
+          </View>
+        </View>
+
+        <View style={styles.verticalBar}></View>
+
+        <View style={{ flexDirection: "column", width:90}}>
+          <Text> Valor: {item.fare !== undefined && <Text style={{fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600]}}>${item.fare.toFixed(2)}</Text>}</Text>
+          <Text style={{marginTop:8}}>Status: <Text style={{fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600]}}>{item.status}</Text></Text>
+        </View>
       </View>
     );
   }
@@ -153,10 +184,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
     backgroundColor: '#f9f9f9',
+    justifyContent: "space-between",
+    flexDirection: "row"
   },
   route: {
     fontWeight: '600',
     fontSize: 16,
     marginBottom: 6,
   },
+  verticalBar: { height: 70, width: 2, backgroundColor: colors.green.soft, marginHorizontal: 20 }
 });

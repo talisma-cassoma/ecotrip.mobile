@@ -1,9 +1,10 @@
 import { router } from "expo-router";
 import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
-import React, { useState } from 'react';
-import { Image, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { supabase } from "@/services/superbase";
+import React, { useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { Image, View, Text, TextInput, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
+
 
 import { DriverSignUpForm } from "@/components/driverSignUpForm";
 import { PassengerSignUpForm } from "@/components/passengerSignUpForm";
@@ -11,6 +12,18 @@ import { PassengerSignUpForm } from "@/components/passengerSignUpForm";
 export default function SignUp() {
   const [role, setRole] = useState<"conductor" | "pasajero" | null>(null);
 
+   const dimensions = useWindowDimensions()
+
+  useFocusEffect(
+    useCallback(() => {
+      // Executa toda vez que a tela entra em foco
+      setRole(null); // ou o valor padrão que quiser
+
+      return () => {
+        // Opcional: executar algo ao sair da tela
+      };
+    }, [])
+  );
   return (
     <View style={styles.container}>
       <Image source={require("@/assets/logo.png")} style={{ width: 150, height: 150, marginTop: 24, marginBottom: 2, alignSelf: 'center' }} />
@@ -26,12 +39,14 @@ export default function SignUp() {
         </TouchableOpacity>
       </View>
 
-      <View style={{ minHeight: 200, marginBottom: 16 }}>
-        {role === "pasajero" ? (
-          <PassengerSignUpForm />
-        ) : role === "conductor" ? (
-          <DriverSignUpForm />
-        ) : null}
+      <View style={{ minHeight: dimensions.height/2 , marginBottom: 16 }}>
+        {role && (
+          role === "pasajero" ? (
+            <PassengerSignUpForm />
+          ) : role === "conductor" ? (
+            <DriverSignUpForm />
+          ) : null
+        )}
       </View>
 
       {!role && (
@@ -72,7 +87,8 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.regular,
     color: colors.gray[500],
     marginTop: 4,
-    textAlign: 'center'
+    textAlign: 'center',
+    marginBottom: 28,
   },
   input: {
     color: '#333',

@@ -4,8 +4,6 @@ import { router, Stack } from "expo-router"
 import { Steps } from "@/components/steps"
 import { Button } from "@/components/button"
 import { Welcome } from "@/components/welcome"
-import { LocationProvider } from "@/context/locationContext"
-//import { Provider } from "react-redux"
 
 export default function Index() {
   return (
@@ -13,7 +11,7 @@ export default function Index() {
           <Welcome />
           <Steps />
 
-          <Button onPress={() => router.navigate("/login")}>
+          <Button onPress={() => router.navigate("/home")}>
             <Button.Title>
               Comenzar
             </Button.Title>

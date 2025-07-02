@@ -12,13 +12,13 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     justifyContent: "space-around",
+    padding: 8,
   },
   iconsContainer: {
     flexDirection: "row",
     gap: 4,
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     alignItems: "center",
-    margin: 16,
   },
   iconsStyles:{
     margin: 8,
@@ -31,13 +31,11 @@ export const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontFamily: fontFamily.medium,
-    color: colors.gray[400],
+    color: colors.green.dark,
   },
   image: {
-    width: 64,
-    height: 64,
-    borderRadius: 32, // 100% of width/height
-    backgroundColor: colors.gray[200],
-    margin: 8,
+    width: 54,
+    height: 54,
+    borderRadius: 32
   },
 })

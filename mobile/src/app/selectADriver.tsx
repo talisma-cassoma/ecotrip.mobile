@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react"
 import { View, Alert, Text, useWindowDimensions, StyleSheet } from "react-native"
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps"
-import { api } from "@/services/api"
+
 import { fontFamily, colors } from "@/styles/theme"
 
 import { AvailableDriverProps } from "@/components/availableDriver"
@@ -12,6 +12,7 @@ import { useLocation } from "@/context/locationContext"
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet"
 import { AvailableDriver } from "@/components/availableDriver"
 import { Button } from "@/components/button"
+import { IconArrowRight } from "@tabler/icons-react-native"
 
 
 const whiteMapStyle = [
@@ -191,18 +192,10 @@ const whiteMapStyle = [
     }
 ]
 
-export default function SelectADriver() {
-    const mapRef = useRef<MapView>(null)
-    const bottomSheetRef = useRef<BottomSheet>(null)
-    const dimensions = useWindowDimensions()
-    const snapPoints = {
-        min: 278,
-        max: dimensions.height - 268,
-    }
-
-    const [drivers, setDrivers] = useState<AvailableDriverProps[]>([{
+const driverMockData: AvailableDriverProps[] = [
+    {
         id: "1",
-        name: "John Doe",
+        name: "brian Johnson",
         description: "Experienced driver with a clean record.",
         image: "https://picsum.photos/id/237/200/300",
         telephone: "+1234567890",
@@ -211,7 +204,7 @@ export default function SelectADriver() {
         carColor: "Blue",
     }, {
         id: "2",
-        name: "Jane Smith",
+        name: "John Doe",
         description: "Friendly and reliable driver.",
         image: "https://picsum.photos/id/237/200/300",
         telephone: "+0987654321",
@@ -221,7 +214,7 @@ export default function SelectADriver() {
     },
     {
         id: "3",
-        name: "Jane Smith",
+        name: "david oliver",
         description: "Friendly and reliable driver.",
         image: "https://picsum.photos/id/237/200/300",
         telephone: "+0987654321",
@@ -230,7 +223,7 @@ export default function SelectADriver() {
         carColor: "Black",
     }, {
         id: "4",
-        name: "Jane Smith",
+        name: "Paul Walker",
         description: "Friendly and reliable driver.",
         image: "https://picsum.photos/id/237/200/300",
         telephone: "+0987654321",
@@ -239,7 +232,7 @@ export default function SelectADriver() {
         carColor: "White",
     }, {
         id: "5",
-        name: "Jane Smith",
+        name: "mary jane watson",
         description: "Friendly and reliable driver.",
         image: "https://picsum.photos/id/237/200/300",
         telephone: "+0987654321",
@@ -248,15 +241,26 @@ export default function SelectADriver() {
         carColor: "Gray",
     }, {
         id: "6",
-        name: "Jane Smith",
+        name: "peter parker",
         description: "Friendly and reliable driver.",
         image: "https://picsum.photos/id/237/200/300",
         telephone: "+0987654321",
         carModel: "Hyundai Elantra",
         carPlate: "WXY-1234",
         carColor: "Silver",
-    },
-    ])
+    }
+]
+
+export default function SelectADriver() {
+    const mapRef = useRef<MapView>(null)
+    const bottomSheetRef = useRef<BottomSheet>(null)
+    const dimensions = useWindowDimensions()
+    const snapPoints = {
+        min: 278,
+        max: dimensions.height - 268,
+    }
+
+    const [drivers, setDrivers] = useState<AvailableDriverProps[]>( driverMockData)
 
     const [selectedDriver, setSelectedDriver] = useState<AvailableDriverProps | null>(null);
     const [isSelected, setIsSelected] = useState(false);
@@ -374,9 +378,19 @@ useEffect(() => {
                         <View style={{ padding: 24 }}>
                             <AvailableDriver {...selectedDriver} onPress={() => { }} />
                             <View style={{ marginTop: 20 }}>
+                                <View style={{ width:"auto", flexDirection: "row", gap: 12, margin: 16,  justifyContent:"center"}}>
+                                    <Text>origem</Text>
+                                    <IconArrowRight
+                                        width={24}
+                                        height={24}
+                                        color={colors.gray[600]}
+                                    />
+                                    <Text>destino</Text>
+                                </View>
                                 <Text style={{ fontFamily: fontFamily.regular, fontSize: 16, color: colors.gray[600] }}>
                                     À espera do motorista. Você pode ligar clicando no botão “Ligar” ou enviar uma mensagem.
                                 </Text>
+
                                 <Button onPress={handleRideCancel} style={{ marginTop: 16 }}>
                                               <Button.Title>cancelar</Button.Title>
                                             </Button>

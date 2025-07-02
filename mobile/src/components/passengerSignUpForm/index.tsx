@@ -2,8 +2,11 @@ import { router } from "expo-router";
 import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
 import React, { useState } from 'react';
-import { Image, View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
 import { supabase } from "@/services/superbase";
+import {
+    IconBrandGoogleFilled
+} from "@tabler/icons-react-native";
 
 export function PassengerSignUpForm () {
 
@@ -17,7 +20,8 @@ export function PassengerSignUpForm () {
           });
       
           if (error) {
-            console.error('Erro ao fazer login:', error.message);
+            console.error('Erro ao fazer registro:', error.message);
+            Alert.alert('Erro', 'Não foi possível fazer o registro, tente novamente.');
             return;
           }
           if (data.user) {
@@ -35,6 +39,22 @@ export function PassengerSignUpForm () {
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
       >
+        <Button style={{ justifyContent: "space-between" }} onPress={() => alert("Funcionalidad no implementada")}>
+                <View style={{ width: 60, alignItems: "center", justifyContent: "center", backgroundColor: colors.green.dark, borderRadius: 10, height: "100%", }}>
+                    <Button.Icon icon={IconBrandGoogleFilled} />
+                </View>
+                <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+                    <Button.Title>
+                        <Text style={{ color: '#FFF', fontSize: 16, fontFamily: fontFamily.semiBold }}>Login con google</Text>
+                    </Button.Title>
+                </View>
+            </Button>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 20 }} >
+                <View style={styles.bar} />
+                <Text style={styles.label}>ou</Text>
+                <View style={styles.bar} />
+            </View>
     <TextInput
       style={styles.input}
       placeholder="email@exemplo.com"
@@ -110,4 +130,5 @@ const styles = StyleSheet.create({
     borderColor: colors.green.dark,
     fontWeight: 'bold',
   },
+  bar: { flex: 1, height: 1, backgroundColor: colors.gray[300], marginVertical: 20, margin: 10 }
 });

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { IconCurrentLocation, IconMapPinFilled, IconRadar2 } from "@tabler/icons-react-native"
+import { IconCurrentLocation, IconMapPinFilled, IconRadar2, IconArrowRight } from "@tabler/icons-react-native"
 import 'react-native-get-random-values'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import * as Location from 'expo-location';
 import styles from './styles';
 import { useLocation } from '../../context/locationContext';
 import { Button } from '../button';
-import { LocationProvider } from '../../context/locationContext';
-import VerticalDashedLine from '../dottedLine';
+
+import { VerticalDashedLine} from '../dottedLine';
 import { PriceInput } from '../priceInput';
 import { colors } from "@/styles/theme"
 import { router } from 'expo-router';
@@ -185,6 +185,15 @@ export function BookRideDialog() {
         {originCoords && destinationCoords && (
           <>
             <View style={{ marginBottom: 10, marginTop: 10, alignItems: 'center' }}>
+              <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
+                <Text>origem</Text>
+                <IconArrowRight
+                  width={24}
+                  height={24}
+                  color={colors.gray[600]}
+                />
+                <Text>destino</Text>
+              </View>
               <Text >el tempo previsto de viaje es 100 min</Text>
             </View>
 

@@ -6,10 +6,10 @@ import {
   View,
   Image,
 } from "react-native"
-import { IconPhone, IconMessage } from "@tabler/icons-react-native"
+import { IconPhone, IconMessage, IconStarFilled } from "@tabler/icons-react-native"
 
 import { styles } from "./styles"
-import { colors } from "@/styles/theme"
+import { colors, fontFamily } from "@/styles/theme"
 
 export interface AvailableDriverProps extends TouchableOpacityProps {
   id: string
@@ -39,24 +39,34 @@ export function AvailableDriver({ id, name, description, image, telephone, isSel
   return (
     <TouchableOpacity style={styles.container} {...rest}>
 
-      <View style={{ flexDirection: "row", flex: 1, alignItems: "center", gap: 8, justifyContent: "space-around" }}>
+      <View style={{ flexDirection: "row", flex: 1, alignItems: "center", gap: 4, justifyContent: "space-around" }}>
+
         <Image style={styles.image} source={{ uri: image }} />
+
         <View style={{ flexDirection: "column", alignItems: "center" }}>
           <Text style={styles.name}>{name}</Text>
-          <Text style={styles.label}>el motorista</Text>
+          <Text style={{
+            fontSize: 12,
+            fontFamily: fontFamily.regular,
+            color: colors.gray[400], alignItems: "center"
+          }}>Rank <Text style={{
+            color: colors.green.base,
+            fontFamily: fontFamily.semiBold,
+            fontSize: 16
+          }}> 5.8 </Text> <IconStarFilled size={14} fill="#FFA500" /></Text>
         </View>
 
         <View style={{ flexDirection: "column", alignItems: "center", }}>
           <Text style={styles.label}>{carModel}</Text>
+          <Text style={styles.label}> de color: {carColor}</Text>
           <Text style={styles.label}>{carPlate}</Text>
-          <Text style={styles.label}>{carColor}</Text>
         </View>
 
       </View>
 
       {!isSelected && (
         <View style={styles.iconsContainer}>
-          <IconPhone size={24} color={colors.green.light} onPress={handleCall} style={styles.iconsStyles}/>
+          <IconPhone size={24} color={colors.green.light} onPress={handleCall} style={styles.iconsStyles} />
           <IconMessage size={24} color={colors.green.light} onPress={handleMessage} />
         </View>
       )}

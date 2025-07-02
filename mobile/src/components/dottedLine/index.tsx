@@ -7,7 +7,7 @@ type IVerticalDashedLine = {
   color: string;
 };
 
-export default function VerticalDashedLine({
+export function VerticalDashedLine({
   height,
   width,
   color,
