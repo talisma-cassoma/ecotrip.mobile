@@ -11,7 +11,7 @@ export default ({ config }) => ({
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
-      image: "./assets/images/splash.png",
+      image: "./src/assets/splash2.png",
       resizeMode: "contain",
       backgroundColor: "#257F49"
     },

@@ -6,6 +6,7 @@ import * as Location from 'expo-location';
 export type LocationCoords = {
   latitude: number;
   longitude: number;
+  name: string;
 } | null;
 
 type LocationContextType = {
@@ -14,6 +15,10 @@ type LocationContextType = {
   setOriginCoords: (loc: LocationCoords) => void;
   setDestinationCoords: (loc: LocationCoords) => void;
   userLocation: () => Promise<void>;
+  distance: number | null;
+  duration: number | null;
+  setDistance: (value: number | null) => void;
+  setDuration: (value: number | null) => void;
 };
 
 export const LocationContext = createContext({} as LocationContextType);
@@ -21,6 +26,8 @@ export const LocationContext = createContext({} as LocationContextType);
 export const LocationProvider = ({ children }: { children: ReactNode }) => {
   const [originCoords, setOriginCoords] = useState<LocationCoords>(null);
   const [destinationCoords, setDestinationCoords] = useState<LocationCoords>(null);
+  const [distance, setDistance] = useState<number | null>(null);
+  const [duration, setDuration] = useState<number | null>(null);
 
   const userLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -32,8 +39,14 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
     const location = await Location.getCurrentPositionAsync({});
     const { latitude, longitude } = location.coords;
 
-    setOriginCoords({ latitude, longitude });
-    console.log('Current location:', { latitude, longitude });
+    const currentLocation = {
+      latitude,
+      longitude,
+      name: 'ma position',
+    };
+
+    setOriginCoords(currentLocation);
+    console.log('Current location:', currentLocation);
   };
 
   return (
@@ -44,6 +57,10 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
         destinationCoords,
         setDestinationCoords,
         userLocation,
+        distance,
+        duration,
+        setDistance,
+        setDuration,
       }}
     >
       {children}

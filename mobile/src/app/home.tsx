@@ -557,10 +557,10 @@ export default function Home() {
   const [category, setCategory] = useState("")
   const [rides, setRides] = useState<RidesProps[]>([])
 
-  const [origin, setorigin] = useState<LocationCoords>({ latitude: 1.8017427763217277, longitude: 10.684559752006317 })
+  const [origin, setorigin] = useState<LocationCoords>({ latitude: 1.8017427763217277, longitude: 10.684559752006317, name: "ma posiion" })
 
   // const [destination, setDestination] = useState<LocationCoords>(null)
-  const { originCoords, destinationCoords } = useLocation();
+  const { originCoords, destinationCoords, setDistance, setDuration } = useLocation();
 
 
   async function fetchCategories() {
@@ -681,6 +681,8 @@ export default function Home() {
                 strokeWidth={4}
                 strokeColor="#007bc9"
                 onReady={(result) => {
+                  setDistance(result.distance) 
+                  setDuration(result.duration)
                   mapRef.current?.fitToCoordinates(result.coordinates, {
                     edgePadding: {
                       top: 50,
@@ -690,8 +692,11 @@ export default function Home() {
                     },
                   })
                 }}
-                onError={(error) =>
+                onError={(error) =>{
+                  setDuration(null)
+                  setDistance(null)
                   console.warn("Erro ao calcular rota:", error)
+                }
                 }
               />
               <Marker
@@ -702,12 +707,6 @@ export default function Home() {
                 }}
                 image={require("@/assets/location.png")}
                 title="Starting Point"
-                onDragEnd={(event) => {
-                  const { latitude, longitude } = event.nativeEvent.coordinate;
-                  setorigin({ latitude, longitude });
-                  console.log("Origin updated:", { latitude, longitude });
-                }
-                }
               />
               <Marker
                 key={`destination-${destinationCoords.latitude}-${destinationCoords.longitude}`}

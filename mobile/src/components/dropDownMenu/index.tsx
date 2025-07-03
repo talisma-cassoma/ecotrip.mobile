@@ -10,7 +10,6 @@ export function DropDownMenu() {
     const menuOptions = [
         { label: "profile", screen: "profile" },
         { label: "Historic", screen: "historic" },
-        { label: "Login", screen: "login" },
     ];
 
     const handleOptionPress = (screen: string) => {

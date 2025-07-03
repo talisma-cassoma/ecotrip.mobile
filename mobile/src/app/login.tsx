@@ -33,7 +33,7 @@ export default function Login() {
             console.log('Usuário autenticado com sucesso:', data.user);
         }
         console.log('Email:', email, 'Password:', password);
-        router.navigate("/home")
+        router.replace("/home")
     };
 
     const handlePasswordReset = async () => {
@@ -106,7 +106,7 @@ export default function Login() {
                     </Button.Title>
                 </Button>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                    <Text onPress={() => router.navigate("/register")} style={{ color: colors.green.dark }}>Regístrate</Text>
+                    <Text onPress={() => router.replace("/register")} style={{ color: colors.green.dark }}>Regístrate</Text>
                     <Text onPress={handlePasswordReset} style={{ color: colors.green.dark }}>cambiar contrasenha</Text>
                 </View>
             </ScrollView>

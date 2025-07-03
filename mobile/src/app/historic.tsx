@@ -5,7 +5,9 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-nativ
 import { IconPointFilled, IconMapPinFilled } from "@tabler/icons-react-native"
 import { VerticalDashedLine } from "../components/dottedLine"
 import { colors, fontFamily } from "@/styles/theme"
-
+import { Button } from '@/components/button';
+import { IconArrowLeft } from "@tabler/icons-react-native"
+import { router } from "expo-router"
 interface Trip {
   id: string;
   origin: string;
@@ -120,10 +122,10 @@ export default function Historic() {
           rowGap: 10,
         }}>
 
-          <View style={{ flexDirection: "column", gap:2}}>
+          <View style={{ flexDirection: "column", gap: 2 }}>
             <IconPointFilled size={20} fill={colors.green.base} />
             <View style={{
-              padding:4
+              padding: 4
             }}>
               <VerticalDashedLine height={28} width={4} color='#aaa' />
             </View>
@@ -132,17 +134,17 @@ export default function Historic() {
 
           <View >
             <Text> {new Date(item.datetime).toLocaleString()} </Text>
-            <Text style={{fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600]}}>{item.origin}</Text>
-            <Text  style={{marginTop:8}}> {new Date(item.datetime).toLocaleString()}</Text>
-            <Text style={{fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600]}}>{item.destination}</Text>
+            <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>{item.origin}</Text>
+            <Text style={{ marginTop: 8 }}> {new Date(item.datetime).toLocaleString()}</Text>
+            <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>{item.destination}</Text>
           </View>
         </View>
 
         <View style={styles.verticalBar}></View>
 
-        <View style={{ flexDirection: "column", width:90}}>
-          <Text> Valor: {item.fare !== undefined && <Text style={{fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600]}}>${item.fare.toFixed(2)}</Text>}</Text>
-          <Text style={{marginTop:8}}>Status: <Text style={{fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600]}}>{item.status}</Text></Text>
+        <View style={{ flexDirection: "column", width: 90 }}>
+          <Text> Valor: {item.fare !== undefined && <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>${item.fare.toFixed(2)}</Text>}</Text>
+          <Text style={{ marginTop: 8 }}>Status: <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>{item.status}</Text></Text>
         </View>
       </View>
     );
@@ -150,6 +152,9 @@ export default function Historic() {
 
   return (
     <View style={styles.container}>
+      <Button style={{ width: 40, height: 40, marginBottom: 40 }} onPress={() => router.back()}>
+        <Button.Icon icon={IconArrowLeft} />
+      </Button>
       <Text style={styles.title}>Histórico de viagens</Text>
       <FlatList
         data={trips}
@@ -165,7 +170,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.green.soft,
   },
   centered: {
     flex: 1,

@@ -11,7 +11,7 @@ export default function Index() {
           <Welcome />
           <Steps />
 
-          <Button onPress={() => router.navigate("/home")}>
+          <Button onPress={() => router.navigate("/login")} style={{ marginTop: 40 }}>
             <Button.Title>
               Comenzar
             </Button.Title>

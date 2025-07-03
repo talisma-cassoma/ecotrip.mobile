@@ -13,6 +13,9 @@ import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet"
 import { AvailableDriver } from "@/components/availableDriver"
 import { Button } from "@/components/button"
 import { IconArrowRight } from "@tabler/icons-react-native"
+import { IconArrowLeft } from "@tabler/icons-react-native"
+import { router } from "expo-router"
+
 
 
 const whiteMapStyle = [
@@ -260,13 +263,13 @@ export default function SelectADriver() {
         max: dimensions.height - 268,
     }
 
-    const [drivers, setDrivers] = useState<AvailableDriverProps[]>( driverMockData)
+    const [drivers, setDrivers] = useState<AvailableDriverProps[]>(driverMockData)
 
     const [selectedDriver, setSelectedDriver] = useState<AvailableDriverProps | null>(null);
     const [isSelected, setIsSelected] = useState(false);
 
 
-    const { originCoords, destinationCoords } = useLocation();
+    const { originCoords, destinationCoords, } = useLocation();
 
 
     async function fetchDrivers() {
@@ -288,140 +291,150 @@ export default function SelectADriver() {
                 }
             }
         ])
-    }   
-useEffect(() => {
-    setIsSelected(true)    
+    }
+    useEffect(() => {
+        setIsSelected(true)
     }, [selectedDriver])
     return (
-        <>
-            <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
-                <MapView
-                    ref={mapRef}
-                    customMapStyle={whiteMapStyle}
-                    provider={PROVIDER_GOOGLE}
-                    style={{ flex: 1 }}
-                    initialRegion={{
+        <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
+            <MapView
+                ref={mapRef}
+                customMapStyle={whiteMapStyle}
+                provider={PROVIDER_GOOGLE}
+                style={{ flex: 1 }}
+                initialRegion={{
+                    latitude: 1.8575468799281134,
+                    longitude: 9.773508861048843,
+                    latitudeDelta: 0.005,
+                    longitudeDelta: 0.005,
+                }}
+            >
+                <Marker
+                    identifier="current"
+                    coordinate={{
                         latitude: 1.8575468799281134,
-                        longitude: 9.773508861048843,
-                        latitudeDelta: 0.005,
-                        longitudeDelta: 0.005,
+                        longitude: 9.773508861048843
                     }}
-                >
-                    <Marker
-                        identifier="current"
-                        coordinate={{
-                            latitude: 1.8575468799281134,
-                            longitude: 9.773508861048843
-                        }}
-                    // image={require("@/assets/location.png")}
-                    />
+                // image={require("@/assets/location.png")}
+                />
 
-                    {originCoords?.latitude && destinationCoords?.latitude && (
-                        <>
-                            <MapViewDirections
-                                key={`route-${originCoords.latitude}-${originCoords.longitude}`}
-                                origin={{
-                                    latitude: originCoords.latitude,
-                                    longitude: originCoords.longitude
-                                }}
-                                destination={{
-                                    latitude: destinationCoords.latitude,
-                                    longitude: destinationCoords.longitude
+                {originCoords?.latitude && destinationCoords?.latitude && (
+                    <>
+                        <MapViewDirections
+                            key={`route-${originCoords.latitude}-${originCoords.longitude}`}
+                            origin={{
+                                latitude: originCoords.latitude,
+                                longitude: originCoords.longitude
+                            }}
+                            destination={{
+                                latitude: destinationCoords.latitude,
+                                longitude: destinationCoords.longitude
 
-                                }}
-                                apikey={String(process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY)}
-                                strokeWidth={4}
-                                strokeColor="#007bc9"
-                                onReady={(result) => {
-                                    mapRef.current?.fitToCoordinates(result.coordinates, {
-                                        edgePadding: {
-                                            top: 50,
-                                            right: 50,
-                                            bottom: 50,
-                                            left: 50,
-                                        },
-                                    })
-                                }}
-                                onError={(error) =>
-                                    console.warn("Erro ao calcular rota:", error)
-                                }
-                            />
-                            <Marker
-                                key={`origin-${originCoords.latitude}-${originCoords.longitude}`}
-                                coordinate={{
-                                    latitude: originCoords.latitude,
-                                    longitude: originCoords.longitude
-                                }}
-                                image={require("@/assets/location.png")}
-                                title="Starting Point"
-                            />
-                            <Marker
-                                key={`destination-${destinationCoords.latitude}-${destinationCoords.longitude}`}
-                                coordinate={{
-                                    latitude: destinationCoords.latitude,
-                                    longitude: destinationCoords.longitude
-                                }}
-                                image={require("@/assets/pin.png")}
-                                title="Destination Point"
-                            />
-                        </>
-                    )}
-                </MapView>
-                <BottomSheet
-                    ref={bottomSheetRef}
-                    snapPoints={[snapPoints.min, snapPoints.max]}
-                    handleIndicatorStyle={s.indicator}
-                    backgroundStyle={s.container}
-                    enableOverDrag={false}
-                >
-                    {selectedDriver?.id ? (
-                        <View style={{ padding: 24 }}>
-                            <AvailableDriver {...selectedDriver} onPress={() => { }} />
-                            <View style={{ marginTop: 20 }}>
-                                <View style={{ width:"auto", flexDirection: "row", gap: 12, margin: 16,  justifyContent:"center"}}>
-                                    <Text>origem</Text>
-                                    <IconArrowRight
-                                        width={24}
-                                        height={24}
-                                        color={colors.gray[600]}
-                                    />
-                                    <Text>destino</Text>
-                                </View>
-                                <Text style={{ fontFamily: fontFamily.regular, fontSize: 16, color: colors.gray[600] }}>
-                                    À espera do motorista. Você pode ligar clicando no botão “Ligar” ou enviar uma mensagem.
-                                </Text>
-
-                                <Button onPress={handleRideCancel} style={{ marginTop: 16 }}>
-                                              <Button.Title>cancelar</Button.Title>
-                                            </Button>
-                            </View>
-                        </View>
-                    ) : (
-                        <BottomSheetFlatList
-                            data={drivers}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <AvailableDriver
-                                    {...item}
-                                    onPress={() => {
-                                        setSelectedDriver(item)
-                                        console.log("Motorista selecionado:", selectedDriver?.id)
-                                    }}
-                                    isSelected={isSelected} 
-                                />
-                            )}
-                            contentContainerStyle={s.content}
-                            ListHeaderComponent={() => (
-                                <Text style={s.title}>Motoristas próximos</Text>
-                            )}
-                            showsVerticalScrollIndicator={false}
+                            }}
+                            apikey={String(process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY)}
+                            strokeWidth={4}
+                            strokeColor="#007bc9"
+                            onReady={(result) => {
+                                mapRef.current?.fitToCoordinates(result.coordinates, {
+                                    edgePadding: {
+                                        top: 50,
+                                        right: 50,
+                                        bottom: 50,
+                                        left: 50,
+                                    },
+                                })
+                            }}
+                            onError={(error) =>
+                                console.warn("Erro ao calcular rota:", error)
+                            }
                         />
-                    )}
+                        <Marker
+                            key={`origin-${originCoords.latitude}-${originCoords.longitude}`}
+                            coordinate={{
+                                latitude: originCoords.latitude,
+                                longitude: originCoords.longitude
+                            }}
+                            image={require("@/assets/location.png")}
+                            title="Starting Point"
+                        />
+                        <Marker
+                            key={`destination-${destinationCoords.latitude}-${destinationCoords.longitude}`}
+                            coordinate={{
+                                latitude: destinationCoords.latitude,
+                                longitude: destinationCoords.longitude
+                            }}
+                            image={require("@/assets/pin.png")}
+                            title="Destination Point"
+                        />
+                    </>
+                )}
+            </MapView>
+            <BottomSheet
+                ref={bottomSheetRef}
+                snapPoints={[snapPoints.min, snapPoints.max]}
+                handleIndicatorStyle={s.indicator}
+                backgroundStyle={s.container}
+                enableOverDrag={false}
+            >
+                {selectedDriver?.id ? (
+                    <View style={{ padding: 24 }}>
+                        <AvailableDriver {...selectedDriver} onPress={() => { }} />
+                        <View style={{ marginTop: 20 }}>
+                            <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
+                                <Text>{originCoords?.name}</Text>
+                                <IconArrowRight
+                                    width={24}
+                                    height={24}
+                                    color={colors.gray[600]}
+                                />
+                                <Text>{destinationCoords?.name}</Text>
+                            </View>
+                            <Text style={{ fontFamily: fontFamily.regular, fontSize: 16, color: colors.gray[600] }}>
+                                À espera do motorista. Você pode ligar clicando no botão “Ligar” ou enviar uma mensagem.
+                            </Text>
 
-
-                </BottomSheet>
-            </View>
-        </>
+                            <Button onPress={handleRideCancel} style={{ marginTop: 16 }}>
+                                <Button.Title>cancelar</Button.Title>
+                            </Button>
+                        </View>
+                    </View>
+                ) : (
+                    <BottomSheetFlatList
+                        data={drivers}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => (
+                            <AvailableDriver
+                                {...item}
+                                onPress={() => {
+                                    setSelectedDriver(item)
+                                    console.log("Motorista selecionado:", selectedDriver?.id)
+                                }}
+                                isSelected={isSelected}
+                            />
+                        )}
+                        contentContainerStyle={s.content}
+                        ListHeaderComponent={() => (
+                            <>
+                                <Button style={{ width: 40, height: 40, marginBottom: 20 }} onPress={() => router.back()}>
+                                    <Button.Icon icon={IconArrowLeft} />
+                                </Button>
+                                <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
+                                                <Text>{originCoords?.name}</Text>
+                                                <IconArrowRight
+                                                  width={24}
+                                                  height={24}
+                                                  color={colors.gray[600]}
+                                                />
+                                                <Text>{destinationCoords?.name}</Text>
+                                              </View>
+                                <Text style={s.title}>Motoristas próximos</Text>
+                            </>
+                        )}
+                        showsVerticalScrollIndicator={false}
+                    />
+                )}
+            </BottomSheet>
+        </View>
     )
 }
 

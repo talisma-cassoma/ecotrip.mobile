@@ -13,11 +13,12 @@ import { VerticalDashedLine} from '../dottedLine';
 import { PriceInput } from '../priceInput';
 import { colors } from "@/styles/theme"
 import { router } from 'expo-router';
+import { formatDistance, formatDuration } from '@/utils/converter';
 
 
 export function BookRideDialog() {
   const [locatePressed, setLocatePressed] = useState(false);
-  const { setOriginCoords, setDestinationCoords, originCoords, destinationCoords } = useLocation();
+  const { setOriginCoords, setDestinationCoords, originCoords, destinationCoords, duration } = useLocation();
 
   const VerticalDashedLineHeight = 45;
   const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY;
@@ -30,8 +31,14 @@ export function BookRideDialog() {
     }
     const location = await Location.getCurrentPositionAsync({});
     const { latitude, longitude } = location.coords;
+    
+    const currentLocation = {
+      latitude,
+      longitude,
+      name: 'ma position',
+    };
 
-    setOriginCoords({ latitude, longitude });
+    setOriginCoords(currentLocation);
     setLocatePressed(true);
     console.log('Current location:', { latitude, longitude });
   };
@@ -51,7 +58,14 @@ export function BookRideDialog() {
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
 
-      setOriginCoords({ latitude, longitude });
+
+    const currentLocation = {
+      latitude,
+      longitude,
+      name: 'ma position',
+    };
+
+      setOriginCoords(currentLocation);
     };
 
     getLocation();
@@ -85,7 +99,8 @@ export function BookRideDialog() {
                 onPress={(data, details = null) => {
                   if (!details || !details.geometry) return;
                   const { lat, lng } = details.geometry.location;
-                  setOriginCoords({ latitude: lat, longitude: lng });
+                  const { name } = details
+                  setOriginCoords({ latitude: lat, longitude: lng , name: name});
                   console.log("origem selecionada:", { latitude: lat, longitude: lng }); // 
                   setLocatePressed(false);
                 }}
@@ -133,7 +148,8 @@ export function BookRideDialog() {
                     return;
                   }
                   const { lat, lng } = details.geometry.location;
-                  setDestinationCoords({ latitude: lat, longitude: lng });
+                  const {name} = details
+                  setDestinationCoords({ latitude: lat, longitude: lng , name:name});
                   console.log("destino selecionado:", { latitude: lat, longitude: lng });
                 }}
                 query={{
@@ -186,15 +202,15 @@ export function BookRideDialog() {
           <>
             <View style={{ marginBottom: 10, marginTop: 10, alignItems: 'center' }}>
               <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
-                <Text>origem</Text>
+                <Text>{originCoords.name}</Text>
                 <IconArrowRight
                   width={24}
                   height={24}
                   color={colors.gray[600]}
                 />
-                <Text>destino</Text>
+                <Text>{destinationCoords.name}</Text>
               </View>
-              <Text >el tempo previsto de viaje es 100 min</Text>
+              <Text >{duration?(`el tempo previsto de viaje es ${formatDuration(duration)}`):("")}</Text>
             </View>
 
             <PriceInput

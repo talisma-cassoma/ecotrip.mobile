@@ -58,8 +58,8 @@ export function RideModal({ data }: RideModalProps) {
             onPress={() => {
               if (item.latitude && item.longitude){
                 //userLocation();
-                setOriginCoords({latitude: 1.8575468799281134, longitude: 9.773508861048843});
-                setDestinationCoords({ latitude: item.latitude, longitude: item.longitude });
+                setOriginCoords({latitude: 1.8575468799281134, longitude: 9.773508861048843, name:"ma position"});
+                setDestinationCoords({ latitude: item.latitude, longitude: item.longitude , name: item.name});
               }
             }}
           />
