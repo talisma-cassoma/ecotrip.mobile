@@ -2,7 +2,7 @@ import { Stack } from "expo-router"
 import { colors } from "@/styles/theme"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { LocationProvider } from "@/context/locationContext"
-
+import { UserAuthProvider } from "@/context/userAuthContext"
 import {
   useFonts,
   Rubik_600SemiBold,
@@ -27,6 +27,7 @@ export default function Layout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <UserAuthProvider>
       <LocationProvider>
         <Stack
           screenOptions={{
@@ -35,6 +36,7 @@ export default function Layout() {
           }}
         />
       </LocationProvider>
+      </UserAuthProvider>
     </GestureHandlerRootView>
 
   )

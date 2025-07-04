@@ -15,11 +15,13 @@ export default function DriverSignUp() {
   const [vehiclePlate, setVehiclePlate] = useState('');
   const [vehicleModel, setVehicleModel] = useState('');
   const [driverName, setDriverName] = useState('');
+  const [isLoading, setIsLoading]= useState(false)
 
   const dimensions = useWindowDimensions()
 
 
   const handleDriverSignUp = async () => {
+    setIsLoading(true)
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -28,6 +30,7 @@ export default function DriverSignUp() {
     if (error) {
       console.error('Erro ao fazer login:', error.message);
       Alert.alert('Erro', 'Não foi possível fazer o registro, tente novamente.');
+      setIsLoading(false)
       return;
     }
 
@@ -96,7 +99,7 @@ export default function DriverSignUp() {
             value={password}
             onChangeText={setPassword}
           />
-          <Button onPress={handleDriverSignUp} style={{ marginTop: 10 }}>
+          <Button onPress={handleDriverSignUp} style={{ marginTop: 10 }} isLoading={isLoading}>
             <Button.Title>Registrarse como Conductor</Button.Title>
           </Button>
         </ScrollView>

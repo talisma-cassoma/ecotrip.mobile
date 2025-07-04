@@ -7,22 +7,7 @@ import { Button } from '@/components/button';
 import { IconArrowLeft } from "@tabler/icons-react-native"
 import { router } from "expo-router"
 import { supabase } from "@/services/superbase";
-
-
-type UserRole = 'driver' | 'passenger';
-
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  rating?: number;
-  car?: {
-    model: string;
-    plate: string;
-  };
-  // qualquer outro dado que queira mostrar
-}
+import { useUserAuth, UserData } from '@/context/userAuthContext';
 
 
 export default function Profile() {
@@ -40,6 +25,7 @@ export default function Profile() {
   //const [data, setData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user} = useUserAuth()
 
   const handleLogOut = async () => {
     try {
@@ -134,7 +120,7 @@ export default function Profile() {
             </View>
 
             <View style={{ flexDirection: "column", width: "100%", marginTop: 20 }}>
-              <Text>Email: {data.email}</Text>
+              <Text>Email: {user?.email}</Text>
               <Text>Função: {data.role === 'driver' ? 'Condutor' : 'Passageiro'}</Text>
             </View>
           </View>

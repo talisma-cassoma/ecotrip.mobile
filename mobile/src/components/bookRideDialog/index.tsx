@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
+import { View, TouchableOpacity, Text, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { IconCurrentLocation, IconMapPinFilled, IconRadar2, IconArrowRight } from "@tabler/icons-react-native"
 import 'react-native-get-random-values'
@@ -52,7 +52,7 @@ export function BookRideDialog() {
     const getLocation = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        alert('Permiso de ubicación denegado. Por favor, habilite el acceso a la ubicación en la configuración de su dispositivo.');
+        Alert.alert('Permiso de ubicación denegado. Por favor, habilite el acceso a la ubicación en la configuración de su dispositivo.');
         await Location.requestForegroundPermissionsAsync();
       }
       const location = await Location.getCurrentPositionAsync({});
@@ -182,7 +182,7 @@ export function BookRideDialog() {
 
           {/* Coluna Direita (Ícones Ação/Swap) */}
           <View style={styles.iconColumn}>
-            <TouchableOpacity onPress={handleGetLocation}>
+            <TouchableOpacity onPress={handleGetLocation} activeOpacity={0.8} disabled={locatePressed}>
               <IconCurrentLocation
                 size={20}
                 color={locatePressed ? '#007bc9' : '#aaa'}

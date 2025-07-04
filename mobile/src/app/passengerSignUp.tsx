@@ -11,10 +11,13 @@ import {
 export default function PassengerSignUp() {
 
   const [email, setEmail] = useState('');
+   const [name, setName] = useState('')
   const [password, setPassword] = useState('');
   const dimensions = useWindowDimensions()
+  const [isLoading, setIsLoading]= useState(false)
 
   const handlePassengerSignUp = async () => {
+    setIsLoading(true)
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -23,6 +26,7 @@ export default function PassengerSignUp() {
     if (error) {
       console.error('Erro ao fazer registro:', error.message);
       Alert.alert('Erro', 'Não foi possível fazer o registro, tente novamente.');
+      setIsLoading(false)
       return;
     }
     if (data.user) {
@@ -45,7 +49,7 @@ export default function PassengerSignUp() {
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
       >
-        <Button style={{ justifyContent: "space-between" }} onPress={() => alert("Funcionalidad no implementada")}>
+        <Button style={{ justifyContent: "space-between" }} onPress={() => Alert.alert("Funcionalidad no implementada")} isLoading={isLoading}>
           <View style={{ width: 60, alignItems: "center", justifyContent: "center", backgroundColor: colors.green.dark, borderRadius: 10, height: "100%", }}>
             <Button.Icon icon={IconBrandGoogleFilled} />
           </View>
@@ -61,6 +65,15 @@ export default function PassengerSignUp() {
           <Text style={styles.label}>ou</Text>
           <View style={styles.bar} />
         </View>
+         <TextInput
+                            style={styles.input}
+                            placeholder="tu nombre"
+                            placeholderTextColor="#aaa"
+                            keyboardType="default"
+                            value={name}
+                            onChangeText={setName}
+                            autoCapitalize="none"
+                        />
         <TextInput
           style={styles.input}
           placeholder="email@exemplo.com"
@@ -81,6 +94,7 @@ export default function PassengerSignUp() {
         <Button onPress={handlePassengerSignUp}>
           <Button.Title>Registrarse como Pasajero</Button.Title>
         </Button>
+      </ScrollView>
         <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
          <Text style={styles.label}>
               ¿Ya tienes cuenta?
@@ -89,7 +103,6 @@ export default function PassengerSignUp() {
               </Text>
             </Text>
         </TouchableOpacity>
-      </ScrollView>
       </View>
       </View>
 )

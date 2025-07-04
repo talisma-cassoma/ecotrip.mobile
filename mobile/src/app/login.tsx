@@ -11,28 +11,33 @@ import React, { useState } from 'react';
 import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
 
 import { supabase } from "@/services/superbase";
+import {useUserAuth} from "@/context/userAuthContext"
 
 export default function Login() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading]= useState(false)
+    const { verifyingAuth } = useUserAuth()
 
     const handleLogin = async () => {
         // Lógica de autenticação aqui
+        setIsLoading(true)
+
         const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
             password: password,
         });
 
         if (error) {
+            setIsLoading(false)
             console.error('Erro ao fazer login:', error.message);
             Alert.alert('Erro', 'Não foi possível fazer login. Verifique suas credenciais e tente novamente.');
             return;
         }
         if (data.user) {
-            console.log('Usuário autenticado com sucesso:', data.user);
+            console.log('Usuário autenticado com sucesso:');
         }
-        console.log('Email:', email, 'Password:', password);
         router.replace("/home")
     };
 
@@ -47,6 +52,15 @@ export default function Login() {
     };
 
     return (
+        verifyingAuth?
+        (
+            <View style={{flex:1, justifyContent: "center", alignItems:"center"}}>
+                <Text style={{textAlign:"center"}}>
+                   ... iniciando a sessao 
+                </Text>
+            </View>
+        ):
+        (
         <View style={styles.container}>
             <Image source={require("@/assets/logo.png")} style={{
                 width: 150,
@@ -100,7 +114,7 @@ export default function Login() {
                     onChangeText={setPassword}
                 />
 
-                <Button onPress={handleLogin}>
+                <Button onPress={handleLogin} isLoading={isLoading}>
                     <Button.Title>
                         entrar
                     </Button.Title>
@@ -111,7 +125,8 @@ export default function Login() {
                 </View>
             </ScrollView>
         </View>
-    );
+    )
+)
 };
 
 const styles = StyleSheet.create({

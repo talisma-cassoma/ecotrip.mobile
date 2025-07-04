@@ -8,7 +8,9 @@ import { colors, fontFamily } from "@/styles/theme"
 import { Button } from '@/components/button';
 import { IconArrowLeft } from "@tabler/icons-react-native"
 import { router } from "expo-router"
-interface Trip {
+import { Trip } from '@/components/trip';
+
+interface iTrip {
   id: string;
   origin: string;
   destination: string;
@@ -55,7 +57,7 @@ const historicMockData = [
 
 export default function Historic() {
   //const { user } = useContext(AuthContext);
-  const [trips, setTrips] = useState<Trip[]>(historicMockData);
+  const [trips, setTrips] = useState<iTrip[]>(historicMockData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -111,45 +113,6 @@ export default function Historic() {
     );
   }
 
-  function renderTrip({ item }: { item: Trip }) {
-    return (
-      <View style={styles.tripCard}>
-
-        <View style={{
-          flexDirection: 'row',
-          height: 80,
-          justifyContent: 'space-between',
-          rowGap: 10,
-        }}>
-
-          <View style={{ flexDirection: "column", gap: 2 }}>
-            <IconPointFilled size={20} fill={colors.green.base} />
-            <View style={{
-              padding: 4
-            }}>
-              <VerticalDashedLine height={28} width={4} color='#aaa' />
-            </View>
-            <IconMapPinFilled size={15} fill={colors.green.base} />
-          </View>
-
-          <View >
-            <Text> {new Date(item.datetime).toLocaleString()} </Text>
-            <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>{item.origin}</Text>
-            <Text style={{ marginTop: 8 }}> {new Date(item.datetime).toLocaleString()}</Text>
-            <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>{item.destination}</Text>
-          </View>
-        </View>
-
-        <View style={styles.verticalBar}></View>
-
-        <View style={{ flexDirection: "column", width: 90 }}>
-          <Text> Valor: {item.fare !== undefined && <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>${item.fare.toFixed(2)}</Text>}</Text>
-          <Text style={{ marginTop: 8 }}>Status: <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>{item.status}</Text></Text>
-        </View>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       <Button style={{ width: 40, height: 40, marginBottom: 40 }} onPress={() => router.back()}>
@@ -159,7 +122,11 @@ export default function Historic() {
       <FlatList
         data={trips}
         keyExtractor={(item) => item.id}
-        renderItem={renderTrip}
+        renderItem={({ item }) => (
+          <Trip
+          item={item}
+          />
+        )}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
     </View>
@@ -181,21 +148,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 15,
-  },
-  tripCard: {
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    marginBottom: 12,
-    backgroundColor: '#f9f9f9',
-    justifyContent: "space-between",
-    flexDirection: "row"
-  },
-  route: {
-    fontWeight: '600',
-    fontSize: 16,
-    marginBottom: 6,
-  },
-  verticalBar: { height: 70, width: 2, backgroundColor: colors.green.soft, marginHorizontal: 20 }
+  }
 });
