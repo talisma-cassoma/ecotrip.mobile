@@ -8,17 +8,23 @@ import { IconArrowLeft } from "@tabler/icons-react-native"
 import { router } from "expo-router"
 import { supabase } from "@/services/superbase";
 import { useUserAuth } from '@/context/userAuthContext';
+import { COLECTION_USERS } from "@/configs/database"
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function Profile() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useUserAuth()
+  const { user, setUser } = useUserAuth()
+
+  console.log("user:", user)
   
   const handleLogOut = async () => {
     try {
       const { error } = await supabase.auth.signOut()
+      setUser(null)
+      await AsyncStorage.removeItem(COLECTION_USERS)
       router.replace("/login")
     } catch (error) {
       console.log(error)
@@ -98,12 +104,12 @@ export default function Profile() {
                   borderRadius: 32,
                   marginRight: 12
                 }} />
-                {(user?.role.type === 'driver') && (
+                
                   <View style={{ flexDirection: "column", padding: 4 }}>
                     <Text style={styles.title}>{user?.name}</Text>
-                    <Text>vaijes realizadas {(user?.role.type === 'driver') && (user.role.data.complited_rides ?? 0)} </Text>
+                    {(user?.role.type === 'driver') && (<Text>vaijes realizadas {(user?.role.type === 'driver') && (user.role.data.complited_rides ?? 0)} </Text>)}
                   </View>
-                )}
+                
               </View>
                {(user?.role.type === 'driver') && (
               <View>

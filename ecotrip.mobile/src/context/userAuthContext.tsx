@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { AuthUser } from '../configs/database';
 
 export type UserContextType = {
-  setUser: (user: AuthUser) => void
+  setUser: (user: AuthUser | null) => void
   user: AuthUser | null;
   loading: boolean;
 };

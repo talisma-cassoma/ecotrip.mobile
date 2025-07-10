@@ -27,33 +27,61 @@ export default function Login() {
         // Lógica de autenticação aqui
         setIsLoading(true)
 
+        // Autenticação
         const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password,
+            email,
+            password,
         });
 
         if (error) {
-            setIsLoading(false)
-            console.error('Erro ao fazer login:', error.message);
-            Alert.alert('Erro', 'Não foi possível fazer login. Verifique suas credenciais e tente novamente.');
+            setIsLoading(false);
+            console.error("Erro ao fazer login:", error.message);
+            Alert.alert(
+                "Erro",
+                "Não foi possível fazer login. Verifique suas credenciais e tente novamente.",
+            );
             return;
         }
+
         if (data.user && data.session) {
+            const { id, user_metadata } = data.user;
+            const { name, email: userEmail, image, role } = user_metadata;
+
+            // Busca dos dados do motorista (somente se for driver)
+            let driverData;
+            if (role === "driver") {
+                const driver = await supabase.rpc("get_current_driver");
+
+                if (driver?.data?.length) {
+                    const d = driver.data[0];
+                    driverData = {
+                        car_model: d.car_model,
+                        car_plate: d.car_plate,
+                        license_number: d.license_number,
+                        rating: d.rating,
+                        complited_rides: d.complited_rides,
+                    };
+                }
+            }
+
+            // Montagem do objeto a ser salvo
             const storedUser = buildStoredUser({
-                id: data.user.id,
-                name: data.user.user_metadata.name,
-                email: data.user.user_metadata.email,
-                image: data.user.user_metadata.image,
+                id,
+                name,
+                email: userEmail,
+                image,
                 access_token: data.session.access_token,
                 refresh_token: data.session.refresh_token,
-                role: data.user.user_metadata.role,
-                //driverData: data.user.user_metadata?.
+                role,
+                ...(driverData && { driverData }), // só adiciona se existir
             });
+
             await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(storedUser));
-            setUser(storedUser)
-            console.log("user : ", user)
+            setUser(storedUser);
+
             router.replace("/home");
-        } else {
+        }
+        else {
             console.log("entrei no else")
             setIsLoading(false)
             Alert.alert('Erro', 'Não foi possível fazer login. Verifique suas credenciais e tente novamente.');
@@ -200,3 +228,40 @@ const styles = StyleSheet.create({
     bar: { flex: 1, height: 1, backgroundColor: colors.gray[300], marginVertical: 20, margin: 10 }
 });
 
+const data = {
+    "session":
+    {
+        "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6ImN5MldJdElMMXpkOEJlcGQiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2hmYm5wY3B1YXBwZWltcXN3enNoLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjOTViNGVhZi0wM2M4LTQ1NDYtOGUzNi1lMzA1ZDliOTAzOGYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzUyMTQ5NDcwLCJpYXQiOjE3NTIxNDU4NzAsImVtYWlsIjoidGFsaXNtYTYzQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJ0YWxpc21hNjNAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImltYWdlIjoiaHR0cDovL2dpdGh1Yi5jb20vdGFsaXNtYS1jYXNzb21hLnBuZyIsIm5hbWUiOiJUYWxpc21hIE1hbnVlbCAiLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInJvbGUiOiJkcml2ZXIiLCJzdWIiOiJjOTViNGVhZi0wM2M4LTQ1NDYtOGUzNi1lMzA1ZDliOTAzOGYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc1MjE0NTg3MH1dLCJzZXNzaW9uX2lkIjoiZDc3ZjkxMTktNjRmYi00ODRhLWI3ODYtOTI0ZDllOGZjYWE1IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.OgozO_8nvYgmH3zF1EEZom907wLIqfGRW4a9KwjiZJs",
+        "expires_at": 1752149470,
+        "expires_in": 3600,
+        "refresh_token": "3idwwcbtes6t",
+        "token_type": "bearer",
+        "user": {
+            "app_metadata": [Object],
+            "aud": "authenticated",
+            "confirmed_at": "2025-07-10T08:37:01.249707Z",
+            "created_at": "2025-07-10T08:37:01.227472Z",
+            "email": "talisma63@gmail.com",
+            "email_confirmed_at": "2025-07-10T08:37:01.249707Z",
+            "id": "c95b4eaf-03c8-4546-8e36-e305d9b9038f",
+            "identities": [Array],
+            "is_anonymous": false,
+            "last_sign_in_at": "2025-07-10T11:11:10.576717673Z",
+            "phone": "",
+            "role": "authenticated",
+            "updated_at": "2025-07-10T11:11:10.582088Z", "user_metadata": [Object]
+        }
+    },
+    "user": {
+        "app_metadata": { "provider": "email", "providers": [Array] }, "aud": "authenticated", "confirmed_at": "2025-07-10T08:37:01.249707Z", "created_at": "2025-07-10T08:37:01.227472Z", "email": "talisma63@gmail.com", "email_confirmed_at": "2025-07-10T08:37:01.249707Z", "id": "c95b4eaf-03c8-4546-8e36-e305d9b9038f", "identities": [[Object]], "is_anonymous": false, "last_sign_in_at": "2025-07-10T11:11:10.576717673Z", "phone": "", "role": "authenticated", "updated_at": "2025-07-10T11:11:10.582088Z",
+        "user_metadata": {
+            "email": "talisma63@gmail.com",
+            "email_verified": true,
+            "image": "http://github.com/talisma-cassoma.png",
+            "name": "Talisma Manuel ",
+            "phone_verified": false,
+            "role": "driver",
+            "sub": "c95b4eaf-03c8-4546-8e36-e305d9b9038f"
+        }
+    }
+}
