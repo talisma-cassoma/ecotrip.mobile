@@ -17,6 +17,9 @@ export default function PassengerSignUp() {
   const [password, setPassword] = useState('');
   const dimensions = useWindowDimensions()
   const [isLoading, setIsLoading] = useState(false)
+  const role = 'passenger'
+  const image = 'https://icon-library.com/images/user-profile-icon/user-profile-icon-16.jpg'
+
 
   const handlePassengerSignUp = async () => {
     setIsLoading(true)
@@ -25,9 +28,9 @@ export default function PassengerSignUp() {
       password,
       options: {
         data: {
-          name: name,
-          role: 'passenger',
-          image: 'https://picsum.photos/id/237/200/300',
+          name,
+          role,
+          image,
         }
       }
     });
@@ -42,10 +45,10 @@ export default function PassengerSignUp() {
             id: data.user.id , 
             name,
             email,
-            image: 'https://picsum.photos/id/237/200/300',
+            image,
             access_token: data.session.access_token,
             refresh_token: data.session.refresh_token,
-            role: 'passenger'
+            role
           });
           await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(storedUser));
           console.log('Usuário autenticado com sucesso:');

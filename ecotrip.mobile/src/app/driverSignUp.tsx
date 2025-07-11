@@ -18,6 +18,9 @@ export default function DriverSignUp() {
   const [vehicleModel, setVehicleModel] = useState('');
   const [driverName, setDriverName] = useState('');
   const [isLoading, setIsLoading] = useState(false)
+  
+  const role = 'driver'
+  const image = 'https://www.shutterstock.com/image-vector/truck-driver-vector-line-icon-260nw-2048408102.jpg'  
 
   const dimensions = useWindowDimensions()
 
@@ -30,8 +33,8 @@ export default function DriverSignUp() {
       options: {
         data: {
           name: driverName,
-          role: 'driver',
-          image: 'http://github.com/talisma-cassoma.png',
+          role,
+          image
         }
       }
     });
@@ -59,11 +62,11 @@ export default function DriverSignUp() {
       const storedUser = buildStoredUser({
         id: data.user.id,
         name: driverName,
-        email: email,
-        image: 'http://github.com/talisma-cassoma.png',
+        email,
+        image,
         access_token: data.session.access_token ,
         refresh_token: data.session.refresh_token ,
-        role: 'driver',
+        role,
         driverData: {
           car_model: vehicleModel,
           car_plate: vehiclePlate,
@@ -72,15 +75,13 @@ export default function DriverSignUp() {
       });
 
       await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(storedUser));
-      router.navigate("/home");
+      router.navigate("./newTripRrquests");
     }else {
       console.error('Erro ao fazer registro: sem token');
       Alert.alert('Erro', 'Não foi possível fazer o registro, tente novamente.');
       setIsLoading(false)
       return;
     }
-
-
   };
 
   return (

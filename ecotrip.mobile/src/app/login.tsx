@@ -24,10 +24,9 @@ export default function Login() {
     const { loading, setUser, user } = useUserAuth()
 
     const handleLogin = async () => {
-        // Lógica de autenticação aqui
+
         setIsLoading(true)
 
-        // Autenticação
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -77,12 +76,17 @@ export default function Login() {
             });
 
             await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(storedUser));
+            
             setUser(storedUser);
-
-            router.replace("/home");
+            
+            //console.log("storedUser: ", storedUser)
+            if(storedUser.role.type === 'driver'){
+                router.replace("./newTripRequests");
+            }else{
+                router.replace("/home");
+            }
         }
         else {
-            console.log("entrei no else")
             setIsLoading(false)
             Alert.alert('Erro', 'Não foi possível fazer login. Verifique suas credenciais e tente novamente.');
             console.error('Erro ao fazer login: sem token');
@@ -228,40 +232,3 @@ const styles = StyleSheet.create({
     bar: { flex: 1, height: 1, backgroundColor: colors.gray[300], marginVertical: 20, margin: 10 }
 });
 
-const data = {
-    "session":
-    {
-        "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6ImN5MldJdElMMXpkOEJlcGQiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2hmYm5wY3B1YXBwZWltcXN3enNoLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjOTViNGVhZi0wM2M4LTQ1NDYtOGUzNi1lMzA1ZDliOTAzOGYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzUyMTQ5NDcwLCJpYXQiOjE3NTIxNDU4NzAsImVtYWlsIjoidGFsaXNtYTYzQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJ0YWxpc21hNjNAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImltYWdlIjoiaHR0cDovL2dpdGh1Yi5jb20vdGFsaXNtYS1jYXNzb21hLnBuZyIsIm5hbWUiOiJUYWxpc21hIE1hbnVlbCAiLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInJvbGUiOiJkcml2ZXIiLCJzdWIiOiJjOTViNGVhZi0wM2M4LTQ1NDYtOGUzNi1lMzA1ZDliOTAzOGYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc1MjE0NTg3MH1dLCJzZXNzaW9uX2lkIjoiZDc3ZjkxMTktNjRmYi00ODRhLWI3ODYtOTI0ZDllOGZjYWE1IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.OgozO_8nvYgmH3zF1EEZom907wLIqfGRW4a9KwjiZJs",
-        "expires_at": 1752149470,
-        "expires_in": 3600,
-        "refresh_token": "3idwwcbtes6t",
-        "token_type": "bearer",
-        "user": {
-            "app_metadata": [Object],
-            "aud": "authenticated",
-            "confirmed_at": "2025-07-10T08:37:01.249707Z",
-            "created_at": "2025-07-10T08:37:01.227472Z",
-            "email": "talisma63@gmail.com",
-            "email_confirmed_at": "2025-07-10T08:37:01.249707Z",
-            "id": "c95b4eaf-03c8-4546-8e36-e305d9b9038f",
-            "identities": [Array],
-            "is_anonymous": false,
-            "last_sign_in_at": "2025-07-10T11:11:10.576717673Z",
-            "phone": "",
-            "role": "authenticated",
-            "updated_at": "2025-07-10T11:11:10.582088Z", "user_metadata": [Object]
-        }
-    },
-    "user": {
-        "app_metadata": { "provider": "email", "providers": [Array] }, "aud": "authenticated", "confirmed_at": "2025-07-10T08:37:01.249707Z", "created_at": "2025-07-10T08:37:01.227472Z", "email": "talisma63@gmail.com", "email_confirmed_at": "2025-07-10T08:37:01.249707Z", "id": "c95b4eaf-03c8-4546-8e36-e305d9b9038f", "identities": [[Object]], "is_anonymous": false, "last_sign_in_at": "2025-07-10T11:11:10.576717673Z", "phone": "", "role": "authenticated", "updated_at": "2025-07-10T11:11:10.582088Z",
-        "user_metadata": {
-            "email": "talisma63@gmail.com",
-            "email_verified": true,
-            "image": "http://github.com/talisma-cassoma.png",
-            "name": "Talisma Manuel ",
-            "phone_verified": false,
-            "role": "driver",
-            "sub": "c95b4eaf-03c8-4546-8e36-e305d9b9038f"
-        }
-    }
-}

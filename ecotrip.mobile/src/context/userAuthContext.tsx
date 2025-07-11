@@ -25,11 +25,17 @@ export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
       if (savedUser) {
 
         const parsed = JSON.parse(savedUser);
-        const parsedUser = buildStoredUser(parsed);
-        await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(parsedUser));
+        const parsedUser = parsed as AuthUser;
         setUser(parsedUser);
-        router.replace('/home');
-      
+        await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(parsedUser));
+
+        //console.log("role do user", parsed)
+        if (parsedUser.role.type === 'driver') {
+          router.replace("./newTripRequests");
+        } else {
+          router.replace("/home");
+        }
+
       }
     } catch (err) {
       console.error('Erro ao restaurar auth user:', err);
@@ -44,7 +50,7 @@ export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
   }
   useEffect(() => {
     loadUserStorageData();
-  },[]);
+  }, []);
 
   return (
     < UserAuthContext.Provider

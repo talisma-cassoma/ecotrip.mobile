@@ -107,7 +107,7 @@ export default function Profile() {
                 
                   <View style={{ flexDirection: "column", padding: 4 }}>
                     <Text style={styles.title}>{user?.name}</Text>
-                    {(user?.role.type === 'driver') && (<Text>vaijes realizadas {(user?.role.type === 'driver') && (user.role.data.complited_rides ?? 0)} </Text>)}
+                    {(user?.role.type === 'driver') && (<Text>viajes realizadas {(user?.role.type === 'driver') && (user.role.data.complited_rides ?? 0)} </Text>)}
                   </View>
                 
               </View>
