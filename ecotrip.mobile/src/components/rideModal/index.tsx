@@ -5,7 +5,7 @@ import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet"
 import { s } from "./styles"
 import { Place, PlaceProps } from "../place"
 import { BookRideDialog } from "../bookRideDialog"
-import { useLocation } from "@/context/locationContext"
+import { useTrip } from "@/context/tripContext"
 
 
 type RidesProps = PlaceProps & {
@@ -31,7 +31,7 @@ export function RideModal({ data }: RideModalProps) {
 
   const { userLocation,setDestinationCoords, 
     setOriginCoords 
-  } = useLocation();
+  } = useTrip();
 
   const snapPoints = {
     min: 378,
@@ -58,7 +58,7 @@ export function RideModal({ data }: RideModalProps) {
             onPress={() => {
               if (item.latitude && item.longitude){
                 //userLocation();
-                setOriginCoords({latitude: 1.8575468799281134, longitude: 9.773508861048843, name:"ma position"});
+                setOriginCoords({latitude: 1.8575468799281134, longitude: 9.773508861048843, name:"Ubicatión atual"});
                 setDestinationCoords({ latitude: item.latitude, longitude: item.longitude , name: item.name});
               }
             }}

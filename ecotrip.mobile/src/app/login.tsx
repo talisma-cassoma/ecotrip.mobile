@@ -151,7 +151,7 @@ export default function Login() {
                         </View>
                         <TextInput
                             style={styles.input}
-                            placeholder="email@exemplo.com"
+                            placeholder="email@ejemplo.com"
                             placeholderTextColor="#aaa"
                             keyboardType="email-address"
                             value={email}
@@ -169,12 +169,12 @@ export default function Login() {
 
                         <Button onPress={handleLogin} isLoading={isLoading}>
                             <Button.Title>
-                                entrar
+                                Entrar
                             </Button.Title>
                         </Button>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
                             <Text onPress={() => router.replace("/register")} style={{ color: colors.green.dark }}>Regístrate</Text>
-                            <Text onPress={handlePasswordReset} style={{ color: colors.green.dark }}>cambiar contrasenha</Text>
+                            <Text onPress={handlePasswordReset} style={{ color: colors.green.dark }}>Cambiar contraseña</Text>
                         </View>
                     </ScrollView>
                 </View>

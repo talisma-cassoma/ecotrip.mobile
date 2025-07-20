@@ -2,8 +2,8 @@ export default ({ config }) => ({
   ...config,
   expo: {
     ...config.expo,
-    name: "EcoTrip",
-    slug: "EcoTrip",
+    name: "ecotrip",
+    slug: "ecotrip",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",

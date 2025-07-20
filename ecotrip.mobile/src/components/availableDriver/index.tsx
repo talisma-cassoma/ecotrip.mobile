@@ -49,7 +49,7 @@ export function AvailableDriver({ id, name, description, image, telephone, isSel
             fontSize: 12,
             fontFamily: fontFamily.regular,
             color: colors.gray[400], alignItems: "center"
-          }}>Rank <Text style={{
+          }}>Calificación<Text style={{
             color: colors.green.base,
             fontFamily: fontFamily.semiBold,
             fontSize: 16

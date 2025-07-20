@@ -1,0 +1,2 @@
+comando pra fazer o build local e offline: 
+eas build -p android --local --output=app.apk --profile preview

@@ -9,6 +9,7 @@ import { COLECTION_USERS, buildStoredUser } from "../configs/database"
 import {
   IconBrandGoogleFilled
 } from "@tabler/icons-react-native";
+import { useUserAuth } from "@/context/userAuthContext"
 
 export default function PassengerSignUp() {
 
@@ -20,7 +21,7 @@ export default function PassengerSignUp() {
   const role = 'passenger'
   const image = 'https://icon-library.com/images/user-profile-icon/user-profile-icon-16.jpg'
 
-
+  const {setUser}= useUserAuth()
   const handlePassengerSignUp = async () => {
     setIsLoading(true)
     const { data, error } = await supabase.auth.signUp({
@@ -50,6 +51,7 @@ export default function PassengerSignUp() {
             refresh_token: data.session.refresh_token,
             role
           });
+          setUser(storedUser)
           await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(storedUser));
           console.log('Usuário autenticado com sucesso:');
       router.navigate("/home");
@@ -93,13 +95,13 @@ export default function PassengerSignUp() {
             placeholder="tu nombre"
             placeholderTextColor="#aaa"
             keyboardType="default"
-            value={name}
+          value={name}
             onChangeText={setName}
             autoCapitalize="none"
           />
           <TextInput
             style={styles.input}
-            placeholder="email@exemplo.com"
+            placeholder="email@ejemplo.com"
             placeholderTextColor="#aaa"
             keyboardType="email-address"
             value={email}

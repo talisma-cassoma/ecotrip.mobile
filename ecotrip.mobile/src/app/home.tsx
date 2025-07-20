@@ -11,8 +11,8 @@ import { RideModal } from "@/components/rideModal"
 import { PlaceProps } from "@/components/place"
 import { Categories, CategoriesProps } from "@/components/categories"
 import MapViewDirections from "react-native-maps-directions"
-import { useLocation } from "@/context/locationContext"
-import { LocationCoords, LocationContext, LocationProvider } from "@/context/locationContext"
+import { useTrip } from "@/context/tripContext"
+import { LocationCoords, LocationContext, LocationProvider } from "@/context/tripContext"
 import { DropDownMenu } from "@/components/dropDownMenu"
 
 type RidesProps = PlaceProps & {
@@ -560,7 +560,7 @@ export default function Home() {
   const [origin, setorigin] = useState<LocationCoords>({ latitude: 1.8017427763217277, longitude: 10.684559752006317, name: "ma posiion" })
 
   // const [destination, setDestination] = useState<LocationCoords>(null)
-  const { originCoords, destinationCoords, setDistance, setDuration } = useLocation();
+  const { originCoords, destinationCoords, setDistance, setDuration } = useTrip();
 
 
   async function fetchCategories() {
@@ -600,14 +600,14 @@ export default function Home() {
 
   return (
     <>
-      <DropDownMenu />
       <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
         <Categories
           data={categories}
           onSelect={setCategory}
           selected={category}
         />
-
+        
+      <DropDownMenu />
         <MapView
           ref={mapRef}
           customMapStyle={whiteMapStyle}
@@ -639,7 +639,7 @@ export default function Home() {
               }}
               image={require("@/assets/pin.png")}
             >
-              <Callout onPress={() => router.navigate(`/ride/${item.id}`)}>
+              <Callout>
                 <View>
                   <Text
                     style={{

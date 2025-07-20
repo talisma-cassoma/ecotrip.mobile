@@ -7,7 +7,7 @@ import { fontFamily, colors } from "@/styles/theme"
 import { AvailableDriverProps } from "@/components/availableDriver"
 
 import MapViewDirections from "react-native-maps-directions"
-import { useLocation } from "@/context/locationContext"
+import { useTrip } from "@/context/tripContext"
 
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet"
 import { AvailableDriver } from "@/components/availableDriver"
@@ -15,6 +15,8 @@ import { Button } from "@/components/button"
 import { IconArrowRight } from "@tabler/icons-react-native"
 import { IconArrowLeft } from "@tabler/icons-react-native"
 import { router } from "expo-router"
+import { api } from "@/services/api"
+import { useUserAuth } from "@/context/userAuthContext"
 
 
 
@@ -254,6 +256,7 @@ const driverMockData: AvailableDriverProps[] = [
     }
 ]
 
+
 export default function SelectADriver() {
     const mapRef = useRef<MapView>(null)
     const bottomSheetRef = useRef<BottomSheet>(null)
@@ -269,12 +272,44 @@ export default function SelectADriver() {
     const [isSelected, setIsSelected] = useState(false);
 
 
-    const { originCoords, destinationCoords, } = useLocation();
+    const { originCoords, destinationCoords, distance, duration } = useTrip();
+    const { user } = useUserAuth()
 
 
-    async function fetchDrivers() {
-        console.log("Fetching drivers...")
+    const fetchDrivers = async () => {
+        const newTrip = {
+            origin: {
+                name: originCoords?.name,
+                location: {
+                    lat: originCoords?.latitude,
+                    lng: originCoords?.longitude
+                }
+            },
+            destination: {
+                name: destinationCoords?.name,
+                location: {
+                    lat: destinationCoords?.latitude,
+                    lng: destinationCoords?.longitude
+                }
+            },
+            distance: distance,
+            duration: duration,
+            price: 59,
+            directions: {},
+            passengerId: user?.id
+        }
+        const response = await api.post('/new-trip', newTrip,
+            {
+                headers: {
+                    Authorization: `Bearer ${user?.access_token}`,
+                },
+            })
+
+        setDrivers(response.data)
+
     }
+
+    fetchDrivers()
 
     const handleRideCancel = () => {
         Alert.alert("Cancelar corrida", "Você tem certeza que deseja cancelar a corrida?", [
@@ -389,9 +424,7 @@ export default function SelectADriver() {
                                 />
                                 <Text>{destinationCoords?.name}</Text>
                             </View>
-                            <Text style={{ fontFamily: fontFamily.regular, fontSize: 16, color: colors.gray[600] }}>
-                                À espera do motorista. Você pode ligar clicando no botão “Ligar” ou enviar uma mensagem.
-                            </Text>
+                    
 
                             <Button onPress={handleRideCancel} style={{ marginTop: 16 }}>
                                 <Button.Title>cancelar</Button.Title>
@@ -407,7 +440,7 @@ export default function SelectADriver() {
                                 {...item}
                                 onPress={() => {
                                     setSelectedDriver(item)
-                                    console.log("Motorista selecionado:", selectedDriver?.id)
+                                    console.log("conductor selecionado:", selectedDriver?.id)
                                 }}
                                 isSelected={isSelected}
                             />
@@ -419,15 +452,15 @@ export default function SelectADriver() {
                                     <Button.Icon icon={IconArrowLeft} />
                                 </Button>
                                 <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
-                                                <Text>{originCoords?.name}</Text>
-                                                <IconArrowRight
-                                                  width={24}
-                                                  height={24}
-                                                  color={colors.gray[600]}
-                                                />
-                                                <Text>{destinationCoords?.name}</Text>
-                                              </View>
-                                <Text style={s.title}>Motoristas próximos</Text>
+                                    <Text>{originCoords?.name}</Text>
+                                    <IconArrowRight
+                                        width={24}
+                                        height={24}
+                                        color={colors.gray[600]}
+                                    />
+                                    <Text>{destinationCoords?.name}</Text>
+                                </View>
+                                <Text style={s.title}>Condutores cercanos</Text>
                             </>
                         )}
                         showsVerticalScrollIndicator={false}

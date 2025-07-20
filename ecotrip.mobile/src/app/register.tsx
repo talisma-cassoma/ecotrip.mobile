@@ -10,7 +10,7 @@ export default function SignUp() {
     <View style={styles.container}>
       <Image source={require("@/assets/logo.png")} style={{ width: 150, height: 150, marginTop: 24, marginBottom: 2, alignSelf: 'center' }} />
       <Text style={styles.title}>EcoTrip</Text>
-      <Text style={styles.subtitle}>Introduce tu correo y una contraseña para crear una cuenta</Text>
+      {/* <Text style={styles.subtitle}>Introduce tu correo y una contraseña para crear una cuenta</Text> */}
 
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 20, marginBottom: 20 }}>
         <Pressable onPress={() => router.navigate("./passengerSignUp")} style={styles.roleChoice}>

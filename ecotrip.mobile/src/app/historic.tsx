@@ -108,7 +108,7 @@ export default function Historic() {
   if (trips.length === 0) {
     return (
       <View style={styles.centered}>
-        <Text>Você não tem viagens registradas.</Text>
+        <Text>no tienes viajes registrados.</Text>
       </View>
     );
   }
@@ -118,7 +118,7 @@ export default function Historic() {
       <Button style={{ width: 40, height: 40, marginBottom: 40 }} onPress={() => router.back()}>
         <Button.Icon icon={IconArrowLeft} />
       </Button>
-      <Text style={styles.title}>Histórico de viagens</Text>
+      <Text style={styles.title}>Historial de viajes</Text>
       <FlatList
         data={trips}
         keyExtractor={(item) => item.id}

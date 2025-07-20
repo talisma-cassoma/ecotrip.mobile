@@ -1,7 +1,7 @@
 import { Stack } from "expo-router"
 import { colors } from "@/styles/theme"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
-import { LocationProvider } from "@/context/locationContext"
+import { LocationProvider } from "@/context/tripContext"
 import { UserAuthProvider } from "@/context/userAuthContext"
 import {
   useFonts,

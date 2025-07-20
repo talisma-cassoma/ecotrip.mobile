@@ -8,8 +8,8 @@ export function DropDownMenu() {
     const navigation = useNavigation();
 
     const menuOptions = [
-        { label: "profile", screen: "profile" },
-        { label: "Historic", screen: "historic" },
+        { label: "Perfil", screen: "profile" },
+        { label: "Historial", screen: "historic" },
     ];
 
     const handleOptionPress = (screen: string) => {

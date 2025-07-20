@@ -6,10 +6,10 @@ import 'react-native-get-random-values'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import * as Location from 'expo-location';
 import styles from './styles';
-import { useLocation } from '../../context/locationContext';
+import { useTrip } from '../../context/tripContext';
 import { Button } from '../button';
 
-import { VerticalDashedLine} from '../dottedLine';
+import { VerticalDashedLine } from '../dottedLine';
 import { PriceInput } from '../priceInput';
 import { colors } from "@/styles/theme"
 import { router } from 'expo-router';
@@ -18,7 +18,7 @@ import { formatDistance, formatDuration } from '@/utils/converter';
 
 export function BookRideDialog() {
   const [locatePressed, setLocatePressed] = useState(false);
-  const { setOriginCoords, setDestinationCoords, originCoords, destinationCoords, duration } = useLocation();
+  const { setOriginCoords, setDestinationCoords, originCoords, destinationCoords, duration, price , distance} = useTrip();
 
   const VerticalDashedLineHeight = 45;
   const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY;
@@ -31,11 +31,11 @@ export function BookRideDialog() {
     }
     const location = await Location.getCurrentPositionAsync({});
     const { latitude, longitude } = location.coords;
-    
+
     const currentLocation = {
       latitude,
       longitude,
-      name: 'ma position',
+      name: 'Ubicatión atual',
     };
 
     setOriginCoords(currentLocation);
@@ -59,11 +59,11 @@ export function BookRideDialog() {
       const { latitude, longitude } = location.coords;
 
 
-    const currentLocation = {
-      latitude,
-      longitude,
-      name: 'ma position',
-    };
+      const currentLocation = {
+        latitude,
+        longitude,
+        name: 'Ubicatión atual',
+      };
 
       setOriginCoords(currentLocation);
     };
@@ -100,7 +100,7 @@ export function BookRideDialog() {
                   if (!details || !details.geometry) return;
                   const { lat, lng } = details.geometry.location;
                   const { name } = details
-                  setOriginCoords({ latitude: lat, longitude: lng , name: name});
+                  setOriginCoords({ latitude: lat, longitude: lng, name: name });
                   console.log("origem selecionada:", { latitude: lat, longitude: lng }); // 
                   setLocatePressed(false);
                 }}
@@ -148,8 +148,8 @@ export function BookRideDialog() {
                     return;
                   }
                   const { lat, lng } = details.geometry.location;
-                  const {name} = details
-                  setDestinationCoords({ latitude: lat, longitude: lng , name:name});
+                  const { name } = details
+                  setDestinationCoords({ latitude: lat, longitude: lng, name: name });
                   console.log("destino selecionado:", { latitude: lat, longitude: lng });
                 }}
                 query={{
@@ -210,19 +210,23 @@ export function BookRideDialog() {
                 />
                 <Text>{destinationCoords.name}</Text>
               </View>
-              <Text >{duration?(`el tempo previsto de viaje es ${formatDuration(duration)}`):("")}</Text>
+              <Text >{duration ? (`el tempo previsto de viaje es ${formatDuration(duration)}`) : ("")}</Text>
             </View>
+            {price && (
+              <PriceInput
+                initialValue={price}
+                currencySymbol="Francos"
+                minPrice={400}
+                step={price / 10}
+              />
 
-            <PriceInput
-              initialValue={10}
-              currencySymbol="$"
-              minPrice={7}
-              step={5}
-              onChange={(value) => console.log('Novo preço:', value)}
-            />
-            <Button onPress={handleRideRequest} style={{ marginTop: 16 }}>
-              <Button.Title>encontar un motorista</Button.Title>
-            </Button>
+            )}
+            {distance && (
+
+              <Button onPress={handleRideRequest} style={{ marginTop: 16 }}>
+                <Button.Title>buscar un conductor</Button.Title>
+              </Button>
+            )}
           </>
         )}
       </View>

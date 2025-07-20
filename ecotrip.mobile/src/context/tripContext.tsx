@@ -1,6 +1,5 @@
-// LocationContext.tsx
-
-import React, { createContext, useState, ReactNode, useContext } from 'react';
+// TripContext.tsx
+import React, { createContext, useState, ReactNode, useContext, useEffect } from 'react';
 import * as Location from 'expo-location';
 
 export type LocationCoords = {
@@ -9,7 +8,7 @@ export type LocationCoords = {
   name: string;
 } | null;
 
-type LocationContextType = {
+type TripContextType = {
   originCoords: LocationCoords;
   destinationCoords: LocationCoords;
   setOriginCoords: (loc: LocationCoords) => void;
@@ -17,17 +16,20 @@ type LocationContextType = {
   userLocation: () => Promise<void>;
   distance: number | null;
   duration: number | null;
+  price: number | null;
   setDistance: (value: number | null) => void;
   setDuration: (value: number | null) => void;
+  setPrice: (value: number | null) => void;
 };
 
-export const LocationContext = createContext({} as LocationContextType);
+export const TripContext = createContext({} as TripContextType);
 
 export const LocationProvider = ({ children }: { children: ReactNode }) => {
   const [originCoords, setOriginCoords] = useState<LocationCoords>(null);
   const [destinationCoords, setDestinationCoords] = useState<LocationCoords>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
+  const [price, setPrice] = useState<number | null>(null);
 
   const userLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -42,15 +44,31 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
     const currentLocation = {
       latitude,
       longitude,
-      name: 'ma position',
+      name: 'Ubicatión atual',
     };
 
     setOriginCoords(currentLocation);
     console.log('Current location:', currentLocation);
   };
 
+useEffect(() => {
+  const Po = 400;
+  const Do = 1.5; // km
+  const Cd = 150;
+
+  if (distance) {
+    const rawPrice = Po + Math.max(0, (distance - Do) * Cd);
+
+    // para múltiplo de 25 mais próximo para cima
+    const roundedPrice = Math.ceil(rawPrice / 25) * 25;
+
+    setPrice(roundedPrice);
+  }
+}, [distance]);
+
+
   return (
-    <LocationContext.Provider
+    <TripContext.Provider
       value={{
         originCoords,
         setOriginCoords,
@@ -59,19 +77,21 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
         userLocation,
         distance,
         duration,
+        price,
         setDistance,
         setDuration,
+        setPrice
       }}
     >
       {children}
-    </LocationContext.Provider>
+    </TripContext.Provider>
   );
 };
 
-export const useLocation = () => {
-  const context = useContext(LocationContext);
+export const useTrip = () => {
+  const context = useContext(TripContext);
   if (!context) {
-    throw new Error('useLocation must be used within a LocationProvider');
+    throw new Error('useTrip must be used within a LocationProvider');
   }
   return context;
 };

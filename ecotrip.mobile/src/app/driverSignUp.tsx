@@ -7,6 +7,7 @@ import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert, useWindowD
 import { supabase } from "@/services/superbase";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLECTION_USERS, buildStoredUser } from "../configs/database"
+import { useUserAuth } from "@/context/userAuthContext"
 
 
 
@@ -18,6 +19,8 @@ export default function DriverSignUp() {
   const [vehicleModel, setVehicleModel] = useState('');
   const [driverName, setDriverName] = useState('');
   const [isLoading, setIsLoading] = useState(false)
+
+  const { setUser} = useUserAuth()
   
   const role = 'driver'
   const image = 'https://www.shutterstock.com/image-vector/truck-driver-vector-line-icon-260nw-2048408102.jpg'  
@@ -73,9 +76,9 @@ export default function DriverSignUp() {
           license_number: licenseNumber,
         }
       });
-
+      setUser(storedUser)
       await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(storedUser));
-      router.navigate("./newTripRrquests");
+      router.navigate("./newTripRequests");
     }else {
       console.error('Erro ao fazer registro: sem token');
       Alert.alert('Erro', 'Não foi possível fazer o registro, tente novamente.');
@@ -88,7 +91,7 @@ export default function DriverSignUp() {
     <View style={styles.container}>
       <Image source={require("@/assets/logo.png")} style={{ width: 150, height: 150, marginTop: 24, marginBottom: 2, alignSelf: 'center' }} />
       <Text style={styles.title}>EcoTrip</Text>
-      <Text style={styles.subtitle}>Introduce tu correo y una contraseña para crear una cuenta para el rigistro como <Text style={{ fontFamily: fontFamily.bold }}>motorista</Text></Text>
+      <Text style={styles.subtitle}>Introduce tus datos para rigistrarte como <Text style={{ fontFamily: fontFamily.bold }}>conductor</Text></Text>
 
       <View style={{ minHeight: (dimensions.height / 2) - 80 }}>
         <ScrollView
@@ -106,14 +109,14 @@ export default function DriverSignUp() {
           />
           <TextInput
             style={styles.input}
-            placeholder="Número de licencia"
+            placeholder="Permiso de conducir"
             placeholderTextColor="#aaa"
             value={licenseNumber}
             onChangeText={setLicenseNumber}
           />
           <TextInput
             style={styles.input}
-            placeholder="Placa del vehículo"
+            placeholder="Numero de matricula"
             placeholderTextColor="#aaa"
             value={vehiclePlate}
             onChangeText={setVehiclePlate}
@@ -127,7 +130,7 @@ export default function DriverSignUp() {
           />
           <TextInput
             style={styles.input}
-            placeholder="email@exemplo.com"
+            placeholder="email@ejemplo.com"
             placeholderTextColor="#aaa"
             keyboardType="email-address"
             value={email}
