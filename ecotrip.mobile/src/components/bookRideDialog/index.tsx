@@ -199,7 +199,7 @@ export function BookRideDialog() {
 
         </View>
         {originCoords && destinationCoords && (
-          <>
+          <View style={{flexDirection: "column", gap:10, margin:10}}>
             <View style={{ marginBottom: 10, marginTop: 10, alignItems: 'center' }}>
               <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
                 <Text>{originCoords.name}</Text>
@@ -210,6 +210,7 @@ export function BookRideDialog() {
                 />
                 <Text>{destinationCoords.name}</Text>
               </View>
+               {distance && <Text> {formatDistance(distance)}</Text>}
               <Text >{duration ? (`el tempo previsto de viaje es ${formatDuration(duration)}`) : ("")}</Text>
             </View>
             {price && (
@@ -222,12 +223,11 @@ export function BookRideDialog() {
 
             )}
             {distance && (
-
               <Button onPress={handleRideRequest} style={{ marginTop: 16 }}>
                 <Button.Title>buscar un conductor</Button.Title>
               </Button>
             )}
-          </>
+          </View>
         )}
       </View>
     </ >

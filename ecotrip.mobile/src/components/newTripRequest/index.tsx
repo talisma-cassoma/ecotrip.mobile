@@ -5,19 +5,36 @@ import { IconPointFilled, IconMapPinFilled, IconPhone, IconMessage } from "@tabl
 import { VerticalDashedLine } from "../../components/dottedLine"
 import { colors, fontFamily } from "@/styles/theme"
 
-export interface ITrip {
+export type Trip = {
     id: string;
-    origin: string;
-    destination: string;
-    datetime: string; // ISO string
-    price?: number;
-    distance: string;
+    status: string;
+    name: string | null;
+    distance: number;
+    duration: number;
+    freight: number;
+    directions: any;
+    driver_id: string | null;
+    passengerId: string;
+    source: {
+        name: String;
+        location: {
+            lat: number;
+            lng: number;
+        }
+    };
+    destination: {
+        name: String;
+        location: {
+            lat: number;
+            lng: number;
+        }
+    };
 }
 
 interface NewTripRequestProps {
-    item: ITrip;
+    item: Trip;
     isSelected: boolean
-    onAccept: (trip: ITrip) => void;
+    onAccept: (trip: Trip) => void;
 }
 
 export function NewTripRequest({ item, onAccept, isSelected }: NewTripRequestProps) {
@@ -48,23 +65,23 @@ export function NewTripRequest({ item, onAccept, isSelected }: NewTripRequestPro
                         <View style={{ flexDirection: "column", justifyContent: "space-between", marginRight: 40 }}>
                             <View style={{ flexDirection: "column", justifyContent: "space-between" }}>
                                 <Text style={styles.regular}> origem </Text>
-                                <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600], flexWrap: "wrap" }}>{item.origin}</Text>
+                                <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600], flexWrap: "wrap" }}>{item.source.name}</Text>
                             </View>
                             <View>
                                 <Text style={styles.regular}> destino</Text>
-                                <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600], flexWrap: "wrap" }}>{item.destination}</Text>
+                                <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600], flexWrap: "wrap" }}>{item.destination.name}</Text>
                             </View>
                         </View>
                     </View>
 
-                    <View style={{ flexDirection: "row", width: 60 }}>
+                    <View style={{ flexDirection: "row", width: 80 }}>
                         {/* <View style={styles.verticalBar} /> */}
                         <View style={{ flexDirection: "column", justifyContent: "space-between" }}>
                             <Text style={styles.regular}>
                                 Valor: {`\n`}
-                                {item.price !== undefined &&
+                                {item.freight !== undefined &&
                                     <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>
-                                        ${item.price.toFixed(2)}
+                                        ${item.freight.toFixed(2)}
                                     </Text>}
                             </Text>
                             <Text style={styles.regular}>distance: {`\n`}

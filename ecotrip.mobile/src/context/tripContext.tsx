@@ -24,7 +24,7 @@ type TripContextType = {
 
 export const TripContext = createContext({} as TripContextType);
 
-export const LocationProvider = ({ children }: { children: ReactNode }) => {
+export const TripProvider = ({ children }: { children: ReactNode }) => {
   const [originCoords, setOriginCoords] = useState<LocationCoords>(null);
   const [destinationCoords, setDestinationCoords] = useState<LocationCoords>(null);
   const [distance, setDistance] = useState<number | null>(null);
@@ -91,7 +91,7 @@ useEffect(() => {
 export const useTrip = () => {
   const context = useContext(TripContext);
   if (!context) {
-    throw new Error('useTrip must be used within a LocationProvider');
+    throw new Error('useTrip must be used within a TripProvider');
   }
   return context;
 };

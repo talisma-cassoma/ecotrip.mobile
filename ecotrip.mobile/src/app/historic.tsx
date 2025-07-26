@@ -9,6 +9,8 @@ import { Button } from '@/components/button';
 import { IconArrowLeft } from "@tabler/icons-react-native"
 import { router } from "expo-router"
 import { Trip } from '@/components/trip';
+import { useUserAuth } from '@/context/userAuthContext';
+import { api } from '@/services/api';
 
 interface iTrip {
   id: string;
@@ -60,34 +62,29 @@ export default function Historic() {
   const [trips, setTrips] = useState<iTrip[]>(historicMockData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useUserAuth();
 
-  //   useEffect(() => {  
-  //     async function fetchTrips() {
-  //       try {
-  //         setLoading(true);
-  //         setError(null);
-  //         if (!user?.id || !user?.role) {
-  //           setError('Usuário não autenticado.');
-  //           setLoading(false);
-  //           return;
-  //         }
+  const getTripHistoric = async () => {
+  try {
+    const response = await api.request({
+      method: 'GET',
+      url: '/trips/historic',
+      data: { user_id: user?.id },
+      headers: {
+        access_token: user?.access_token,
+        refresh_token: user?.refresh_token,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar histórico de viagens:', error);
+    throw error;
+  }
+};
 
-  //         const endpoint = user.role === 'driver' 
-  //           ? `/trips/driver/${user.id}` 
-  //           : `/trips/passenger/${user.id}`;
-
-  //         const response = await api.get<Trip[]>(endpoint);
-  //         setTrips(response.data);
-  //       } catch (err) {
-  //         setError('Erro ao carregar histórico de viagens.');
-  //         console.error(err);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     }
-
-  //     fetchTrips();
-  //   }, [user]);
+  useEffect(() => {  
+      const trips = getTripHistoric()
+   }, [user]);
 
   if (!loading) {
     return (

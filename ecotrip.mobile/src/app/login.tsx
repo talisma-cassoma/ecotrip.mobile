@@ -3,9 +3,7 @@ import { router } from "expo-router"
 
 import { fontFamily, colors } from "@/styles/theme"
 import { Button } from "@/components/button";
-import {
-    IconBrandGoogleFilled
-} from "@tabler/icons-react-native"
+import { IconBrandGoogleFilled } from "@tabler/icons-react-native"
 
 import React, { useState } from 'react';
 import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
@@ -62,7 +60,6 @@ export default function Login() {
                     };
                 }
             }
-
             // Montagem do objeto a ser salvo
             const storedUser = buildStoredUser({
                 id,
@@ -79,7 +76,7 @@ export default function Login() {
             
             setUser(storedUser);
             
-            //console.log("storedUser: ", storedUser)
+            //--
             if(storedUser.role.type === 'driver'){
                 router.replace("./newTripRequests");
             }else{

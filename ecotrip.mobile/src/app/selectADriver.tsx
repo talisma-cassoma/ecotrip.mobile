@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react"
 import { View, Alert, Text, useWindowDimensions, StyleSheet } from "react-native"
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps"
-
+import { IconArrowLeft } from "@tabler/icons-react-native"
 import { fontFamily, colors } from "@/styles/theme"
 
 import { AvailableDriverProps } from "@/components/availableDriver"
@@ -12,13 +12,11 @@ import { useTrip } from "@/context/tripContext"
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet"
 import { AvailableDriver } from "@/components/availableDriver"
 import { Button } from "@/components/button"
-import { IconArrowRight } from "@tabler/icons-react-native"
-import { IconArrowLeft } from "@tabler/icons-react-native"
 import { router } from "expo-router"
-import { api } from "@/services/api"
+
+import { api, socket } from "@/services/api"
 import { useUserAuth } from "@/context/userAuthContext"
-
-
+import { BookingTripCard } from "@/components/bookingTripCard"
 
 const whiteMapStyle = [
     {
@@ -256,7 +254,6 @@ const driverMockData: AvailableDriverProps[] = [
     }
 ]
 
-
 export default function SelectADriver() {
     const mapRef = useRef<MapView>(null)
     const bottomSheetRef = useRef<BottomSheet>(null)
@@ -265,53 +262,94 @@ export default function SelectADriver() {
         min: 278,
         max: dimensions.height - 268,
     }
+  const [drivers, setDrivers] = useState<AvailableDriverProps[]>([]);
+  const [selectedDriver, setSelectedDriver] = useState<AvailableDriverProps | null>(null);
+  const [isSelected, setIsSelected] = useState(false);
+  const [tripId, setTripId] = useState<string | null>(null);
 
-    const [drivers, setDrivers] = useState<AvailableDriverProps[]>(driverMockData)
+  const { originCoords, destinationCoords, distance, duration, price } = useTrip();
+  const { user } = useUserAuth();
 
-    const [selectedDriver, setSelectedDriver] = useState<AvailableDriverProps | null>(null);
-    const [isSelected, setIsSelected] = useState(false);
-
-
-    const { originCoords, destinationCoords, distance, duration } = useTrip();
-    const { user } = useUserAuth()
-
-
-    const fetchDrivers = async () => {
-        const newTrip = {
-            origin: {
-                name: originCoords?.name,
-                location: {
-                    lat: originCoords?.latitude,
-                    lng: originCoords?.longitude
-                }
-            },
-            destination: {
-                name: destinationCoords?.name,
-                location: {
-                    lat: destinationCoords?.latitude,
-                    lng: destinationCoords?.longitude
-                }
-            },
-            distance: distance,
-            duration: duration,
-            price: 59,
-            directions: {},
-            passengerId: user?.id
-        }
-        const response = await api.post('/new-trip', newTrip,
-            {
-                headers: {
-                    Authorization: `Bearer ${user?.access_token}`,
-                },
-            })
-
-        setDrivers(response.data)
-
+  const fetchDrivers = async () => {
+    if (!user) {
+      router.replace('/login');
+      return;
     }
 
-    fetchDrivers()
+    try {
+      const newTrip = {
+        origin: {
+          name: originCoords?.name,
+          location: {
+            lat: originCoords?.latitude,
+            lng: originCoords?.longitude,
+          },
+        },
+        destination: {
+          name: destinationCoords?.name,
+          location: {
+            lat: destinationCoords?.latitude,
+            lng: destinationCoords?.longitude,
+          },
+        },
+        distance,
+        duration,
+        price,
+        directions: {},
+        passengerId: user.id,
+      };
 
-    const handleRideCancel = () => {
+      const response = await api.post('/trips/new-trip', newTrip, {
+        headers: { Authorization: `Bearer ${user?.access_token}` },
+      });
+
+      const { tripId } = response.data;
+      setTripId(tripId);
+      console.log('Resposta:', response.data);
+    } catch (err) {
+      console.error("Erro ao criar nova viagem:", err);
+    }
+  };
+  
+  const cancelTripByPassenger = async () => {
+  try {
+    const reason = "Cancelado pelo passageiro";
+    const response = await api.post(`/trips/${tripId}/cancel/passenger`,
+        { user_id: user?.id, reason: reason },
+      {
+        headers: {
+           access_token: user?.access_token,
+          refresh_token: user?.refresh_token,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao cancelar como passageiro:', error);
+    throw error;
+  }
+};
+ 
+const confirmTrip = async () => {
+  try {
+    const response = await api.post(`/trips/${tripId}/confirm`, 
+      { driver_id: selectedDriver?.id }, 
+      {
+        headers: {
+          access_token: user?.access_token,
+          refresh_token: user?.refresh_token,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao confirmar viagem:', error);
+    throw error;
+  }
+};
+
+
+  const handleRideCancel = () => {
         Alert.alert("Cancelar corrida", "Você tem certeza que deseja cancelar a corrida?", [
             {
                 text: "Não",
@@ -322,20 +360,72 @@ export default function SelectADriver() {
                 onPress: () => {
                     setSelectedDriver(null)
                     setIsSelected(false)
+                    cancelTripByPassenger()
                     console.log("Corrida cancelada")
                 }
             }
         ])
     }
-    useEffect(() => {
-        setIsSelected(true)
-    }, [selectedDriver])
+
+  useEffect(() => {
+    fetchDrivers();
+  }, []);
+
+  useEffect(() => {
+    if (!tripId || !user?.id) return;
+
+     console.log("TripId definido, conectando socket:", tripId);
+
+    socket.connect();
+
+    socket.on('connect', () => {
+      console.log('Conectado:', socket.id);
+      socket.emit('client:available-drivers', {
+        passengerId: user.id,
+        tripId,
+      });
+      
+    });
+    socket.on(`server:available-drivers/${tripId}`, (data) => {
+      if (data.error) {
+        console.warn('Erro:', data.error);
+      } else {
+        const drivers: AvailableDriverProps = {
+          id: data.id,
+          name: data.name,
+          description: data.description,
+          image: data.image,
+          telephone: data.telephone,
+          carModel: data.carModel,
+          carPlate: data.carPlate,
+          carColor: data.carColor,
+          rating: data.rating,
+        complited_rides: data.complited_rides
+        };
+        setDrivers([drivers]);
+      }
+    });
+
+
+    return () => {
+      socket.off('connect');
+      socket.off(`server:available-drivers/${tripId}`);
+      socket.disconnect();
+    };
+  }, [tripId]);
+
+  useEffect(() => {
+    setIsSelected(true);
+  }, [selectedDriver]);
+
     return (
         <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
             <MapView
                 ref={mapRef}
                 customMapStyle={whiteMapStyle}
                 provider={PROVIDER_GOOGLE}
+                zoomControlEnabled={true}
+                zoomEnabled={true}
                 style={{ flex: 1 }}
                 initialRegion={{
                     latitude: 1.8575468799281134,
@@ -414,22 +504,10 @@ export default function SelectADriver() {
                 {selectedDriver?.id ? (
                     <View style={{ padding: 24 }}>
                         <AvailableDriver {...selectedDriver} onPress={() => { }} />
-                        <View style={{ marginTop: 20 }}>
-                            <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
-                                <Text>{originCoords?.name}</Text>
-                                <IconArrowRight
-                                    width={24}
-                                    height={24}
-                                    color={colors.gray[600]}
-                                />
-                                <Text>{destinationCoords?.name}</Text>
-                            </View>
-                    
-
-                            <Button onPress={handleRideCancel} style={{ marginTop: 16 }}>
-                                <Button.Title>cancelar</Button.Title>
-                            </Button>
-                        </View>
+                        <BookingTripCard />
+                        <Button onPress={handleRideCancel} style={{ marginTop: 16 }}>
+                            <Button.Title>cancelar</Button.Title>
+                        </Button>
                     </View>
                 ) : (
                     <BottomSheetFlatList
@@ -439,6 +517,7 @@ export default function SelectADriver() {
                             <AvailableDriver
                                 {...item}
                                 onPress={() => {
+                                    confirmTrip()
                                     setSelectedDriver(item)
                                     console.log("conductor selecionado:", selectedDriver?.id)
                                 }}
@@ -447,21 +526,13 @@ export default function SelectADriver() {
                         )}
                         contentContainerStyle={s.content}
                         ListHeaderComponent={() => (
-                            <>
+                            <View>
                                 <Button style={{ width: 40, height: 40, marginBottom: 20 }} onPress={() => router.back()}>
                                     <Button.Icon icon={IconArrowLeft} />
                                 </Button>
-                                <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
-                                    <Text>{originCoords?.name}</Text>
-                                    <IconArrowRight
-                                        width={24}
-                                        height={24}
-                                        color={colors.gray[600]}
-                                    />
-                                    <Text>{destinationCoords?.name}</Text>
-                                </View>
+                                <BookingTripCard />
                                 <Text style={s.title}>Condutores cercanos</Text>
-                            </>
+                            </View>
                         )}
                         showsVerticalScrollIndicator={false}
                     />

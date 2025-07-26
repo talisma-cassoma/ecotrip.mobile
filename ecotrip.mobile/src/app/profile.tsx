@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ActivityIndicator, Image, ImageBackground, Aler
 //import { AuthContext } from '../contexts/AuthContext'; // ajuste o caminho
 //import { api } from '@services/api'; 
 import { Button } from '@/components/button';
-import { IconArrowLeft, IconUser, IconAB2, IconLicense, IconUsersGroup, IconBell, IconClock } from "@tabler/icons-react-native"
+import { IconArrowLeft, IconUser, IconAB2, IconAlignJustified, IconUsersGroup, IconBell, IconClock } from "@tabler/icons-react-native"
 import { router } from "expo-router"
 import { supabase } from "@/services/superbase";
 import { useUserAuth } from '@/context/userAuthContext';
@@ -200,7 +200,7 @@ export default function Profile() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.iconButton}>
-              <IconLicense
+              <IconAlignJustified
                 size={20}
                 color={colors.gray[500]}
               />

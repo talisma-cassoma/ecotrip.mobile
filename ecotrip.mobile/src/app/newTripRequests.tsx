@@ -1,64 +1,124 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
-//import { AuthContext } from '../contexts/AuthContext';
-//import api from '../services/api';
+import { socket } from '../services/api';
 import { IconUser, IconHome, IconBell, IconClock } from "@tabler/icons-react-native"
 import { colors, fontFamily } from "@/styles/theme"
 import { router } from "expo-router"
-import { NewTripRequest, ITrip } from '@/components/newTripRequest';
+import { NewTripRequest, Trip } from '@/components/newTripRequest';
 import { Button } from "@/components/button"
-
-const historicMockData = [
-    {
-        id: 'trip1',
-        origin: 'Avenida Paulista, São Paulo',
-        destination: 'Rua Augusta, São Paulo',
-        datetime: '2025-06-29T14:30:00Z',
-        price: 25.50,
-        distance: '2 Km',
-    },
-    {
-        id: 'trip2',
-        origin: 'Praça da Sé, São Paulo',
-        destination: 'Parque Ibirapuera, São Paulo',
-        datetime: '2025-06-28T09:15:00Z',
-        price: 30.00,
-        distance: '1Km',
-    },
-    {
-        id: 'trip3',
-        origin: 'Terminal Rodoviário Tietê',
-        destination: 'Aeroporto de Guarulhos',
-        datetime: '2025-06-27T19:45:00Z',
-        price: 48.75,
-        distance: '4km',
-    },
-    {
-        id: 'trip4',
-        origin: 'Shopping Morumbi',
-        destination: 'Estádio do Morumbi',
-        datetime: '2025-06-26T17:00:00Z',
-        price: 22.00,
-        distance: '80m',
-    },
-];
+import { useTrip } from '@/context/tripContext';
+import { useUserAuth } from '@/context/userAuthContext';
+import { api } from '@/services/api';
 
 
 export default function NewTripRequests() {
-    //const { user } = useContext(AuthContext);
-    const [trips, setTrips] = useState<ITrip[]>(historicMockData);
+
+    const [trips, setTrips] = useState<Trip[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedTrip, setSelectedTrip] = useState<ITrip | null>(null);
-    const [isSelected, setIsSelected]= useState(false)
-  
-    const handleAcceptTrip = (trip: ITrip) => {
+    const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+    const [isSelected, setIsSelected] = useState(false)
+
+    const { user } = useUserAuth()
+
+    const handleAcceptTrip = (trip: Trip) => {
+        console.log("aceitando a viagem", trip.id);
         setIsSelected(true)
         setSelectedTrip(trip);
+        //informar ao clinte
+        if (user?.role.type === 'driver') {
+            socket.emit('client:accept-trip', {
+                tripId: trip.id, 
+                driver: {
+                    id: user?.id,
+                    name: user?.name,
+                    image: user?.image,
+                    telephone: "+212 000000000",
+                    carModel: user.role.data.car_model,
+                    carPlate: user.role.data.car_plate,
+                    carColor: "Azul",
+                    rating: user.role.data.rating,
+                    complited_rides: user.role.data.complited_rides,
+                }
+            });
+        }
     };
 
+    const cancelTripByDriver = async () => {
+  try {
+    const reason = "driver cancel beacause is bored"; // Defina o motivo de cancelamento
+    const response = await api.post(`/trips/${selectedTrip?.id}/cancel/driver`,
+      { user_id: user?.id, reason: reason },
+      {
+        headers: {
+          access_token: user?.access_token,
+          refresh_token: user?.refresh_token,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao cancelar como motorista:', error);
+    throw error;
+  }
+};
 
-    if (!loading) {
+    const fetchNewTripsRequest = async () => {
+
+        if (!user) { router.replace('/login') }
+
+        try {
+            socket.connect();
+
+            socket.on('connect', () => {
+                console.log('Conectado ao socket:', socket.id);
+
+                // Envia o evento que o Gateway espera
+                socket.emit('client:requested-trips', { driver_id: user?.id });
+
+                // Escuta a resposta
+                socket.on('server:requested-trips', (data) => {
+                    //console.log('Novas viagens recebidas:', data.newTrips);
+                    const newTrips: Trip[] = data.newTrips.map((trip: Trip) => ({
+                        id: trip.id,
+                        source: {
+                            name: trip.source.name,
+                            location: {
+                                lat: trip.source.location.lat,
+                                lng: trip.source.location.lng,
+                            }
+                        },
+                        destination: {
+                            name: trip.destination.name,
+                            location: {
+                                lat: trip.destination.location.lat,
+                                lng: trip.destination.location.lng,
+                            }
+                        },
+                        freight: trip.freight,
+                        distance: trip.distance,
+                    }))
+                    if (data.newTrips) {
+                        setTrips(newTrips);
+                        setLoading(false);
+                    }
+                });
+            });
+
+            socket.on('connect_error', (err) => {
+                console.error('Erro de conexão:', err);
+            });
+
+        } catch (error) {
+            console.error('Erro no fetchNewTripsRequest:', error);
+        }
+    }
+
+    useEffect(() => {
+        fetchNewTripsRequest()
+    }, [])
+
+    if (loading) {
         return (
             <View style={styles.centered}>
                 <ActivityIndicator size="large" />
@@ -73,7 +133,7 @@ export default function NewTripRequests() {
             </View>
         );
     }
-  
+
     return (
         <View style={styles.container}>
             <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 50 }}>
@@ -107,18 +167,19 @@ export default function NewTripRequests() {
             </View>
             <Text style={styles.title}>Novos pedidos</Text>
 
-            {selectedTrip ? (            
-                <View style={{ flexDirection:"column",width:"100%", height:230  }}>
+            {selectedTrip ? (
+                <View style={{ flexDirection: "column", width: "100%", height: 230 }}>
                     <NewTripRequest
                         item={selectedTrip}
                         onAccept={() => { }}
-                        isSelected={isSelected}     
+                        isSelected={isSelected}
                     />
                     <Text style={{ fontFamily: fontFamily.regular, fontSize: 16, color: colors.gray[600] }}>
-                       Você pode ligar clicando em “Ligar” ou enviar uma mensagem.
+                        Você pode ligar clicando em “Ligar” ou enviar uma mensagem.
                     </Text>
 
-                    <Button onPress={() =>{
+                    <Button onPress={() => {
+                        cancelTripByDriver()
                         setSelectedTrip(null)
                         setIsSelected(false)
                     }} style={{ marginTop: 16 }}>
@@ -133,7 +194,7 @@ export default function NewTripRequests() {
                         <NewTripRequest
                             item={item}
                             onAccept={handleAcceptTrip}
-                            isSelected={isSelected}   
+                            isSelected={isSelected}
                         />
                     )}
                     contentContainerStyle={{ paddingBottom: 20 }}

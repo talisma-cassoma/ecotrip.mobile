@@ -20,12 +20,14 @@ export interface AvailableDriverProps extends TouchableOpacityProps {
   isSelected?: boolean,
   carModel?: string
   carPlate?: string
-  carColor?: string
+  carColor?: string,
+  rating?: number
+  complited_rides?: number
 }
 
 
 export function AvailableDriver({ id, name, description, image, telephone, isSelected,
-  carModel, carPlate, carColor, ...rest }: AvailableDriverProps) {
+  carModel, carPlate, carColor, rating, complited_rides, ...rest }: AvailableDriverProps) {
   const handleCall = () => {
     // Implement call functionality
     console.log(`Calling ${telephone}`);
@@ -53,7 +55,7 @@ export function AvailableDriver({ id, name, description, image, telephone, isSel
             color: colors.green.base,
             fontFamily: fontFamily.semiBold,
             fontSize: 16
-          }}> 5.8 </Text> <IconStarFilled size={14} fill="#FFA500" /></Text>
+          }}> {rating} </Text> <IconStarFilled size={14} fill="#FFA500" /></Text>
         </View>
 
         <View style={{ flexDirection: "column", alignItems: "center", }}>
