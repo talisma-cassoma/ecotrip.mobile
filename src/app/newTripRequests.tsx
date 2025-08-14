@@ -192,7 +192,7 @@ const handleNewTrips = (data: any) => {
                         />
                     </TouchableOpacity>
                 </View>
-                <Text style={styles.title}>Novos pedidos</Text>
+                <Text style={styles.title}>Nuevos pedidos</Text>
                 <View style={styles.centered}>
                     <Text>sem novas pedidos.</Text>
                 </View>
@@ -231,7 +231,7 @@ const handleNewTrips = (data: any) => {
                     />
                 </TouchableOpacity>
             </View>
-            <Text style={styles.title}>Novos pedidosssss</Text>
+            <Text style={styles.title}>Nuevos pedidos</Text>
 
             {selectedTrip ? (
                 <View style={{ flexDirection: "column", width: "100%", height: 230 }}>
