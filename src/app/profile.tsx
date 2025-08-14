@@ -114,7 +114,7 @@ export default function Profile() {
 
             {(user?.role.type === 'driver') && (
               <>
-                <Text style={styles.subtitle}>Informações do Veículo </Text>
+                <Text style={styles.subtitle}>información del vehículo</Text>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", backgroundColor: colors.green.soft, padding: 10, borderRadius: 10, marginTop: 10, width:"auto"}}>
                   <Text>Modelo: {`\n`}
                     <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.role.data.car_model}</Text>
