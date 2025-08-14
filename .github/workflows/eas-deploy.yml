@@ -1,4 +1,4 @@
-name: EAS Deploy (Staging + Production)
+name: EAS Optimized Deploy
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - staging
 
 jobs:
-  build_and_publish:
+  ota_or_build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,10 +26,10 @@ jobs:
 
       - name: Set EAS token
         run: |
-         echo "EAS_UPDATE_ACCESS_TOKEN=${{ secrets.EAS_UPDATE_ACCESS_TOKEN }}" >> $GITHUB_ENV
-         echo "EXPO_TOKEN=${{ secrets.EAS_UPDATE_ACCESS_TOKEN }}" >> $GITHUB_ENV
+          echo "EAS_UPDATE_ACCESS_TOKEN=${{ secrets.EAS_UPDATE_ACCESS_TOKEN }}" >> $GITHUB_ENV
+          echo "EXPO_TOKEN=${{ secrets.EAS_UPDATE_ACCESS_TOKEN }}" >> $GITHUB_ENV
 
-      - name: Set environment variables for profile and branch
+      - name: Set profile and branch variables
         run: |
           if [ "${GITHUB_REF_NAME}" == "staging" ]; then
             echo "PROFILE=preview" >> $GITHUB_ENV
@@ -37,26 +37,37 @@ jobs:
           else
             echo "PROFILE=production" >> $GITHUB_ENV
             echo "BRANCH=production" >> $GITHUB_ENV
+
+      - name: Check for native folders
+        id: check_native
+        run: |
+          if [ -d "android" ] || [ -d "ios" ]; then
+            echo "HAS_NATIVE=true" >> $GITHUB_ENV
+          else
+            echo "HAS_NATIVE=false" >> $GITHUB_ENV
           fi
 
+      - name: Publish OTA update
+        if: always()
+        run: eas update --branch ${{ env.BRANCH }} --platform all --non-interactive
+
       - name: Build Android APK
+        if: env.HAS_NATIVE == 'true'
         run: eas build --platform android --profile ${{ env.PROFILE }} --non-interactive
 
       - name: Build iOS (if macOS)
-        if: runner.os == 'macOS'
+        if: env.HAS_NATIVE == 'true' && runner.os == 'macOS'
         run: eas build --platform ios --profile ${{ env.PROFILE }} --non-interactive
 
-      - name: Publish OTA update
-        run: eas update --branch ${{ env.BRANCH }} --platform all --non-interactive
-
       - name: Upload Android artifact
+        if: env.HAS_NATIVE == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: ./build/android/*.apk
 
       - name: Upload iOS artifact
-        if: runner.os == 'macOS'
+        if: env.HAS_NATIVE == 'true' && runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
