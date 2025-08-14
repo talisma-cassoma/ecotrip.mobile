@@ -3,7 +3,7 @@ name: EAS Build & OTA Deploy
 on:
   push:
     branches:
-      - production
+      - main
       - staging
 
 jobs:
@@ -35,10 +35,10 @@ jobs:
 
       - name: Build & Deploy based on branch
         run: |
-          if [ "${GITHUB_REF##*/}" = "production" ]; then
-            echo "🚀 Building for PRODUCTION"
-            eas build --platform android --profile production --non-interactive
-            eas update --branch production --non-interactive
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "🚀 Building for main"
+            eas build --platform android --profile main --non-interactive
+            eas update --branch main --non-interactive
           elif [ "${GITHUB_REF##*/}" = "staging" ]; then
             echo "🔧 Building for STAGING"
             eas build --platform android --profile staging --non-interactive
