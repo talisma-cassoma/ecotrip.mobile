@@ -31,12 +31,14 @@ jobs:
 
       - name: Set profile and branch variables
         run: |
-          if [ "${GITHUB_REF_NAME}" == "staging" ]; then
+          BRANCH_NAME="${GITHUB_REF##*/}"
+          if [ "$BRANCH_NAME" == "staging" ]; then
             echo "PROFILE=preview" >> $GITHUB_ENV
             echo "BRANCH=staging" >> $GITHUB_ENV
           else
             echo "PROFILE=production" >> $GITHUB_ENV
             echo "BRANCH=production" >> $GITHUB_ENV
+          fi
 
       - name: Check for native folders
         id: check_native
@@ -48,7 +50,6 @@ jobs:
           fi
 
       - name: Publish OTA update
-        if: always()
         run: eas update --branch ${{ env.BRANCH }} --platform all --non-interactive
 
       - name: Build Android APK
