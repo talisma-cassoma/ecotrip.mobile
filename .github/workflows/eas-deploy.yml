@@ -1,4 +1,4 @@
-name: EAS Build & OTA Deploy
+name: EAS CI/CD
 
 on:
   push:
@@ -7,38 +7,54 @@ on:
       - staging
 
 jobs:
-  build:
+  fingerprint:
+    name: Fingerprint
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: npm
+          node-version: 20
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+      - name: Fingerprint
+        id: fingerprint
+        run: |
+          echo "ANDROID_HASH=$(eas fingerprint:generate --platform android --non-interactive)" >> $GITHUB_ENV
+          echo "IOS_HASH=$(eas fingerprint:generate --platform ios --non-interactive)" >> $GITHUB_ENV
 
+  build_and_deploy:
+    name: Build & Deploy
+    needs: fingerprint
+    runs-on: ubuntu-latest
+    env:
+      EAS_TOKEN: ${{ secrets.EAS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: Install dependencies
         run: npm ci
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
 
-      - name: Authenticate with EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EAS_TOKEN }}
+      # Branch staging -> só OTA
+      - name: Publish OTA (staging)
+        if: github.ref == 'refs/heads/staging'
+        run: eas update --branch staging --platform all --non-interactive
 
-      - name: Build & OTA Update
-        run: |
-          BRANCH="${GITHUB_REF##*/}"
+      # Branch main -> build nativo + OTA
+      - name: Build Android (production)
+        if: github.ref == 'refs/heads/main'
+        run: eas build --platform android --profile production --non-interactive
 
-          if [ "$BRANCH" = "main" ]; then
-            echo "🚀 Building for MAIN"
-            eas build --platform android --profile production --non-interactive --wait
-            eas update --branch main --non-interactive
-          elif [ "$BRANCH" = "staging" ]; then
-            echo "🔧 Building for STAGING"
-            eas build --platform android --profile staging --non-interactive --wait
-            eas update --branch staging --non-interactive
-          fi
+      - name: Build iOS (production)
+        if: github.ref == 'refs/heads/main'
+        run: eas build --platform ios --profile production --non-interactive
+
+      - name: Publish OTA (production)
+        if: github.ref == 'refs/heads/main'
+        run: eas update --branch production --platform all --non-interactive
