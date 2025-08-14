@@ -27,20 +27,18 @@ jobs:
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+          token: ${{ secrets.EAS_TOKEN }}
 
-      - name: Set environment variables
+      - name: Build & OTA Update
         run: |
-          echo "EXPO_PUBLIC_GOOGLE_MAPS_APIKEY=${{ secrets.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY }}" >> $GITHUB_ENV
+          BRANCH="${GITHUB_REF##*/}"
 
-      - name: Build & Deploy based on branch
-        run: |
-          if [ "${GITHUB_REF##*/}" = "main" ]; then
-            echo "🚀 Building for main"
-            eas build --platform android --profile main --non-interactive
+          if [ "$BRANCH" = "main" ]; then
+            echo "🚀 Building for MAIN"
+            eas build --platform android --profile production --non-interactive --wait
             eas update --branch main --non-interactive
-          elif [ "${GITHUB_REF##*/}" = "staging" ]; then
+          elif [ "$BRANCH" = "staging" ]; then
             echo "🔧 Building for STAGING"
-            eas build --platform android --profile staging --non-interactive
+            eas build --platform android --profile staging --non-interactive --wait
             eas update --branch staging --non-interactive
           fi
