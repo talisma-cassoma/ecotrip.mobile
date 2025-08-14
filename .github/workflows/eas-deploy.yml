@@ -1,4 +1,4 @@
-name: EAS CI/CD
+name: EAS Deploy (Staging + Production)
 
 on:
   push:
@@ -7,18 +7,16 @@ on:
       - staging
 
 jobs:
-  build_and_deploy:
-    name: Build & Deploy
+  build_and_publish:
     runs-on: ubuntu-latest
-    env:
-      EAS_TOKEN: ${{ secrets.EAS_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 18
 
       - name: Install dependencies
         run: npm ci
@@ -26,33 +24,38 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli@latest
 
-      - name: Generate Android Fingerprint
-        id: android_fp
+      - name: Login to EAS
+        run: eas login --token ${{ secrets.EAS_TOKEN }}
+
+      - name: Set environment
         run: |
-          ANDROID_HASH=$(eas fingerprint:generate --platform android --non-interactive --json | jq -r '.hash')
-          echo "ANDROID_HASH=$ANDROID_HASH" >> $GITHUB_ENV
+          if [ "${GITHUB_REF_NAME}" == "staging" ]; then
+            echo "PROFILE=preview" >> $GITHUB_ENV
+            echo "BRANCH=staging" >> $GITHUB_ENV
+          else
+            echo "PROFILE=production" >> $GITHUB_ENV
+            echo "BRANCH=production" >> $GITHUB_ENV
+          fi
 
-      - name: Generate iOS Fingerprint
-        id: ios_fp
-        run: |
-          IOS_HASH=$(eas fingerprint:generate --platform ios --non-interactive --json | jq -r '.hash')
-          echo "IOS_HASH=$IOS_HASH" >> $GITHUB_ENV
+      - name: Build Android APK
+        run: eas build --platform android --profile ${{ env.PROFILE }} --non-interactive
 
-      # OTA staging
-      - name: Publish OTA (staging)
-        if: github.ref == 'refs/heads/staging'
-        run: eas update --branch staging --platform all --non-interactive
+      - name: Build iOS (if needed)
+        if: runner.os == 'macOS'
+        run: eas build --platform ios --profile ${{ env.PROFILE }} --non-interactive
 
-      # Build produção nativa
-      - name: Build Android (production)
-        if: github.ref == 'refs/heads/main'
-        run: eas build --platform android --profile production --non-interactive
+      - name: Publish OTA update
+        run: eas update --branch ${{ env.BRANCH }} --platform all --non-interactive
 
-      - name: Build iOS (production)
-        if: github.ref == 'refs/heads/main'
-        run: eas build --platform ios --profile production --non-interactive
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-apk
+          path: ./build/android/*.apk
 
-      # OTA produção
-      - name: Publish OTA (production)
-        if: github.ref == 'refs/heads/main'
-        run: eas update --branch production --platform all --non-interactive
+      - name: Upload iOS artifact
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-ipa
+          path: ./build/ios/*.ipa
