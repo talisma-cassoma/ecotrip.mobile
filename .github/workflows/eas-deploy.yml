@@ -24,10 +24,10 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli@latest
 
-      - name: Login to EAS
+      - name: Set EAS token
         run: echo "EAS_UPDATE_ACCESS_TOKEN=${{ secrets.EAS_UPDATE_ACCESS_TOKEN }}" >> $GITHUB_ENV
 
-      - name: Set environment
+      - name: Set environment variables for profile and branch
         run: |
           if [ "${GITHUB_REF_NAME}" == "staging" ]; then
             echo "PROFILE=preview" >> $GITHUB_ENV
@@ -40,7 +40,7 @@ jobs:
       - name: Build Android APK
         run: eas build --platform android --profile ${{ env.PROFILE }} --non-interactive
 
-      - name: Build iOS (if needed)
+      - name: Build iOS (if macOS)
         if: runner.os == 'macOS'
         run: eas build --platform ios --profile ${{ env.PROFILE }} --non-interactive
 
