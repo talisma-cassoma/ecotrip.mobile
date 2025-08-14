@@ -48,14 +48,14 @@ jobs:
         run: eas update --branch ${{ env.BRANCH }} --platform all --non-interactive
 
       - name: Upload Android artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: ./build/android/*.apk
 
       - name: Upload iOS artifact
         if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
           path: ./build/ios/*.ipa
