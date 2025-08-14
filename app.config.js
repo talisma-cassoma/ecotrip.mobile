@@ -53,8 +53,11 @@ export default ({ config }) => ({
     experiments: {
       typedRoutes: true
     },
-    update:{
+    update: {
       url: "https://u.expo.dev/4f078bc7-ebc6-44f5-bdcc-43249fcd0a01"
+    },
+    runtimeVersion: {
+      policy: "appVersion"
     },
     extra: {
       router: {
