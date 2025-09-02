@@ -3,4 +3,3 @@ eas build -p android --local --output=app.apk --profile preview
 
 comando pra fazer o build no eas(online): 
 eas build -p android --profile preview
-://

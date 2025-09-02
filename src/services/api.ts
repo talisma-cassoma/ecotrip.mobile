@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLECTION_USERS } from '../configs/database';
 
 
-const URL = 'https://ecotrip-api.onrender.com' //process.env.EXPO_PRIVATE_API_URL;
+const URL = process.env.EXPO_PRIVATE_API_URL;
 
 export const api = axios.create({
   baseURL: URL,
@@ -17,7 +17,7 @@ export const socket = io(URL, {
 
 // Interceptor de requisição: adiciona o access_token
 api.interceptors.request.use(async (config) => {
-  const excludedRoutes = ['/login', '/passenger/create', '/driver/create', '/refresh']; // rotas sem token
+  const excludedRoutes = ['/login', '/passenger/create', '/driver/create', '/refresh', '/ping']; // rotas sem token
 
   if (!excludedRoutes.some(route => config.url?.includes(route))) {
     const user = await AsyncStorage.getItem(COLECTION_USERS);
