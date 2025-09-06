@@ -7,10 +7,8 @@ import { IconBrandGoogleFilled } from "@tabler/icons-react-native"
 
 import React, { useState } from 'react';
 import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
-
-import { supabase } from "@/services/superbase";
 import { useUserAuth } from "@/context/userAuthContext"
-import { AuthUser, COLECTION_USERS, buildStoredUser } from '../configs/database';
+import { COLECTION_USERS, buildStoredUser } from '../configs/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from "@/services/api";
 
@@ -85,11 +83,6 @@ export default function Login() {
 
     const handlePasswordReset = async () => {
         // Lógica de redefinição de senha aqui
-        const { error } = await supabase.auth.resetPasswordForEmail(email);
-        if (error) {
-            console.error('Erro ao redefinir senha:', error.message);
-            return;
-        }
         console.log('Email de redefinição de senha enviado com sucesso');
     };
 

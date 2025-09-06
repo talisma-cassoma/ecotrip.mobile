@@ -65,7 +65,8 @@ export default ({ config }) => ({
       },
       eas: {
         projectId: "4f078bc7-ebc6-44f5-bdcc-43249fcd0a01"
-      }
+      },
+      API_URL: process.env.EXPO_PRIVATE_API_URL,
     }
   }
 });

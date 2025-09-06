@@ -1,12 +1,10 @@
 import { colors } from '@/styles/colors';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image, Alert, TouchableOpacity, ScrollView } from 'react-native';
-//import { AuthContext } from '../contexts/AuthContext'; // ajuste o caminho
+import { View, Text, StyleSheet, Image, Alert, TouchableOpacity, ScrollView } from 'react-native';
 import { api } from '@/services/api'; 
 import { Button } from '@/components/button';
 import { IconArrowLeft, IconUser, IconAB2, IconAlignJustified, IconUsersGroup, IconBell, IconClock } from "@tabler/icons-react-native"
 import { router } from "expo-router"
-//import { supabase } from "@/services/superbase";
 import { useUserAuth } from '@/context/userAuthContext';
 import { COLECTION_USERS } from "@/configs/database"
 import AsyncStorage from '@react-native-async-storage/async-storage';

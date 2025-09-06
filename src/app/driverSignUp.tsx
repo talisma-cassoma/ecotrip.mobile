@@ -4,7 +4,6 @@ import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
 import React, { useState } from 'react';
 import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert, useWindowDimensions, TouchableOpacity } from 'react-native';
-//import { supabase } from "@/services/superbase";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLECTION_USERS, buildStoredUser } from "../configs/database"
 import { useUserAuth } from "@/context/userAuthContext"
