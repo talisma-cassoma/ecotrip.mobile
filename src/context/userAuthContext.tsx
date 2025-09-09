@@ -19,19 +19,23 @@ export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [serverIsOn, setServerIsOn] = useState(false);
 
-  // --- Função para checar servidor ---
   async function checkServer(): Promise<boolean> {
-
-    while (true) {
+  while (true) {
+    try {
       const response = await api.get("/ping");
       console.log("Server ping response:", response.data.message);
       if (response.data?.message === "pong") {
         setServerIsOn(true);
-        return true;
+        return true; // Retorna para sair do loop
       }
+    } catch (error) {
+      console.log("Server not responding. Retrying in 5 seconds...");
+      // Ignora o erro e continua o loop
     }
+    // Espera 5 segundos antes de tentar novamente
+    await new Promise(resolve => setTimeout(resolve, 5000));
   }
-
+}
 
 async function loadUserStorageData() {
   try {

@@ -4,7 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLECTION_USERS } from '../configs/database';
 
 
-const URL = process.env.EXPO_PRIVATE_API_URL;
+const URL = process.env.EXPO_PUBLIC_API_URL;
+
+//console.log("API URL:", URL);
 
 export const api = axios.create({
   baseURL: URL,

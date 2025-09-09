@@ -15,6 +15,7 @@ import { useTrip } from "@/context/tripContext"
 import { LocationCoords } from "@/context/tripContext"
 import { DropDownMenu } from "@/components/dropDownMenu"
 
+
 type RidesProps = PlaceProps & {
   latitude: number
   longitude: number
@@ -26,7 +27,6 @@ type RidesProps = PlaceProps & {
   phone: string
   cover: string
 }
-
 
 const mockRides: RidesProps[] = [
   // ALIMENTAÇÃO
