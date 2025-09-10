@@ -2,11 +2,14 @@ import axios from "axios"
 import { io } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLECTION_USERS } from '../configs/database';
+import { Alert } from "react-native"
 
 
 const URL = process.env.EXPO_PUBLIC_API_URL;
 
-//console.log("API URL:", URL);
+if (!URL) {
+  Alert.alert('Erro: A variável de URL não está definida.');
+}
 
 export const api = axios.create({
   baseURL: URL,

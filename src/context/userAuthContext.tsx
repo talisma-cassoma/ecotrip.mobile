@@ -29,11 +29,11 @@ export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
         return true; // Retorna para sair do loop
       }
     } catch (error) {
-      console.log("Server not responding. Retrying in 5 seconds...");
+      console.log("Server not responding. Retrying in 2 seconds...");
       // Ignora o erro e continua o loop
     }
     // Espera 5 segundos antes de tentar novamente
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, 2000));
   }
 }
 
