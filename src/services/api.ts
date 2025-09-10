@@ -5,7 +5,7 @@ import { COLECTION_USERS } from '../configs/database';
 import { Alert } from "react-native"
 
 
-const URL = process.env.EXPO_PUBLIC_API_URL;
+const URL = 'https://ecotrip-api.onrender.com'
 
 if (!URL) {
   Alert.alert('Erro: A variável de URL não está definida.');

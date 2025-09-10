@@ -1,4 +1,4 @@
-import { AppState } from 'react-native'
+import { AppState, Alert } from 'react-native'
 import 'react-native-url-polyfill/auto'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createClient, processLock } from '@supabase/supabase-js'
@@ -13,7 +13,7 @@ export const SUPABASE_ANON_KEY = extra?.SUPABASE_ANON_KEY;
 
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new Error('Missing Supabase URL or Anon Key environment variables')
+   Alert.alert('Missing Supabase URL or Anon Key environment variables')
 }
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
