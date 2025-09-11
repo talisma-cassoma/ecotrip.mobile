@@ -28,8 +28,16 @@ export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
         const response = await api.get("/ping");
         if (response.data?.message === "pong") {
           setServerIsOn(true);
-          const elapsed = Math.round((Date.now() - start) / 1000); // em segundos
-          setServerMessage(`✅ Servidor ligado! Levou ${elapsed} segundos para acordar`);
+          const elapsedMs = Date.now() - start;
+          const elapsedSec = Math.round(elapsedMs / 1000);
+
+          // formata o tempo
+          const formattedTime =
+            elapsedSec < 60
+              ? `${elapsedSec} segundos`
+              : `${Math.floor(elapsedSec / 60)} min ${elapsedSec % 60}s`;
+              
+          setServerMessage(`✅ Servidor ligado! Levou ${formattedTime} segundos para acordar`);
           return true; // sai do loop
         }
       } catch (error) {
