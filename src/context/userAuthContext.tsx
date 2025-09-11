@@ -10,6 +10,7 @@ export type UserContextType = {
   user: AuthUser | null;
   loading: boolean;
   serverIsOn: boolean;
+  serverMessage: string; // 👈 mensagem dinâmica
 };
 
 export const UserAuthContext = createContext({} as UserContextType);
@@ -18,61 +19,62 @@ export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [serverIsOn, setServerIsOn] = useState(false);
+  const [serverMessage, setServerMessage] = useState("verificando servidor... 🚨");
 
   async function checkServer(): Promise<boolean> {
-  while (true) {
+    const start = Date.now();
+    while (true) {
+      try {
+        const response = await api.get("/ping");
+        if (response.data?.message === "pong") {
+          setServerIsOn(true);
+          const elapsed = Math.round((Date.now() - start) / 1000); // em segundos
+          setServerMessage(`✅ Servidor ligado! Levou ${elapsed} segundos para acordar`);
+          return true; // sai do loop
+        }
+      } catch (error) {
+        console.log("Server not responding. Retrying in 2 seconds...");
+        setServerMessage("⚠️ Tentando novamente...");
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+  }
+
+  async function loadUserStorageData() {
     try {
-      const response = await api.get("/ping");
-      console.log("Server ping response:", response.data.message);
-      if (response.data?.message === "pong") {
-        setServerIsOn(true);
-        return true; // Retorna para sair do loop
-      }
-    } catch (error) {
-      console.log("Server not responding. Retrying in 2 seconds...");
-      // Ignora o erro e continua o loop
-    }
-    // Espera 5 segundos antes de tentar novamente
-    await new Promise(resolve => setTimeout(resolve, 2000));
-  }
-}
+      setLoading(true);
 
-async function loadUserStorageData() {
-  try {
-    setLoading(true);
+      router.replace("/connectToServerScreen");
 
-    // Mostra tela de conexão
-    router.replace("/connectToServerScreen");
+      await checkServer();
 
-    // Tenta acordar servidor indefinidamente
-    await checkServer();
+      // espera 2 segundos antes de seguir adiante
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Depois que acordar, tenta restaurar usuário
-    const savedUser = await AsyncStorage.getItem(COLECTION_USERS);
+      const savedUser = await AsyncStorage.getItem(COLECTION_USERS);
 
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser) as AuthUser;
-      setUser(parsedUser);
-      await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(parsedUser));
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser) as AuthUser;
+        setUser(parsedUser);
+        await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(parsedUser));
 
-      // Redireciona conforme perfil
-      if (parsedUser.role.type === 'driver') {
-        router.replace("./newTripRequests");
+        if (parsedUser.role.type === 'driver') {
+          router.replace("/newTripRequests");
+        } else {
+          router.replace("/home");
+        }
       } else {
-        router.replace("/home");
+        router.replace('/login');
       }
-    } else {
-      router.replace('/login');
-    }
 
-  } catch (err) {
-    console.error('Erro ao restaurar auth user:', err);
-    setUser(null);
-    router.replace('/login');
-  } finally {
-    setLoading(false);
+    } catch (err) {
+      console.error('Erro ao restaurar auth user:', err);
+      setUser(null);
+      router.replace('/login');
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
   useEffect(() => {
     loadUserStorageData();
@@ -80,7 +82,7 @@ async function loadUserStorageData() {
 
   return (
     <UserAuthContext.Provider
-      value={{ setUser, user, loading, serverIsOn }}
+      value={{ setUser, user, loading, serverIsOn, serverMessage }}
     >
       {children}
     </UserAuthContext.Provider>
