@@ -33,7 +33,7 @@ export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
           return true; // sai do loop
         }
       } catch (error) {
-        console.log("Server not responding. Retrying in 2 seconds...");
+        console.log(`${error} : Server not responding. Retrying in 2 seconds...`);
         setServerMessage("⚠️ Tentando novamente...");
       }
       await new Promise(resolve => setTimeout(resolve, 2000));
