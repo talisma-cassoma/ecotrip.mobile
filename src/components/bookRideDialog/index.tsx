@@ -14,11 +14,12 @@ import { PriceInput } from '../priceInput';
 import { colors } from "@/styles/theme"
 import { router } from 'expo-router';
 import { formatDistance, formatDuration } from '@/utils/converter';
+import { AutoCompleteInput } from '../autoCompleteInput';
 
 
 export function BookRideDialog() {
   const [locatePressed, setLocatePressed] = useState(false);
-  const { setOriginCoords, setDestinationCoords, originCoords, destinationCoords, duration, price , distance} = useTrip();
+  const { setOriginCoords, setDestinationCoords, originCoords, destinationCoords, duration, price, distance } = useTrip();
 
   const VerticalDashedLineHeight = 45;
   const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY;
@@ -90,94 +91,15 @@ export function BookRideDialog() {
           {/* Coluna Central (Inputs) */}
           <View style={styles.inputColumn}>
 
-            <View style={[styles.autocompleteWrapper, styles.originInputMargin]}>
-              <GooglePlacesAutocomplete
-                placeholder="Ubicación actual"
-                nearbyPlacesAPI='GooglePlacesSearch'
-                debounce={400}
-                fetchDetails={true}
-                onPress={(data, details = null) => {
-                  if (!details || !details.geometry) return;
-                  const { lat, lng } = details.geometry.location;
-                  const { name } = details
-                  setOriginCoords({ latitude: lat, longitude: lng, name: name });
-                  console.log("origem selecionada:", { latitude: lat, longitude: lng }); // 
-                  setLocatePressed(false);
-                }}
-                query={{
-                  key: GOOGLE_API_KEY,
-                  language: 'es',
-                  components: 'country:gq',
-                }}
-                styles={{
-                  container: { flex: 1 },
-                  textInputContainer: {
-                    flex: 1, // 
-                    backgroundColor: 'transparent',
-                    paddingHorizontal: 0,
-                    height: 45,
-                  },
-
-                  textInput: {
-                    ...styles.input,
-                    paddingVertical: 0,
-                    height: 45,
-                  },
-                  // Estilos da lista de sugestões
-                  listView: {
-                    zIndex: 1000, // 
-                    backgroundColor: 'white',
-                    position: 'absolute',
-                    top: 45,
-                    left: 0, right: 0,
-                  },
-                  row: { padding: 13, flexDirection: 'row', backgroundColor: 'white' },
-                  description: { fontSize: 15, color: colors.gray[600], flex: 1 },
-                }}
-              />
-            </View>
+            <AutoCompleteInput
+              type="origin"
+              zIndex={1001}
+            />
 
             {/* Wrapper para o Input de Destino */}
-            <View style={styles.autocompleteWrapper}>
-              <GooglePlacesAutocomplete
-                placeholder="Destino (Ex: bata ou malabo)"
-                fetchDetails={true}
-                onPress={(data, details = null) => {
-                  if (!details || !details.geometry) {
-                    console.log('Detalhes de destino não encontrados');
-                    return;
-                  }
-                  const { lat, lng } = details.geometry.location;
-                  const { name } = details
-                  setDestinationCoords({ latitude: lat, longitude: lng, name: name });
-                  console.log("destino selecionado:", { latitude: lat, longitude: lng });
-                }}
-                query={{
-                  key: GOOGLE_API_KEY,
-                  language: 'es',
-                  components: 'country:gq',
-                }}
-                styles={{
-                  container: { flex: 1 },
-                  textInputContainer: { flex: 1, backgroundColor: 'transparent', paddingHorizontal: 0, height: 45 },
-                  textInput: { ...styles.input, paddingVertical: 0, height: 45 },
-                  listView: {
-                    zIndex: 1000,
-                    backgroundColor: 'white',
-                    position: 'absolute',
-                    top: 45,
-                    left: 0, right: 0,
-                    elevation: 5,
-                    shadowColor: '#000',
-                    shadowOpacity: 0.2,
-                    shadowOffset: { height: 2, width: 0 },
-                    shadowRadius: 3,
-                  },
-                  row: { padding: 13, flexDirection: 'row', backgroundColor: 'white' },
-                  description: { fontSize: 15, color: `${colors.gray[600]}`, flex: 1 },
-                }}
-              />
-            </View>
+            <AutoCompleteInput
+              type="destination"
+            />
           </View>
 
           {/* Coluna Direita (Ícones Ação/Swap) */}
@@ -199,7 +121,7 @@ export function BookRideDialog() {
 
         </View>
         {originCoords && destinationCoords && (
-          <View style={{flexDirection: "column", gap:10, margin:10}}>
+          <View style={{ flexDirection: "column", gap: 10, margin: 10 }}>
             <View style={{ marginBottom: 10, marginTop: 10, alignItems: 'center' }}>
               <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
                 <Text>{originCoords.name}</Text>
@@ -210,7 +132,7 @@ export function BookRideDialog() {
                 />
                 <Text>{destinationCoords.name}</Text>
               </View>
-               {distance && <Text> {formatDistance(distance)}</Text>}
+              {distance && <Text> {formatDistance(distance)}</Text>}
               <Text >{duration ? (`el tempo previsto de viaje es ${formatDuration(duration)}`) : ("")}</Text>
             </View>
             {price && (

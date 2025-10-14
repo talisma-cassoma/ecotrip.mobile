@@ -6,7 +6,7 @@ export default ({ config }) => ({
     name: "ecotrip",
     slug: "ecotrip",
     version: "1.0.0",
-    orientation: "portrait",
+    //orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "myapp",
     userInterfaceStyle: "automatic",
@@ -17,7 +17,8 @@ export default ({ config }) => ({
       backgroundColor: "#257F49"
     },
     ios: {
-      supportsTablet: true
+      supportsTablet: true,
+      requireFullScreen: true
     },
     android: {
       ...config.expo?.android,
@@ -48,6 +49,12 @@ export default ({ config }) => ({
         "expo-location",
         {
           locationAlwaysAndWhenInUsePermission: "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ],
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "DEFAULT"
         }
       ]
     ],
