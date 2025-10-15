@@ -38,7 +38,6 @@ jobs:
           else
             echo "PROFILE=production" >> $GITHUB_ENV
             echo "BRANCH=production" >> $GITHUB_ENV
-          fi
 
       - name: Check for native folders
         id: check_native
@@ -47,10 +46,14 @@ jobs:
             echo "HAS_NATIVE=true" >> $GITHUB_ENV
           else
             echo "HAS_NATIVE=false" >> $GITHUB_ENV
-          fi
 
-      - name: Publish OTA update
-        run: eas update --branch ${{ env.BRANCH }} --platform ios,android --non-interactive --message "CI update from GitHub Actions"
+      - name: Publish OTA update (Android)
+        if: env.HAS_NATIVE == 'true'
+        run: eas update --branch ${{ env.BRANCH }} --platform android --non-interactive --message "CI update from GitHub Actions"
+
+      - name: Publish OTA update (iOS)
+        if: env.HAS_NATIVE == 'true'
+        run: eas update --branch ${{ env.BRANCH }} --platform ios --non-interactive --message "CI update from GitHub Actions"
 
       - name: Build Android APK
         if: env.HAS_NATIVE == 'true'
