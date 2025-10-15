@@ -40,7 +40,7 @@ export default ({ config }) => ({
     web: {
       bundler: "metro",
       output: "static",
-      favicon: "./assets/images/favicon.ico"
+      favicon: ""
     },
     plugins: [
       "expo-router",
