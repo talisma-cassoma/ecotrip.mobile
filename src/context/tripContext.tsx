@@ -5,7 +5,7 @@ import * as Location from 'expo-location';
 export type LocationCoords = {
   latitude: number;
   longitude: number;
-  name: string;
+  name?: string;
 } | null;
 
 type TripContextType = {

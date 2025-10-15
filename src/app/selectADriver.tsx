@@ -209,7 +209,7 @@ export default function SelectADriver() {
     const [isSelected, setIsSelected] = useState(false);
     const [tripId, setTripId] = useState<string | null>(null);
     const [socketConnected, setSocketConnected] = useState(false);
-    const retryRef = useRef<NodeJS.Timeout | null>(null)
+    const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const { originCoords, destinationCoords, distance, duration, price } = useTrip();
     const { user } = useUserAuth();
@@ -476,10 +476,10 @@ export default function SelectADriver() {
                         </Button>
                     </View>
                 ) : (
-                    <BottomSheetFlatList
+                    <BottomSheetFlatList<AvailableDriverProps>
                         data={drivers}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => (
+                        keyExtractor={(item: AvailableDriverProps) => item.id}
+                        renderItem={({ item }: { item: AvailableDriverProps }) => (
                             <AvailableDriver
                                 {...item}
                                 onPress={() => {

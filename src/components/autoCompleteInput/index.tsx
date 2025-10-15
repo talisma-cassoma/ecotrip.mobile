@@ -62,7 +62,7 @@ export function AutoCompleteInput({
             setDestinationCoords({ latitude: lat, longitude: lng, name });
             console.log('Destino selecionado:', { latitude: lat, longitude: lng });
         }
-          // ✅ Se já temos origem e destino, calcula distância
+          
   setTimeout(() => {
     if (originCoords?.latitude && destinationCoords?.latitude) {
       const distanceMeters = getDistance(

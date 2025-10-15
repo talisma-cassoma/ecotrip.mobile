@@ -18,9 +18,9 @@ export default function ConnectToServerScreen() {
           marginBottom: 28
         }}
       />
-      <Text style={{ marginBottom: 20 }}>
-        aguarde um momento enquanto tentamos conectar ao servidor...
-        isto pode tardar um pouco se o servidor estiver "dormindo"
+      <Text style={{ marginBottom: 20, textAlign: 'center', color: '#555' }}>
+        Conectando al servidor... Puede tardar un poco.{"\n"}
+        (servidor dormindo...💤)
       </Text>
     </View>
   );

@@ -14,6 +14,7 @@ import MapViewDirections from "react-native-maps-directions"
 import { useTrip } from "@/context/tripContext"
 import { LocationCoords } from "@/context/tripContext"
 import { DropDownMenu } from "@/components/dropDownMenu"
+import {MapDirections} from "@/components/mapDirections"
 
 
 type RidesProps = PlaceProps & {
@@ -665,40 +666,7 @@ export default function Home() {
 
           {originCoords?.latitude && destinationCoords?.latitude && (
             <>
-              <MapViewDirections
-                mode="DRIVING"
-                
-                key={`route-${originCoords.latitude}-${originCoords.longitude}`}
-                origin={{
-                  latitude: originCoords.latitude,
-                  longitude: originCoords.longitude
-                }}
-                destination={{
-                  latitude: destinationCoords.latitude,
-                  longitude: destinationCoords.longitude
-
-                }}
-                apikey={String(process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY)}
-                strokeWidth={4}
-                strokeColor="#007bc9"
-                onReady={(result) => {
-                  setDistance(result.distance)
-                  setDuration(result.duration)
-                  mapRef.current?.fitToCoordinates(result.coordinates, {
-                    edgePadding: {
-                      top: 50,
-                      right: 50,
-                      bottom: 50,
-                      left: 50,
-                    },
-                  })
-                }}
-                onError={(error) => {
-                  setDuration(null)
-                  setDistance(null)
-                  console.warn("Erro ao calcular rota:", error)
-                }
-                }
+              <MapDirections
               />
               <Marker
                 key={`origin-${originCoords.latitude}-${originCoords.longitude}`}
