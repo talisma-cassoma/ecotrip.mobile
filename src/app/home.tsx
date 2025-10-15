@@ -13,8 +13,8 @@ import { Categories, CategoriesProps } from "@/components/categories"
 import MapViewDirections from "react-native-maps-directions"
 import { useTrip } from "@/context/tripContext"
 import { LocationCoords } from "@/context/tripContext"
-import { DropDownMenu } from "@/components/dropDownMenu"
-import {MapDirections} from "@/components/mapDirections"
+import { DropDownMenu } from "../components/dropDownMenu"
+import { MapDirections } from "../components/mapDirections"
 
 
 type RidesProps = PlaceProps & {
