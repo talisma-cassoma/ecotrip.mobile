@@ -50,7 +50,7 @@ jobs:
           fi
 
       - name: Publish OTA update
-        run: eas update --branch ${{ env.BRANCH }} --platform all --non-interactive --message "CI update from GitHub Actions"
+        run: eas update --branch ${{ env.BRANCH }} --platform ios,android --non-interactive --message "CI update from GitHub Actions"
 
       - name: Build Android APK
         if: env.HAS_NATIVE == 'true'
