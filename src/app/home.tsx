@@ -12,7 +12,7 @@ import { PlaceProps } from "@/components/place"
 import { Categories, CategoriesProps } from "@/components/categories"
 import { useTrip } from "@/context/tripContext"
 import { DropDownMenu } from "@/components/dropDownMenu"
-import { MapDirections } from "@/components/mapDirections"
+import { MapsDirections } from "@/components/mapsDirections"
 
 
 type RidesProps = PlaceProps & {
@@ -664,8 +664,7 @@ export default function Home() {
 
           {originCoords?.latitude && destinationCoords?.latitude && (
             <>
-              <MapDirections
-              />
+              <MapsDirections/>
               <Marker
                 key={`origin-${originCoords.latitude}-${originCoords.longitude}`}
                 coordinate={{

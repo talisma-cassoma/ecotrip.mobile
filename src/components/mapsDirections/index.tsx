@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View } from "react-native";
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps"
+import MapView from "react-native-maps"
 import MapViewDirections, { MapDirectionsResponse } from "react-native-maps-directions";
 import { useTrip, LocationCoords } from '../../context/tripContext';
 import { getDistance } from "geolib";
@@ -15,7 +14,7 @@ interface MockMapDirectionsProps {
     mode?: string;
 }
 
-const MockMapDirections: React.FC<MockMapDirectionsProps> = ({
+export const MockMapDirections: React.FC<MockMapDirectionsProps> = ({
     origin,
     destination,
     onReady,
@@ -50,7 +49,7 @@ const MockMapDirections: React.FC<MockMapDirectionsProps> = ({
     return null;
 };
 
-export function MapDirections () {
+export function MapsDirections () {
     const mapRef = useRef<MapView>(null);
     const {
         setDistance,
