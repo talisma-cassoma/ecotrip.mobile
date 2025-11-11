@@ -1,63 +1,77 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
-import { IconPointFilled, IconMapPinFilled } from "@tabler/icons-react-native"
-import { VerticalDashedLine } from "../components/dottedLine"
-import { colors, fontFamily } from "@/styles/theme"
+import { colors } from "@/styles/theme"
 import { Button } from '@/components/button';
 import { IconArrowLeft } from "@tabler/icons-react-native"
 import { router } from "expo-router"
 import { Trip } from '@/components/trip';
 import { useUserAuth } from '@/context/userAuthContext';
 import { api } from '@/services/api';
+import {  TripRequestProps } from '@/types';
 
-interface iTrip {
-  id: string;
-  origin: string;
-  destination: string;
-  datetime: string; // ISO string
-  fare?: number;
-  status: string;
-}
-
-const historicMockData = [
+const historicMockData: TripRequestProps[] = [
   {
     id: 'trip1',
-    origin: 'Avenida Paulista, São Paulo',
-    destination: 'Rua Augusta, São Paulo',
-    datetime: '2025-06-29T14:30:00Z',
-    fare: 25.50,
-    status: 'finalizada',
+    origin: {
+      name:'Avenida Paulista, São Paulo'
+    },
+    destination: {
+      name: 'Rua Augusta, São Paulo',
+    },
+    created_at: '2025-06-29T14:30:00Z',
+    price: 25.50,
+    distance: 3.2,
+    duration: 15 * 60,
+    status: 'completed',
   },
   {
     id: 'trip2',
-    origin: 'Praça da Sé, São Paulo',
-    destination: 'Parque Ibirapuera, São Paulo',
-    datetime: '2025-06-28T09:15:00Z',
-    fare: 30.00,
-    status: 'cancelada',
+    origin: {
+      name:'Praça da Sé, São Paulo'
+    },
+    destination: {
+      name:'Parque Ibirapuera, São Paulo'
+    },
+    created_at: '2025-06-28T09:15:00Z',
+    price: 30.00,
+    distance: 6.1,
+    duration: 25 * 60,
+    status: 'cancelled',
   },
   {
     id: 'trip3',
-    origin: 'Terminal Rodoviário Tietê',
-    destination: 'Aeroporto de Guarulhos',
-    datetime: '2025-06-27T19:45:00Z',
-    fare: 48.75,
-    status: 'finalizada',
+    origin:{
+      name: 'Terminal Rodoviário Tietê'
+    },
+    destination: {
+      name:'Aeroporto de Guarulhos'
+    },
+    created_at: '2025-06-27T19:45:00Z',
+    price: 48.75,
+    distance: 24.5,
+    duration: 50 * 60,
+    status: 'completed',
   },
   {
     id: 'trip4',
-    origin: 'Shopping Morumbi',
-    destination: 'Estádio do Morumbi',
-    datetime: '2025-06-26T17:00:00Z',
-    fare: 22.00,
-    status: 'finalizada',
+    origin: {
+      name:'Shopping Morumbi'
+    },
+    destination: {
+      name:'Estádio do Morumbi',
+    },
+    created_at: '2025-06-26T17:00:00Z',
+    price: 22.00,
+    distance: 2.8,
+    duration: 12 * 60,
+    status: 'completed',
   },
 ];
 
 
 export default function Historic() {
   //const { user } = useContext(AuthContext);
-  const [trips, setTrips] = useState<iTrip[]>(historicMockData);
+  const [trips, setTrips] = useState< TripRequestProps[]>(historicMockData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUserAuth();

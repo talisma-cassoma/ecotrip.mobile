@@ -8,24 +8,12 @@ import { api } from "@/services/api"
 import { fontFamily, colors } from "@/styles/theme"
 
 import { RideModal } from "@/components/rideModal"
-import { PlaceProps } from "@/components/place"
+import { PlaceProps } from "@/types"
 import { Categories, CategoriesProps } from "@/components/categories"
 import { useTrip } from "@/context/tripContext"
 import { DropDownMenu } from "@/components/dropDownMenu"
 import { MapsDirections } from "@/components/mapsDirections"
 
-
-type RidesProps = PlaceProps & {
-  latitude: number
-  longitude: number
-  categoryId: string
-  name: string
-  description: string
-  coupons: number
-  address: string
-  phone: string
-  cover: string
-}
 
 const mockRides: RidesProps[] = [
   // ALIMENTAÇÃO
@@ -548,6 +536,19 @@ const whiteMapStyle = [
     ]
   }
 ]
+
+type RidesProps = PlaceProps & {
+  id: string
+  latitude: number
+  longitude: number
+  categoryId: string
+  name: string
+  description: string
+  coupons: number
+  address: string
+  phone: string
+  cover: string
+}
 
 export default function Home() {
   const mapRef = useRef<MapView>(null)

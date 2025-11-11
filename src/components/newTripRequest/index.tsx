@@ -4,43 +4,18 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { IconPointFilled, IconMapPinFilled, IconPhone, IconMessage } from "@tabler/icons-react-native"
 import { VerticalDashedLine } from "../../components/dottedLine"
 import { colors, fontFamily } from "@/styles/theme"
+import { TripRequestProps } from '@/types';
+import { useDriver } from '@/context/driverContext';
+import { useUserAuth } from '@/context/userAuthContext';
 
-export type Trip = {
-    id: string;
-    status: string;
-    name: string | null;
-    distance: number;
-    duration: number;
-    freight: number;
-    directions: any;
-    driver_id: string | null;
-    passengerId: string;
-    source: {
-        name: String;
-        location: {
-            lat: number;
-            lng: number;
-        }
-    };
-    destination: {
-        name: String;
-        location: {
-            lat: number;
-            lng: number;
-        }
-    };
-}
 
-interface NewTripRequestProps {
-    item: Trip;
-    isSelected: boolean
-    onAccept: (trip: Trip) => void;
-}
-
-export function NewTripRequest({ item, onAccept, isSelected }: NewTripRequestProps) {
+export function NewTripRequest({ item, onAccept, isSelected }: {item: TripRequestProps, isSelected: boolean,  
+    onAccept: (trip: TripRequestProps) => void;}) {
 
     const handleCall = () => { console.log("chamando o passageiro") }
     const handleMessage = () => { console.log("escrevendo ao passageiro") }
+    const { selectTrip } = useDriver();
+    const { user } = useUserAuth();
 
     return (
         <View style={{
@@ -65,11 +40,11 @@ export function NewTripRequest({ item, onAccept, isSelected }: NewTripRequestPro
                         <View style={{ flexDirection: "column", justifyContent: "space-between", marginRight: 40 }}>
                             <View style={{ flexDirection: "column", justifyContent: "space-between" }}>
                                 <Text style={styles.regular}> origem </Text>
-                                <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600], flexWrap: "wrap" }}>{item.source.name}</Text>
+                                <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600], flexWrap: "wrap" }}>{item.origin?.name}</Text>
                             </View>
                             <View>
                                 <Text style={styles.regular}> destino</Text>
-                                <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600], flexWrap: "wrap" }}>{item.destination.name}</Text>
+                                <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600], flexWrap: "wrap" }}>{item.destination?.name}</Text>
                             </View>
                         </View>
                     </View>
@@ -79,9 +54,9 @@ export function NewTripRequest({ item, onAccept, isSelected }: NewTripRequestPro
                         <View style={{ flexDirection: "column", justifyContent: "space-between" }}>
                             <Text style={styles.regular}>
                                 Valor: {`\n`}
-                                {item.freight !== undefined &&
+                                {item.price !== undefined &&
                                     <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>
-                                        ${item.freight.toFixed(2)}
+                                        ${item.price.toFixed(2)}
                                     </Text>}
                             </Text>
                             <Text style={styles.regular}>distance: {`\n`}
@@ -102,7 +77,10 @@ export function NewTripRequest({ item, onAccept, isSelected }: NewTripRequestPro
                 </View>
             ) : (
                 <TouchableOpacity style={{ width: 80, backgroundColor: colors.green.base, justifyContent: "center", borderBottomRightRadius: 12, borderTopRightRadius: 12 }}
-                    onPress={() => onAccept(item)}
+                    onPress={() => {
+                        selectTrip(user!, item);
+                     }}
+                    //  onPress={() => onAccept(item)}
                 >
                     <Text style={{
                         color: colors.gray[100],
@@ -110,9 +88,9 @@ export function NewTripRequest({ item, onAccept, isSelected }: NewTripRequestPro
                         fontSize: 16,
                         textAlign: "center"
                     }}>
-                        aceitar
+                       aceitar
                     </Text>
-                </TouchableOpacity>
+                </TouchableOpacity>             
             )}
         </View >
 

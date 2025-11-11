@@ -4,16 +4,10 @@ import { View, Text, StyleSheet } from 'react-native';
 import { IconPointFilled, IconMapPinFilled } from "@tabler/icons-react-native"
 import { VerticalDashedLine } from "../../components/dottedLine"
 import { colors, fontFamily } from "@/styles/theme"
+import { TripRequestProps } from '@/types';
 
-interface Trip {
-    id: string;
-    origin: string;
-    destination: string;
-    datetime: string; // ISO string
-    fare?: number;
-    status: string;
-}
-export function Trip({ item }: { item: Trip }) {
+
+export function Trip({ item }: { item: TripRequestProps }) {
     return (
         <View style={{
             padding: 10,
@@ -37,13 +31,13 @@ export function Trip({ item }: { item: Trip }) {
 
                 <View  style={{ flexDirection: "column", justifyContent:"space-between"}}>
                     <View>
-                    <Text style={styles.regular}> {new Date(item.datetime).toLocaleString()} </Text>
-                    <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>{item.origin}</Text>
+                    <Text style={styles.regular}>{item.created_at ? new Date(item.created_at).toLocaleString() : ''}</Text>
+                    <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>{item.origin?.name}</Text>
                     </View>
                     
                     <View>
-                    <Text style={styles.regular}> {new Date(item.datetime).toLocaleString()}</Text>
-                    <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>{item.destination}</Text>
+                    <Text style={styles.regular}>{item.created_at ? new Date(item.created_at).toLocaleString() : ''}</Text>
+                    <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>{item.destination?.name}</Text>
                     </View>
                 </View> 
             </View>
@@ -53,9 +47,9 @@ export function Trip({ item }: { item: Trip }) {
                 <View style={{ flexDirection: "column", justifyContent:"space-between" }}>
                     <Text style={styles.regular}>
                         Valor: {`\n`}
-                        {item.fare !== undefined &&
+                        {item.price !== undefined &&
                             <Text style={{ fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] }}>
-                                ${item.fare.toFixed(2)}
+                                ${item.price.toFixed(2)}
                             </Text>}
                     </Text>
                     <Text style={styles.regular}>Status: {`\n`}

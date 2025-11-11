@@ -3,25 +3,13 @@ import { Text, useWindowDimensions } from "react-native"
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet"
 
 import { s } from "./styles"
-import { Place, PlaceProps } from "../place"
+import { Place} from "../place"
 import { BookRideDialog } from "../bookRideDialog"
 import { useTrip } from "@/context/tripContext"
-
-
-type RidesProps = PlaceProps & {
-  latitude: number
-  longitude: number
-  categoryId: string
-  name: string
-  description: string
-  coupons: number
-  address: string
-  phone: string
-  cover: string
-}
+import { PlaceProps } from "@/types"
 
 type RideModalProps = {
-  data: RidesProps[]
+  data: PlaceProps[]
 }
 
 
@@ -51,10 +39,10 @@ export function RideModal({ data }: RideModalProps) {
       <BookRideDialog />
       <BottomSheetFlatList
         data={data}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        keyExtractor={(item: PlaceProps, index: number) => item.id + index}
+        renderItem={({ item }:{item: PlaceProps}) => (
           <Place
-            data={item}
+            {...item} 
             onPress={() => {
               if (item.latitude && item.longitude){
                 //userLocation();

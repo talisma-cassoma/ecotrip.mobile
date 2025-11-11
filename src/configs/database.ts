@@ -1,46 +1,9 @@
+import { DriverInfo, AuthUser } from "@/types";
+
 const DABASE_NAME = '@ecotrip';
 
 const COLECTION_USERS = `${DABASE_NAME}:user`;
 const COLECTION_RIDES = `${DABASE_NAME}:ride`;
-
-
-type PassengerRole = {
-    type: 'passenger';
-};
-
-type DriverRole = {
-    type: 'driver';
-    data: {
-        car_model: string;
-        car_plate: string;
-        car_color: string;
-        license_number: string;
-        rating?: number
-        complited_rides?: number
-    };
-};
-
-type UserRole = PassengerRole | DriverRole;
-
-interface AuthUser {
-    id?: string
-    name: string;
-    email: string;
-    image?: string;
-    telephone?: string;
-    role: UserRole;
-    access_token?: string;
-    refresh_token?: string;
-};
-
-type DriverInfo = {
-    car_model: string;
-    car_plate: string;
-    car_color: string;
-    license_number: string;
-    rating?: number
-    complited_rides?: number
-};
 
 function buildStoredUser({
     name,

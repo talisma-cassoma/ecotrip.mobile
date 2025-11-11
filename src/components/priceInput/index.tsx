@@ -1,11 +1,10 @@
 import { useTrip } from '@/context/tripContext';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 interface PriceInputProps {
   initialValue?: number;
   step?: number;
-  minPrice?: number;
   currencySymbol?: string;
   onChange?: (value: number) => void;
 }
@@ -13,17 +12,38 @@ interface PriceInputProps {
 export function PriceInput({
   initialValue = 0,
   step = 1,
-  currencySymbol = 'Kz',
-  minPrice = 400,
+  currencySymbol = 'FCFA',
   onChange,
 }: PriceInputProps) {
-  const { price, setPrice, distance } = useTrip();
 
-  const updatePrice = (newPrice: number) => {
-    const valid = Math.ceil((Number.isNaN(newPrice) ? minPrice : Math.max(minPrice, newPrice)) / 25) * 25;
-    setPrice(valid);
-    onChange?.(valid);
-  };
+  const { price, setPrice, distance } = useTrip();
+  const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null);
+
+  // Reset calculatedPrice quando a distance mudar
+  useEffect(() => {
+    setCalculatedPrice(null);
+  }, [distance]);
+
+ const updatePrice = (newPrice: number) => {
+  let base = calculatedPrice;
+
+  if (base === null) {
+    setCalculatedPrice(newPrice);
+    base = newPrice;
+  }
+
+  const minAllowed = base * 0.85;
+  const clampedPrice = Math.max(newPrice, minAllowed);
+
+  // Arredonda sem subir injustamente
+  const validPrice = Math.ceil(clampedPrice / 50) * 50;
+
+  console.log(`Tentativa de definir preço: ${newPrice}, Preço válido após validação: ${validPrice}`);
+
+  setPrice(validPrice);
+  onChange?.(validPrice);
+};
+
 
   const handleIncrement = (price: number) => updatePrice(price + step);
   const handleDecrement = (price: number) => updatePrice(price - step);
@@ -33,38 +53,46 @@ export function PriceInput({
     updatePrice(parsed);
   };
 
-  return (
-    price && distance ? (
-      <View style={styles.container}>
-        <TouchableOpacity
-          onPress={() => handleDecrement(price)}
-          style={styles.button}
-          disabled={price <= minPrice}
+  const minAllowed = calculatedPrice ? calculatedPrice : 0;
+
+
+  return price && distance ? (
+    <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => handleDecrement(price)}
+        style={styles.button}
+       disabled={calculatedPrice !== null && price <= (minAllowed ?? 0)}
+      >
+        <Text
+          style={[
+            styles.buttonText,
+            calculatedPrice !== null && price <= minAllowed && styles.disabledText,
+          ]}
         >
-          <Text style={[styles.buttonText, price <= minPrice && styles.disabledText]}>-</Text>
-        </TouchableOpacity>
+          -
+        </Text>
+      </TouchableOpacity>
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            value={price.toString()}
-            onChangeText={handleTextChange}
-          />
-          <Text style={styles.currency}>{currencySymbol}</Text>
-        </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          keyboardType="numeric"
+          value={price.toString()}
+          onChangeText={handleTextChange}
+        />
+        <Text style={styles.currency}>{currencySymbol}</Text>
+      </View>
 
-        <TouchableOpacity onPress={() => handleIncrement(price)} style={styles.button}>
-          <Text style={styles.buttonText}>+</Text>
-        </TouchableOpacity>
-      </View>
-    ) : (
-      <View style={{ alignSelf: "center" }}>
-        <Text>elige un destino valido</Text>
-      </View>
-    )
+      <TouchableOpacity onPress={() => handleIncrement(price)} style={styles.button}>
+        <Text style={styles.buttonText}>+</Text>
+      </TouchableOpacity>
+    </View>
+  ) : (
+    <View style={{ alignSelf: 'center' }}>
+      <Text>Elige un destino válido</Text>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

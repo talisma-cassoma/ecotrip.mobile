@@ -1,0 +1,70 @@
+{
+"user": {
+    "id": "wHzF63WWzXxrNTNvAAAB",
+    "username": "",
+    "email": "test2@gmail.com",
+    "image": null,
+    "role": {
+        "type": "passenger"
+    },
+    "peerId": "",
+    "roomId": "wHzF63WWzXxrNTNvAAAB"
+},
+"room": {
+    "id": "wHzF63WWzXxrNTNvAAAB",
+    "owner": {
+        "id": "wHzF63WWzXxrNTNvAAAB",
+        "username": "",
+        "email": "test2@gmail.com",
+        "image": null,
+        "role": {
+            "type": "passenger"
+        },
+        "peerId": "0658399699",
+        "roomId": "wHzF63WWzXxrNTNvAAAB"
+    },
+    "assignedDriver": null,
+    "status": "requested",
+    "origin": {
+        "name": "Ubicatión atual",
+        "location": {
+            "lat": 1.8575468799281134,
+            "lng": 9.773508861048843
+        }
+    },
+    "destination": {
+        "name": "Grão Dourado",
+        "location": {
+            "lat": 3.75,
+            "lng": 8.7833
+        }
+    },
+    "attendeesCount": 2,
+    "users": [
+        {
+            "id": "wHzF63WWzXxrNTNvAAAB",
+            "username": "",
+            "email": "test2@gmail.com",
+            "image": null,
+            "role": {
+                "type": "passenger"
+            },
+            "peerId": "",
+            "roomId": "wHzF63WWzXxrNTNvAAAB"
+        },
+        {
+            "id": "wHzF63WWzXxrNTNvAAAB",
+            "username": "",
+            "email": "test2@gmail.com",
+            "image": null,
+            "role": {
+                "type": "passenger"
+            },
+            "peerId": "",
+            "roomId": "wHzF63WWzXxrNTNvAAAB"
+        }
+    ],
+    "created_at": "2025-11-11T08:35:29.973Z",
+    "updated_at": "2025-11-11T08:35:29.973Z"
+}
+}

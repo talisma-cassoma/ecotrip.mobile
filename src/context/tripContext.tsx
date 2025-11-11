@@ -59,8 +59,10 @@ useEffect(() => {
   if (distance) {
     const rawPrice = Po + Math.max(0, (distance - Do) * Cd);
 
-    // para múltiplo de 25 mais próximo para cima
-    const roundedPrice = Math.ceil(rawPrice / 25) * 25;
+    // para múltiplo de 50 mais próximo para cima
+    const roundedPrice = Math.ceil(rawPrice / 50) * 50;
+
+    console.log(`Preço calculado baseado na distância (${distance.toFixed(2)} km): ${roundedPrice} FCFA`);
 
     setPrice(roundedPrice);
   }

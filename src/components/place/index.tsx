@@ -5,33 +5,23 @@ import {
   View,
   Image,
 } from "react-native"
-import { IconInfoCircleFilled} from "@tabler/icons-react-native"
+import { IconInfoCircleFilled } from "@tabler/icons-react-native"
 
 import { s } from "./styles"
 import { colors } from "@/styles/theme"
 
-export type PlaceProps = {
-  id: string
-  name: string
-  description: string
-  coupons: number
-  cover: string
-  address: string
-}
+import { PlaceProps } from "@/types"
 
-type Props = TouchableOpacityProps & {
-  data: PlaceProps
-}
 
-export function Place({ data, ...rest }: Props) {
+export function Place({ id, name, description, cover, ...rest }: PlaceProps & TouchableOpacityProps) {
   return (
     <TouchableOpacity style={s.container} {...rest}>
-      <Image style={s.image} source={{ uri: data.cover }} />
+      <Image style={s.image} source={{ uri: cover }} />
 
       <View style={s.content}>
-        <Text style={s.name}>{data.name}</Text>
+        <Text style={s.name}>{name}</Text>
         <Text style={s.description} numberOfLines={2}>
-          {data.description}
+          {description}
         </Text>
 
         <View style={s.footer}>

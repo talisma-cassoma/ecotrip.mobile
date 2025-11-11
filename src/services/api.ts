@@ -1,11 +1,12 @@
 import axios from "axios"
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLECTION_USERS } from '../configs/database';
 import { Alert } from "react-native"
 
 
-const URL = 'https://ecotrip-api.onrender.com'
+const URL = 'http://192.168.11.120:3000' //'https://ecotrip-api.onrender.com'
+export const socketUrl =URL
 
 if (!URL) {
   Alert.alert('Erro: A variável de URL não está definida.');
@@ -16,8 +17,8 @@ export const api = axios.create({
   timeout: 9000,
 })
 
-export const socket = io(URL, {
-  autoConnect: false
+export const socket: Socket = io(socketUrl, {
+  autoConnect: false,
 });
 
 // Interceptor de requisição: adiciona o access_token

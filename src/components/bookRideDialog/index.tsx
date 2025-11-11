@@ -139,7 +139,6 @@ export function BookRideDialog() {
               <PriceInput
                 initialValue={price}
                 currencySymbol="Francos"
-                minPrice={400}
                 step={price / 10}
               />
 
