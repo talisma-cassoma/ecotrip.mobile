@@ -5,8 +5,8 @@ import { api } from '@/services/api';
 import { Button } from '@/components/button';
 import { IconArrowLeft, IconUser, IconAB2, IconAlignJustified, IconUsersGroup, IconBell, IconClock } from "@tabler/icons-react-native"
 import { router } from "expo-router"
-import { useUserAuth } from '@/context/userAuthContext';
-import { COLECTION_USERS } from "@/configs/database"
+import { useUserAuth } from '@/hooks/useUserAuth';
+import { COLLECTION_USERS } from "@/configs/database"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -43,7 +43,7 @@ const getInitials = (name:string | undefined) => {
       //{ headers: { Authorization: `Bearer ${user?.access_token}`,}}
       // );
       setUser(null)
-      await AsyncStorage.removeItem(COLECTION_USERS)
+      await AsyncStorage.removeItem(COLLECTION_USERS)
       router.replace("/login")
     } catch (error) {
       console.log(error)

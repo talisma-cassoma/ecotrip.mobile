@@ -3,12 +3,11 @@ import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, Alert, Image, useWindowDimensions, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COLECTION_USERS, buildStoredUser } from "../configs/database"
+import { storeUser } from "../configs/database"
 import {
   IconBrandGoogleFilled
 } from "@tabler/icons-react-native";
-import { useUserAuth } from "@/context/userAuthContext"
+import { useUserAuth } from "@/hooks/useUserAuth";
 import { api } from "@/services/api";
 
 export default function PassengerSignUp() {
@@ -40,7 +39,7 @@ export default function PassengerSignUp() {
       const { passenger } = response.data;
 
       if (passenger) {
-        const storedUser = buildStoredUser({
+        const storedUser = await storeUser({
           name: passenger.user.name,
           email: passenger.user.email,
           image: passenger.user.image,
@@ -51,7 +50,7 @@ export default function PassengerSignUp() {
         });
 
         setUser(storedUser);
-        await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(storedUser));
+        
         console.log('Usuário autenticado com sucesso');
         router.navigate("/home");
       } 

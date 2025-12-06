@@ -1,8 +1,8 @@
 import { View, Text, Image } from 'react-native';
-import { useUserAuth } from '../context/userAuthContext';
+
 
 export default function ConnectToServerScreen() {
-  const { serverMessage } = useUserAuth();
+  const serverMessage = "Despertando al servidor... Por favor, espere.";
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>

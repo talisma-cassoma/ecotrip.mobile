@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { NewTripRequest} from "@/components/newTripRequest";
 import { TripRequestProps} from "@/types";
 import { Button } from "@/components/button";
-import { useUserAuth } from "@/context/userAuthContext";
+import { useUserAuth } from "@/hooks/useUserAuth";
 import { api } from "@/services/api";
 import { AxiosError } from "axios";
 import { useDriver } from "@/context/driverContext";
@@ -121,7 +121,7 @@ export default function NewTripRequests() {
       ) : (
         <FlatList
           data={availableTrips}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => item.id || String(index)}
           renderItem={({ item }) => (
             <NewTripRequest item={item} onAccept={handleAcceptTrip} isSelected={isSelected} />
           )}

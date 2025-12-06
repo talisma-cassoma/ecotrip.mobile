@@ -49,9 +49,9 @@ export type DriverInfo = {
 };
 
 export interface TripRequestProps {
-    id: string;
+    id?: string;
     status?: TripStatus;
-    owner?: string;
+    owner?: AuthUser;
     users?: Set<AuthUser>;
     assignedDriver?: AuthUser | null;        
     distance: number;
@@ -75,7 +75,6 @@ export interface TripRequestProps {
         }
     },
 }
-
 
 export type PlaceProps = {
   id: string

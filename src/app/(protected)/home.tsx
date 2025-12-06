@@ -2,8 +2,6 @@ import { useEffect, useState, useRef } from "react"
 import { View, Alert, Text } from "react-native"
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps"
 
-import { router } from "expo-router"
-
 import { api } from "@/services/api"
 import { fontFamily, colors } from "@/styles/theme"
 

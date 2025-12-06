@@ -1,106 +1,147 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COLECTION_USERS } from '../configs/database';
-import { router } from 'expo-router';
-import { AuthUser } from '../configs/database';
-import { api } from '../services/api'; // aqui entra seu axios/fetch configurado
+import React, { createContext, useContext, useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AuthUser } from "@/types";
+import { COLLECTION_USERS, storeUser } from "@/configs/database";
 
-export type UserContextType = {
-  setUser: (user: AuthUser | null) => void
+interface AuthContextProps {
   user: AuthUser | null;
-  loading: boolean;
-  serverIsOn: boolean;
-  serverMessage: string; // 👈 mensagem dinâmica
+  setUser: React.Dispatch<React.SetStateAction<AuthUser | null>>;
+  isLoggedIn: boolean;
+  isLoaded: boolean;
+  login: (user: AuthUser) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+export const AuthContext = createContext<AuthContextProps>(
+  {} as AuthContextProps
+);
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const isLoggedIn = !!user;
+
+const updateUser = async (
+  newUser: AuthUser | null,
+  options: { save?: boolean } = { save: true }
+) => {
+  if (!options.save) {
+    // Apenas carregar do storage
+    setUser(newUser);
+    return;
+  }
+
+  try {
+    if (newUser) {
+      // Validar tokens
+      if (!newUser.access_token || !newUser.refresh_token) {
+        console.warn("updateUser: tokens ausentes");
+        setUser(null);
+        return;
+      }
+
+      // Salvar no AsyncStorage
+      if (newUser.role.type === "driver") {
+        if (!newUser.role.data) {
+          console.warn("updateUser: driverData ausente");
+          setUser(null);
+          return;
+        }
+
+        await storeUser({
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          image: newUser.image,
+          access_token: newUser.access_token,
+          refresh_token: newUser.refresh_token,
+          telephone: newUser.telephone,
+          role: "driver",
+          driverData: newUser.role.data,
+        });
+      } else {
+        await storeUser({
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          image: newUser.image,
+          access_token: newUser.access_token,
+          refresh_token: newUser.refresh_token,
+          role: "passenger",
+        });
+      }
+
+      console.log("✅ Usuário salvo com sucesso:", newUser.email);
+      
+      // ✅ ATUALIZAR O ESTADO APÓS PERSISTÊNCIA SUCEDER
+      setUser(newUser);
+      
+    } else {
+      await AsyncStorage.removeItem(COLLECTION_USERS);
+      console.log("✅ Usuário removido do armazenamento");
+      setUser(null);
+    }
+  } catch (err) {
+    console.error("❌ Erro ao salvar/remover usuário:", err);
+    setUser(null);
+    throw err;
+  }
 };
 
-export const UserAuthContext = createContext({} as UserContextType);
-
-export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [serverIsOn, setServerIsOn] = useState(false);
-  const [serverMessage, setServerMessage] = useState("verificando servidor... 🚨");
-
-  async function checkServer(): Promise<boolean> {
-    const start = Date.now();
-    while (true) {
-      try {
-        const response = await api.get("/ping");
-        if (response.data?.message === "pong") {
-          setServerIsOn(true);
-          const elapsedMs = Date.now() - start;
-          const elapsedSec = Math.round(elapsedMs / 1000);
-
-          // formata o tempo
-          const formattedTime =
-            elapsedSec < 60
-              ? `${elapsedSec} segundos`
-              : `${Math.floor(elapsedSec / 60)} min ${elapsedSec % 60}s`;
-              
-          setServerMessage(`✅ Servidor ligado! Levou ${formattedTime} segundos para acordar`);
-          return true; // sai do loop
-        }
-      } catch (error) {
-        console.log(`${error} : Server not responding. Retrying in 2 seconds...`);
-        setServerMessage("⚠️ Tentando novamente...");
-      }
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-  }
-
-  async function loadUserStorageData() {
-    try {
-      setLoading(true);
-
-      router.replace("/connectToServerScreen");
-
-      await checkServer();
-
-      // espera 2 segundos antes de seguir adiante
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const savedUser = await AsyncStorage.getItem(COLECTION_USERS);
-
-      if (savedUser) {
-        const parsedUser = JSON.parse(savedUser) as AuthUser;
-        setUser(parsedUser);
-        await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(parsedUser));
-
-        if (parsedUser.role.type === 'driver') {
-          router.replace("/newTripRequests");
-        } else {
-          router.replace("/home");
-        }
-      } else {
-        router.replace('/login');
-      }
-
-    } catch (err) {
-      console.error('Erro ao restaurar auth user:', err);
-      setUser(null);
-      router.replace('/login');
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  /**
+   * ======================================================
+   * 🚀 Carregar usuário salvo ao iniciar o app
+   * ======================================================
+   */
   useEffect(() => {
-    loadUserStorageData();
+    const loadUser = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(COLLECTION_USERS);
+        if (saved) {
+          const parsed = JSON.parse(saved) as AuthUser;
+          await updateUser(parsed, { save: false });
+        }
+      } catch (err) {
+        console.error("Erro ao carregar usuário:", err);
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+
+    loadUser();
   }, []);
 
+  /**
+   * ======================================================
+   * 🔐 Login
+   * ======================================================
+   */
+  const login = async (userData: AuthUser) => {
+    await updateUser(userData, { save: true });
+  };
+
+  /**
+   * ======================================================
+   * 🚪 Logout
+   * ======================================================
+   */
+  const logout = async () => {
+    await updateUser(null);
+  };
+
   return (
-    <UserAuthContext.Provider
-      value={{ setUser, user, loading, serverIsOn, serverMessage }}
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        isLoggedIn,
+        isLoaded,
+        login,
+        logout,
+      }}
     >
       {children}
-    </UserAuthContext.Provider>
+    </AuthContext.Provider>
   );
-};
-
-export const useUserAuth = () => {
-  const context = useContext(UserAuthContext);
-  if (!context) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
-  return context;
 };

@@ -13,11 +13,11 @@ export default function SignUp() {
       {/* <Text style={styles.subtitle}>Introduce tu correo y una contraseña para crear una cuenta</Text> */}
 
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 20, marginBottom: 20 }}>
-        <Pressable onPress={() => router.navigate("./passengerSignUp")} style={styles.roleChoice}>
+        <Pressable onPress={() => router.replace("./passengerSignUp")} style={styles.roleChoice}>
           <IconFriends size={24} stroke={colors.green.base}/>
           <Text >Pasajero</Text>
         </Pressable>
-        <Pressable onPress={() => router.navigate("./driverSignUp")} style={styles.roleChoice}>
+        <Pressable onPress={() => router.replace("/driverSignUp")} style={styles.roleChoice}>
           <IconCarSuv size={24} stroke={colors.green.base}/>
           <Text>Conductor</Text>
         </Pressable>

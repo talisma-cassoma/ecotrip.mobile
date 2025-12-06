@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import SocketBuilder from "../services/socketBuilder";
 import { constants } from "../configs/constants";
-import { AuthUser } from "../configs/database";
+import { AuthUser } from "@/types";
 import { Socket } from "socket.io-client";
 import { TripRequestProps} from "@/types";
 
@@ -25,6 +25,8 @@ export function DriverProvider({
   const [availableTrips, setAvailableTrips] = useState<TripRequestProps[]>([]);
   const [lobbySocket, setLobbySocket] = useState<Socket | null>(null);
   const [roomSocket, setRoomSocket] = useState<Socket | null>(null);
+
+  console.log("DriverProvider renderizado para usuário:", user?.id);
 
   // ✅ Conexão com o LOBBY
   useEffect(() => {

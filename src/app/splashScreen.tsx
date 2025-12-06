@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //AsyncStorage.clear().then(() => console.log('AsyncStorage limpo!'));
 
-export default function Index() {
+export default function SplashScreen() {
    useEffect(() => {
     const unlockScreenOerientation = async () => {
       await ScreenOrientation.unlockAsync()
@@ -22,7 +22,7 @@ export default function Index() {
       <Welcome />
       <Steps />
 
-      <Button onPress={() => router.navigate("/login")} style={{ marginTop: 40 }}>
+      <Button onPress={() => router.push("/login")} style={{ marginTop: 40 }}>
         <Button.Title>
           Comenzar
         </Button.Title>

@@ -1,11 +1,11 @@
 import axios from "axios"
 import { io, Socket } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COLECTION_USERS } from '../configs/database';
+import { COLLECTION_USERS } from '../configs/database';
 import { Alert } from "react-native"
 
 
-const URL = 'http://192.168.11.120:3000' //'https://ecotrip-api.onrender.com'
+const URL = 'http://192.168.11.158:3000' //'https://ecotrip-api.onrender.com'
 export const socketUrl =URL
 
 if (!URL) {
@@ -26,7 +26,7 @@ api.interceptors.request.use(async (config) => {
   const excludedRoutes = ['/login', '/passenger/create', '/driver/create', '/refresh', '/ping']; // rotas sem token
 
   if (!excludedRoutes.some(route => config.url?.includes(route))) {
-    const user = await AsyncStorage.getItem(COLECTION_USERS);
+    const user = await AsyncStorage.getItem(COLLECTION_USERS);
     if (user) {
       const parsed = JSON.parse(user);
       config.headers.Authorization = `Bearer ${parsed.access_token}`;
@@ -45,7 +45,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      const savedUser = await AsyncStorage.getItem(COLECTION_USERS);
+      const savedUser = await AsyncStorage.getItem(COLLECTION_USERS);
       if (savedUser) {
         const parsedUser = JSON.parse(savedUser);
         try {
@@ -56,14 +56,14 @@ api.interceptors.response.use(
           const { access_token } = refreshRes.data;
           if (access_token) {
             parsedUser.access_token = access_token;
-            await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(parsedUser));
+            await AsyncStorage.setItem(COLLECTION_USERS, JSON.stringify(parsedUser));
 
             originalRequest.headers.Authorization = `Bearer ${access_token}`;
             return api(originalRequest); // reenvia a requisição original
           }
         } catch (err) {
           console.error("Erro ao renovar token automaticamente", err);
-          await AsyncStorage.removeItem(COLECTION_USERS);
+          await AsyncStorage.removeItem(COLLECTION_USERS);
           return Promise.reject(err);
         }
       }

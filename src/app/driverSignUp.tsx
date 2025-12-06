@@ -4,9 +4,8 @@ import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
 import React, { useState } from 'react';
 import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert, useWindowDimensions, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COLECTION_USERS, buildStoredUser } from "../configs/database"
-import { useUserAuth } from "@/context/userAuthContext"
+import { storeUser } from "../configs/database"
+import { useUserAuth } from "@/hooks/useUserAuth";
 import { api } from "@/services/api";
 
 
@@ -52,7 +51,7 @@ export default function DriverSignUp() {
       
       console.log("response", response.data);
 
-        const storedUser = buildStoredUser({
+        const storedUser = await storeUser({
           id: driver.user.id,
           name: driver.user.name,
           email: driver.user.email,
@@ -69,7 +68,6 @@ export default function DriverSignUp() {
         });
         
         setUser(storedUser)
-        await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(storedUser));
         router.navigate("./newTripRequests");
       
       }catch(error) {

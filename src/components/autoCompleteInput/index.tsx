@@ -22,7 +22,6 @@ const MOCK_PLACES = [
   { name: 'Libreville Airport', latitude: 0.4586, longitude: 9.4123 },
   { name: 'Malabo Port', latitude: 3.7554, longitude: 8.7792 },
   { name: 'Bata Station', latitude: 1.8600, longitude: 9.7720 },
-    { name: 'Bata Station', latitude: 1.8600, longitude: 9.7720 },
 ];
 
 
@@ -184,7 +183,7 @@ export function AutoCompleteInput({
                         <View style={styles.suggestionsWrapper}>
                             <FlatList
                                 data={filteredPlaces}
-                                keyExtractor={(item) => item.name}
+                                 keyExtractor={(item, index) => item.name || String(index)}
                                 renderItem={({ item }) => (
                                     <TouchableOpacity onPress={() => handleSelect(item)} style={styles.suggestionItem}>
                                         <Text style={styles.suggestionText}>{item.name}</Text>

@@ -1,218 +1,302 @@
+import { Redirect, router } from "expo-router";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
-import { router } from "expo-router"
-
-import { fontFamily, colors } from "@/styles/theme"
+import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
-import { IconBrandGoogleFilled } from "@tabler/icons-react-native"
+import { IconBrandGoogleFilled } from "@tabler/icons-react-native";
+import { AuthUser } from "@/types";
 
-import React, { useState } from 'react';
-import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useUserAuth } from "@/context/userAuthContext"
-import { COLECTION_USERS, buildStoredUser } from '../configs/database';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState } from "react";
+import {
+  Image,
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  Alert,
+} from "react-native";
+
+import { useUserAuth } from "@/hooks/useUserAuth"; // ← novo hook
 import { api } from "@/services/api";
 
-
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [isLoading, setIsLoading] = useState(false)
-    const { loading, setUser } = useUserAuth()
+  const { login} = useUserAuth(); 
 
-    const handleLogin = async () => {
-        setIsLoading(true);
-        try {
-            const response = await api.post('/users/login', { email, password })
-           
-            const { session, user } = response.data;
-            //console.log(response)
+ const handleLogin = async () => {
+  // ✅ Validação básica
+  if (!email.trim() || !password.trim()) {
+    Alert.alert("Validação", "Por favor, preencha email e senha.");
+    return;
+  }
 
-            const storedUser = () => {
-                if (user.role === 'driver') {
-                    return buildStoredUser({
-                        name: user.name,
-                        email: user.email,
-                        image: user.image,
-                        access_token: session.access_token,
-                        refresh_token: session.refresh_token,
-                        telephone: user.telephone,
-                        role: user.role,
-                        driverData: {
-                            car_model: user.carModel,
-                            car_plate: user.carPlate,
-                            car_color: user.carColor,
-                            license_number: user.licenseNumber,
-                        }
-                    });
-                } else {
-                    return buildStoredUser({
-                        id: user.id,
-                        name: user.name,
-                        email: user.email,
-                        image: user.image,
-                        access_token: session.access_token,
-                        refresh_token: session.refresh_token,
-                        role: user.role,
-                    });
-                }
-            };
+  // ✅ Validação de email básica
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    Alert.alert("Validação", "Por favor, insira um email válido.");
+    return;
+  }
 
-            const userData = storedUser(); // executa a função
-            //console.log(userData)
-            setUser(userData);
-            if (userData) {
-                await AsyncStorage.setItem(COLECTION_USERS, JSON.stringify(userData));
-            } else {
-                console.warn("Tentativa de salvar userData undefined");
-            }
-            if(user.role === 'driver'){
-                 router.navigate("/newTripRequests");
-            }
-            if(user.role === 'passenger'){    
-                router.navigate("/home");
-            }
-        } catch (error) {
-            console.error('Erro ao fazer login:', error);
-            Alert.alert('Erro ao registrar. Verifique os dados e tente novamente.');
-        } finally {
-            setIsLoading(false);
+  setIsLoading(true);
+
+  try {
+    const response = await api.post("/users/login", { email, password });
+
+    if (!response.data || !response.data.session || !response.data.user) {
+      throw new Error("Resposta inválida do servidor");
+    }
+
+    const { session, user } = response.data;
+
+    // ✅ Validar tokens
+    if (!session.access_token || !session.refresh_token) {
+      throw new Error("Tokens não fornecidos pelo servidor");
+    }
+
+    // Mapear resposta da API → AuthUser
+    const userData: AuthUser = user.role === 'driver' 
+      ? {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          telephone: user.telephone,
+          role: {
+            type: 'driver',
+            data: {
+              car_model: user.carModel,
+              car_plate: user.carPlate,
+              car_color: user.carColor,
+              license_number: user.licenseNumber,
+            },
+          },
         }
-    };
+      : {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          role: {
+            type: 'passenger',
+          },
+        };
 
+    // ✅ Aguardar login completo (inclusive persistência)
+       // ✅ Aguardar login completo (inclusive persistência)
+    await login(userData);
 
-    const handlePasswordReset = async () => {
-        // Lógica de redefinição de senha aqui
-        console.log('Email de redefinição de senha enviado com sucesso');
-    };
+    console.log("✅ Login bem-sucedido para:", userData.email);
 
-    return (
-        loading ?
-            (
-                <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                    <Text style={{ textAlign: "center" }}>
-                        ... iniciando a sessao
-                    </Text>
-                </View>
-            ) :
-            (
-                <View style={styles.container}>
-                    <Image source={require("@/assets/logo.png")} style={{
-                        width: 150,
-                        height: 150,
-                        marginTop: 24,
-                        marginBottom: 2,
-                        alignSelf: 'center',
+    // Redirecionar explicitamente para o grupo protegido.
+    // Se tiver papel, enviar direto para a rota apropriada para evitar um passo extra.
+    if (userData.role?.type === "driver") {
+      router.replace("/(protected)/newTripRequests");
+    } else {
+      router.replace("/(protected)/home");
+    }
+    // O redirecionamento automático acontece em (protected)/_layout.tsx
 
-                    }} />
-                    <Text style={styles.title}>
-                        EcoTrip
-                    </Text>
-
-                    <Text style={styles.subtitle}>introduce tu correo para acceder a tu cuenta</Text>
-                    <ScrollView
-                        style={{ flex: 1, padding: 24 }}
-                        contentContainerStyle={{ paddingBottom: 40 }}
-                        showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
-                    >
-                        <Button style={{ justifyContent: "space-between" }} onPress={() => alert("Funcionalidad no implementada")}>
-                            <View style={{ width: 60, alignItems: "center", justifyContent: "center", backgroundColor: colors.green.dark, borderRadius: 10, height: "100%", }}>
-                                <Button.Icon icon={IconBrandGoogleFilled} />
-                            </View>
-                            <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                                <Button.Title>
-                                    <Text style={{ color: '#FFF', fontSize: 16, fontFamily: fontFamily.semiBold }}>Login con google</Text>
-                                </Button.Title>
-                            </View>
-                        </Button>
-
-                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 20 }} >
-                            <View style={styles.bar} />
-                            <Text style={styles.label}>ou</Text>
-                            <View style={styles.bar} />
-                        </View>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="email@ejemplo.com"
-                            placeholderTextColor="#aaa"
-                            keyboardType="email-address"
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="********"
-                            placeholderTextColor="#aaa"
-                            secureTextEntry
-                            value={password}
-                            onChangeText={setPassword}
-                        />
-
-                        <Button onPress={handleLogin} isLoading={isLoading}>
-                            <Button.Title>
-                                Entrar
-                            </Button.Title>
-                        </Button>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                            <Text onPress={() => router.replace("/register")} style={{ color: colors.green.dark }}>Regístrate</Text>
-                            <Text onPress={handlePasswordReset} style={{ color: colors.green.dark }}>Cambiar contraseña</Text>
-                        </View>
-                    </ScrollView>
-                </View>
-            )
-    )
+  } catch (error) {
+    console.error("❌ Erro ao fazer login:", error);
+    
+    // ✅ Mensagens de erro mais específicas
+    let errorMessage = "Erro ao entrar. Verifique suas credenciais.";
+    
+    if (error instanceof Error) {
+      if (error.message.includes("401")) {
+        errorMessage = "Email ou senha incorretos.";
+      } else if (error.message.includes("network")) {
+        errorMessage = "Erro de conexão. Verifique sua internet.";
+      } else if (error.message.includes("Resposta inválida")) {
+        errorMessage = "Erro do servidor. Tente novamente mais tarde.";
+      } else if (error.message.includes("Tokens não fornecidos")) {
+        errorMessage = "Falha na autenticação. Tente novamente.";
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    
+    Alert.alert("Erro de Login", errorMessage);
+  } finally {
+    setIsLoading(false);
+  }
 };
 
+  const handlePasswordReset = async () => {
+    console.log("Email de redefinição de senha enviado");
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+    >
+      <View style={styles.container}>
+        <Image
+          source={require("@/assets/logo.png")}
+          style={{
+            width: 150,
+            height: 150,
+            marginTop: 24,
+            marginBottom: 2,
+            alignSelf: "center",
+          }}
+        />
+
+        <Text style={styles.title}>EcoTrip</Text>
+        <Text style={styles.subtitle}>
+          introduce tu correo para acceder a tu cuenta
+        </Text>
+
+        <ScrollView
+          style={{ flex: 1, padding: 24 }}
+          contentContainerStyle={{ paddingBottom: 40 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <Button
+            style={{ justifyContent: "space-between" }}
+            onPress={() => alert("Funcionalidad no implementada")}
+          >
+            <View
+              style={{
+                width: 60,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: colors.green.dark,
+                borderRadius: 10,
+                height: "100%",
+              }}
+            >
+              <Button.Icon icon={IconBrandGoogleFilled} />
+            </View>
+            <View
+              style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+            >
+              <Button.Title>
+                <Text
+                  style={{
+                    color: "#FFF",
+                    fontSize: 16,
+                    fontFamily: fontFamily.semiBold,
+                  }}
+                >
+                  Login con google
+                </Text>
+              </Button.Title>
+            </View>
+          </Button>
+
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginVertical: 20,
+            }}
+          >
+            <View style={styles.bar} />
+            <Text style={styles.label}>ou</Text>
+            <View style={styles.bar} />
+          </View>
+
+          <TextInput
+            style={styles.input}
+            placeholder="email@ejemplo.com"
+            placeholderTextColor="#aaa"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="********"
+            placeholderTextColor="#aaa"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+
+          <Button onPress={handleLogin} isLoading={isLoading}>
+            <Button.Title>Entrar</Button.Title>
+          </Button>
+
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginTop: 20,
+            }}
+          >
+            <Text
+              onPress={() => router.replace("/register")}
+              style={{ color: colors.green.dark }}
+            >
+              Regístrate
+            </Text>
+            <Text
+              onPress={handlePasswordReset}
+              style={{ color: colors.green.dark }}
+            >
+              Cambiar contraseña
+            </Text>
+          </View>
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
+
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 24,
-        justifyContent: 'center',
-    },
-    title: {
-        fontSize: 24,
-        fontFamily: fontFamily.bold,
-        color: colors.gray[600],
-        textAlign: 'center',
-        marginBottom: 38,
-    },
-    subtitle: {
-        fontSize: 14,
-        color: '#555',
-        marginBottom: 28,
-        textAlign: 'center',
-    },
-    label: {
-        fontSize: 14,
-        fontFamily: fontFamily.regular,
-        color: colors.gray[500],
-        marginTop: 4,
-    },
-    input: {
-        color: '#333',
-        fontSize: 16,
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 14,
-        borderWidth: 1,
-        borderColor: '#DDD',
-        marginBottom: 20
-    },
-    button: {
-        marginTop: 24,
-        backgroundColor: '#2E7D32', // tom verde como no botão
-        paddingVertical: 14,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: '#FFF',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    bar: { flex: 1, height: 1, backgroundColor: colors.gray[300], marginVertical: 20, margin: 10 }
+  container: {
+    flex: 1,
+    padding: 24,
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: fontFamily.bold,
+    color: colors.gray[600],
+    textAlign: "center",
+    marginBottom: 38,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#555",
+    marginBottom: 28,
+    textAlign: "center",
+  },
+  label: {
+    fontSize: 14,
+    fontFamily: fontFamily.regular,
+    color: colors.gray[500],
+    marginTop: 4,
+  },
+  input: {
+    color: "#333",
+    fontSize: 16,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: "#DDD",
+    marginBottom: 20,
+  },
+  bar: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.gray[300],
+    marginVertical: 20,
+    margin: 10,
+  },
 });
-
-
-

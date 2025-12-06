@@ -10,7 +10,7 @@ import { router } from "expo-router";
 import { fontFamily, colors } from "@/styles/theme";
 import { api, socket } from "@/services/api";
 import { useTrip } from "@/context/tripContext";
-import { useUserAuth } from "@/context/userAuthContext";
+import { useUserAuth } from "@/hooks/useUserAuth";
 import { usePassenger } from "@/context/passengerContext";
 
 import { AvailableDriver, AvailableDriverProps } from "@/components/availableDriver";
@@ -206,12 +206,12 @@ export default function SelectADriver() {
     const [selectedDriver, setSelectedDriver] = useState<AvailableDriverProps | null>(null);
     const [isSelected, setIsSelected] = useState(false);
     const [tripId, setTripId] = useState<string | null>(null);
-    const [trip, setTrip] = useState<TripRequestProps| null>(null);
+    const [trip, setTrip] = useState<TripRequestProps | null>(null);
 
 
     const { originCoords, destinationCoords, distance, duration, price } = useTrip();
     const { user } = useUserAuth();
-    const { createRoom, availableDrivers } = usePassenger();
+    const { createRoom, availableDrivers,isConnected } = usePassenger();
 
     const fetchDrivers = async () => {
         if (!user) {
@@ -243,8 +243,7 @@ export default function SelectADriver() {
             };
 
             const room = {
-                id: user?.id || "",
-                owner: user?.email,
+                owner: user,
                 price: newTrip?.price ?? 0,
                 origin: newTrip.origin,
                 destination: newTrip.destination,
@@ -253,9 +252,24 @@ export default function SelectADriver() {
                 directions: newTrip.directions,
                 email: user.email,
             };
-            
+           
+
             createRoom(user, room);
             console.log("Criando nova viagem:", newTrip);
+            const response = await api.post(
+                `/trips/new-trip`,
+                { ...room },
+                {
+                    headers: {
+                        access_token: user?.access_token,
+                        refresh_token: user?.refresh_token,
+                    },
+                }
+            );
+             setTripId(response.data.tripId);
+             console.log("Viagem criada com ID:", response.data.tripId);
+
+
         } catch (err) {
             console.error("Erro ao criar nova viagem:", err);
         }
@@ -317,16 +331,18 @@ export default function SelectADriver() {
     };
 
     useEffect(() => {
+    if (isConnected) {
         fetchDrivers();
-    }, []);
+    }
+}, [isConnected]);
 
-    useEffect(() => {
-        return () => {
-            if (retryRef.current) clearTimeout(retryRef.current);
-            socket.disconnect();
-            socket.off("server:available-drivers");
-        };
-    }, []);
+
+   useEffect(() => {
+    return () => {
+        if (retryRef.current) clearTimeout(retryRef.current);
+    };
+}, []);
+
 
     useEffect(() => {
         setIsSelected(true);

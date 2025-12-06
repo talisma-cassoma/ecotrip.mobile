@@ -1,9 +1,9 @@
 import { Stack } from "expo-router";
 import { colors } from "@/styles/theme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { TripProvider } from "@/context/tripContext";
-import { UserAuthProvider } from "@/context/userAuthContext";
-import { SocketProvider } from "@/context/socketContext";
+import { AuthProvider} from "@/context/userAuthContext";
+
+
 import {
   useFonts,
   Rubik_600SemiBold,
@@ -14,7 +14,7 @@ import {
 
 import { Loading } from "@/components/loading";
 
-export default function Layout() {
+export default function ProtectedLayout() {
   const [fontsLoaded] = useFonts({
     Rubik_600SemiBold,
     Rubik_400Regular,
@@ -25,21 +25,16 @@ export default function Layout() {
   if (!fontsLoaded) {
     return <Loading />;
   }
-
+  
+  
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <UserAuthProvider>
-        <SocketProvider>
-          <TripProvider>
-            <Stack
-              screenOptions={{
+      < AuthProvider> 
+        <Stack screenOptions={{
                 headerShown: false,
-                contentStyle: { backgroundColor: colors.gray[100] },
-              }}
-            />
-          </TripProvider>
-        </SocketProvider>
-      </UserAuthProvider>
+              }}>
+        </Stack>
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 }

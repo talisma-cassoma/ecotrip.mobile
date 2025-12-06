@@ -1,11 +1,13 @@
 import { DriverInfo, AuthUser } from "@/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DABASE_NAME = '@ecotrip';
 
-const COLECTION_USERS = `${DABASE_NAME}:user`;
-const COLECTION_RIDES = `${DABASE_NAME}:ride`;
+const COLLECTION_USERS = `${DABASE_NAME}:user`;
+const COLLECTION_RIDES = `${DABASE_NAME}:ride`;
 
-function buildStoredUser({
+async function storeUser({
+    id,
     name,
     email,
     image,
@@ -24,8 +26,9 @@ function buildStoredUser({
     refresh_token: string;
     role: 'passenger' | 'driver';
     driverData?: DriverInfo;
-}): AuthUser {
+}): Promise<AuthUser> {
     const base = {
+        id,
         name,
         email,
         image,
@@ -34,26 +37,36 @@ function buildStoredUser({
         refresh_token,
     };
 
+    let newUser: AuthUser;
+
     if (role === 'driver' && driverData) {
-        return {
+        newUser = {
             ...base,
             role: {
                 type: 'driver',
                 data: driverData,
             },
         };
+    } else {
+        newUser = {
+            ...base,
+            role: { type: 'passenger' },
+        };
     }
 
-    return {
-        ...base,
-        role: { type: 'passenger' },
-    };
+    console.log("💾 Saving user to AsyncStorage:", newUser);
+    try {
+        await AsyncStorage.setItem(COLLECTION_USERS, JSON.stringify(newUser));
+        console.log("✅ User saved successfully");
+        return newUser;
+    } catch (error) {
+        console.error("❌ Error saving user:", error);
+        throw error;
+    }
 }
 
-
 export {
-    COLECTION_USERS,
-    COLECTION_RIDES,
-    buildStoredUser,
-    AuthUser
+    COLLECTION_USERS,
+    COLLECTION_RIDES,
+    storeUser,
 }

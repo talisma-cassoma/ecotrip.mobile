@@ -2,8 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import SocketBuilder from "../services/socketBuilder";
 import { constants } from "../configs/constants";
 import { Socket } from "socket.io-client";
-import { useUserAuth } from "./userAuthContext";
-import { AuthUser } from "../configs/database";
+import { useUserAuth } from "@/hooks/useUserAuth";
+import { AuthUser } from "@/types";
 import { TripRequestProps} from "@/types";
 
 
@@ -35,51 +35,54 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [availableDrivers, setAvailableDrivers] = useState<AuthUser[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
 
-  const { user, setUser } = useUserAuth();
+  const { user } = useUserAuth();
 
-  useEffect(() => {
-    const builder = new SocketBuilder({
-      socketUrl: constants.socketUrl,
-      namespace: constants.socketNamespaces.room,
-    });
+  console.log("Passenger renderizado para usuário:", user?.id);
 
-    const clientSocket = builder
-      .setOnConnect(() => setIsConnected(true))
-      .setOnDisconnect(() => setIsConnected(false))
-      .setOnUserConnected((_user) => {
-        if (user) setUser({ ...user, id: _user.id });
-        setUsersOnline((prev) => [...new Set([...prev, _user.id])]);
-      })
-      .setOnUserDisconnected((userId: string) => {
-        setUsersOnline((prev) => prev.filter((u) => u !== userId));
-      })
-      .build();
+ useEffect(() => {
+  
+  if (!user) {
+    setAvailableDrivers([]);
+    setUsersOnline([]);
+    setSocket(null);
+    return;
+  }
 
-    // escuta motoristas disponíveis
-    clientSocket.on(constants.events.JOIN_ROOM, (usersInRoom: AuthUser[]) => {
-      if (!user) return;
+  const builder = new SocketBuilder({
+    socketUrl: constants.socketUrl,
+    namespace: constants.socketNamespaces.room,
+  });
 
-      console.log("👥 Usuários na sala recebidos:", usersInRoom);
+  const clientSocket = builder
+    .setOnConnect(() => setIsConnected(true))
+    .setOnDisconnect(() => setIsConnected(false))
+    .setOnUserConnected((_user) => {
+      setUsersOnline((prev) => [...new Set([...prev, _user.id])]);
+    })
+    .setOnUserDisconnected((userId: string) => {
+      setUsersOnline((prev) => prev.filter((u) => u !== userId));
+    })
+    .build();
 
-      // 🔸 Filtra apenas os motoristas (todos que não são o passageiro logado)
-      const drivers = usersInRoom.filter((u) => u.id !== user.id && u.role.type === "driver");
+  clientSocket.on(constants.events.JOIN_ROOM, (usersInRoom: AuthUser[]) => {
+    const drivers = usersInRoom.filter((u) => u.id !== user.id && u.role.type === "driver");
+    setAvailableDrivers(drivers);
+  });
 
-      console.log("🚗 Motoristas disponíveis:", drivers);
+  setSocket(clientSocket);
 
-      setAvailableDrivers(drivers);
-    });
+  return () => {
+    clientSocket.off("connect");
+    clientSocket.off("disconnect");
+    clientSocket.off(constants.events.USER_CONNECTED);
+    clientSocket.off(constants.events.USER_DISCONNECTED);
+    clientSocket.off(constants.events.JOIN_ROOM);
+    clientSocket.disconnect();
+  };
+}, [user]);
 
-    setSocket(clientSocket);
 
-    return () => {
-      clientSocket.off("connect");
-      clientSocket.off("disconnect");
-      clientSocket.off(constants.events.USER_CONNECTED);
-      clientSocket.off(constants.events.USER_DISCONNECTED);
-      clientSocket.off(constants.events.JOIN_ROOM);
-      clientSocket.disconnect();
-    };
-  }, [setUser]);
+
 
   const createRoom = (userParam: AuthUser, roomParam?: TripRequestProps) => {
     if (!socket) return console.warn("⚠️ Socket não inicializado ainda.");

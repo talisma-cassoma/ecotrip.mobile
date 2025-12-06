@@ -5,7 +5,7 @@ import { Button } from '@/components/button';
 import { IconArrowLeft } from "@tabler/icons-react-native"
 import { router } from "expo-router"
 import { Trip } from '@/components/trip';
-import { useUserAuth } from '@/context/userAuthContext';
+import { useUserAuth } from '@/hooks/useUserAuth';
 import { api } from '@/services/api';
 import {  TripRequestProps } from '@/types';
 
@@ -130,7 +130,7 @@ export default function Historic() {
       <Text style={styles.title}>Historial de viajes</Text>
       <FlatList
         data={trips}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => item.id || String(index)}
         renderItem={({ item }) => (
           <Trip
           item={item}

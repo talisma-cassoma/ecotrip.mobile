@@ -18,7 +18,7 @@ export function Categories({ data, selected, onSelect }: Props) {
   return (
     <FlatList
       data={data}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item, index) => item.id || String(index)}
       renderItem={({ item }) => (
         <Category
           name={item.name}
