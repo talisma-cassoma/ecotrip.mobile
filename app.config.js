@@ -24,7 +24,7 @@ export default ({ config }) => ({
     },
 
     android: {
-      ...config.expo?.android,
+      /*...config.expo?.android,*/
       package: "com.talismadev.ecotrip",
       adaptiveIcon: {
         foregroundImage: "./assets/images/icon.png",

@@ -38,9 +38,13 @@ jobs:
             echo "BRANCH=production" >> $GITHUB_ENV
           fi
 
-      # PUBLICAR APENAS PARA ANDROID E IOS (Ignora Web)
+      # PUBLICAR APENAS PARA ANDROID E(Ignora Web)
       - name: Publish OTA update
-        run: eas update --branch ${{ env.BRANCH }} --platform android --platform ios --non-interactive --message "${{ github.event.head_commit.message }}"
+        run: eas update --branch ${{ env.BRANCH }} --platform android --non-interactive --message "${{ github.event.head_commit.message }}"
+
+      # PUBLICAR APENAS PARA IOS (Ignora Web)
+      - name: Publish OTA update
+        run: eas update --branch ${{ env.BRANCH }} --platform ios --non-interactive --message "${{ github.event.head_commit.message }}"
 
       # BUILD DO APK (Apenas Android)
       - name: Build Android APK
