@@ -13,17 +13,29 @@
       "android": {
         "buildType": "apk"
       },
+      "env": {
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+      },
       "distribution": "internal",
       "channel": "preview"
     },
     "staging": {
+      "android": {
+        "buildType": "apk"
+      },
       "distribution": "internal",
       "autoIncrement": true,
       "channel": "staging"
     },
     "production": {
       "autoIncrement": true,
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+      },
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {

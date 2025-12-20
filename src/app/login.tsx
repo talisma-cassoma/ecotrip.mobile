@@ -199,7 +199,7 @@ export default function Login() {
 
         <Text style={styles.title}>EcoTrip</Text>
         <Text style={styles.subtitle}>
-          introduce tu correo para acceder a tu cuenta
+          introduce tu correo para acceder a tu cuenta por favor
         </Text>
 
         <ScrollView

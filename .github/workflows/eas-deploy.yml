@@ -7,74 +7,44 @@ on:
       - staging
 
 jobs:
-  ota_or_build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'npm'
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli@latest
-
-      - name: Set EAS token
+      - name: Set profile and branch
         run: |
-          echo "EAS_UPDATE_ACCESS_TOKEN=${{ secrets.EAS_UPDATE_ACCESS_TOKEN }}" >> $GITHUB_ENV
-          echo "EXPO_TOKEN=${{ secrets.EAS_UPDATE_ACCESS_TOKEN }}" >> $GITHUB_ENV
-
-      - name: Set profile and branch variables
-        run: |
-          BRANCH_NAME="${GITHUB_REF##*/}"
-          if [ "$BRANCH_NAME" == "staging" ]; then
-            echo "PROFILE=preview" >> $GITHUB_ENV
-            echo "BRANCH=staging" >> $GITHUB_ENV
+          if [ "${{ github.ref_name }}" == "staging" ]; then
+            echo "PROFILE=staging" >> $GITHUB_ENV
+            echo "CHANNEL=staging" >> $GITHUB_ENV
           else
             echo "PROFILE=production" >> $GITHUB_ENV
-            echo "BRANCH=production" >> $GITHUB_ENV
+            echo "CHANNEL=production" >> $GITHUB_ENV
           fi
 
-      - name: Check for native folders
-        id: check_native
-        run: |
-          if [ -d "android" ] || [ -d "ios" ]; then
-            echo "HAS_NATIVE=true" >> $GITHUB_ENV
-          else
-            echo "HAS_NATIVE=false" >> $GITHUB_ENV
-          fi
+      # Tenta fazer o Update OTA primeiro (JS changes)
+      - name: Publish OTA update
+        run: eas update --branch ${{ env.CHANNEL }} --message "${{ github.event.head_commit.message }}" --non-interactive
 
-      - name: Publish OTA update (Android)
-        if: env.HAS_NATIVE == 'true'
-        run: eas update --branch ${{ env.BRANCH }} --platform android --non-interactive --message "CI update from GitHub Actions"
-
-      - name: Publish OTA update (iOS)
-        if: env.HAS_NATIVE == 'true'
-        run: eas update --branch ${{ env.BRANCH }} --platform ios --non-interactive --message "CI update from GitHub Actions"
-
+      # Opcional: Fazer build do APK se o commit contiver "[build]" no nome
+      # Isso evita gastar créditos de build em todo push.
       - name: Build Android APK
-        if: env.HAS_NATIVE == 'true'
-        run: eas build --platform android --profile ${{ env.PROFILE }} --non-interactive --message "CI update from GitHub Actions"
-
-      - name: Build iOS (if macOS)
-        if: env.HAS_NATIVE == 'true' && runner.os == 'macOS'
-        run: eas build --platform ios --profile ${{ env.PROFILE }} --non-interactive --message "CI update from GitHub Actions"
-
-      - name: Upload Android artifact
-        if: env.HAS_NATIVE == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-apk
-          path: ./build/android/*.apk
-
-      - name: Upload iOS artifact
-        if: env.HAS_NATIVE == 'true' && runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-ipa
-          path: ./build/ios/*.ipa
+        if: contains(github.event.head_commit.message, '[build]')
+        run: eas build --platform android --profile ${{ env.PROFILE }} --non-interactive --no-wait
