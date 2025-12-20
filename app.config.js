@@ -67,6 +67,12 @@ export default ({ config }) => ({
     runtimeVersion: {
       policy: "appVersion"
     },
+     updates: {
+      url: "https://u.expo.dev/4f078bc7-ebc6-44f5-bdcc-43249fcd0a01"
+    },
+    runtimeVersion: {
+      policy: "appVersion"
+    },
     extra: {
       router: {
         origin: false
