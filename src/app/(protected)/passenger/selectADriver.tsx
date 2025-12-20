@@ -13,7 +13,7 @@ import { useTrip } from "@/context/tripContext";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { usePassenger } from "@/context/passengerContext";
 
-import { AvailableDriver, AvailableDriverProps } from "@/components/availableDriver";
+import { AvailableDriver, AvailableDriverCompProps } from "@/components/availableDriver";
 import { BookingTripCard } from "@/components/bookingTripCard";
 import { Button } from "@/components/button";
 import { TripRequestProps } from "@/types";
@@ -195,6 +195,9 @@ const whiteMapStyle = [
     }
 ];
 
+
+
+
 export default function SelectADriver() {
     const mapRef = useRef<MapView>(null);
     const bottomSheetRef = useRef<BottomSheet>(null);
@@ -203,7 +206,7 @@ export default function SelectADriver() {
     const dimensions = useWindowDimensions();
     const snapPoints = { min: 278, max: dimensions.height - 268 };
 
-    const [selectedDriver, setSelectedDriver] = useState<AvailableDriverProps | null>(null);
+    const [selectedDriver, setSelectedDriver] = useState<AvailableDriverCompProps | null>(null);
     const [isSelected, setIsSelected] = useState(false);
     const [tripId, setTripId] = useState<string | null>(null);
     const [trip, setTrip] = useState<TripRequestProps | null>(null);
@@ -211,7 +214,7 @@ export default function SelectADriver() {
 
     const { originCoords, destinationCoords, distance, duration, price } = useTrip();
     const { user } = useUserAuth();
-    const { createRoom, availableDrivers,isConnected } = usePassenger();
+    const { createRoom, availableDrivers, isConnected } = usePassenger();
 
     const fetchDrivers = async () => {
         if (!user) {
@@ -243,7 +246,10 @@ export default function SelectADriver() {
             };
 
             const room = {
-                owner: user,
+                owner: {
+                    ...user,
+                    socketId: socket.id
+                },
                 price: newTrip?.price ?? 0,
                 origin: newTrip.origin,
                 destination: newTrip.destination,
@@ -252,9 +258,12 @@ export default function SelectADriver() {
                 directions: newTrip.directions,
                 email: user.email,
             };
-           
 
-            createRoom(user, room);
+            console.log("socketId:",socket.id);
+            createRoom({
+                ...user,
+                socketId: socket.id
+            }, room);
             console.log("Criando nova viagem:", newTrip);
             const response = await api.post(
                 `/trips/new-trip`,
@@ -266,8 +275,8 @@ export default function SelectADriver() {
                     },
                 }
             );
-             setTripId(response.data.tripId);
-             console.log("Viagem criada com ID:", response.data.tripId);
+            setTripId(response.data.tripId);
+            console.log("Viagem criada com ID:", response.data.tripId);
 
 
         } catch (err) {
@@ -324,24 +333,24 @@ export default function SelectADriver() {
                     setSelectedDriver(null);
                     setIsSelected(false);
                     cancelTripByPassenger();
-                    router.replace("/home");
+                    router.replace("/(protected)/passenger/home");
                 },
             },
         ]);
     };
 
     useEffect(() => {
-    if (isConnected) {
-        fetchDrivers();
-    }
-}, [isConnected]);
+        if (isConnected) {
+            fetchDrivers();
+        }
+    }, [isConnected]);
 
 
-   useEffect(() => {
-    return () => {
-        if (retryRef.current) clearTimeout(retryRef.current);
-    };
-}, []);
+    useEffect(() => {
+        return () => {
+            if (retryRef.current) clearTimeout(retryRef.current);
+        };
+    }, []);
 
 
     useEffect(() => {
@@ -429,10 +438,10 @@ export default function SelectADriver() {
                         </Button>
                     </View>
                 ) : (
-                    <BottomSheetFlatList<AvailableDriverProps>
+                    <BottomSheetFlatList<AvailableDriverCompProps>
                         data={availableDrivers}
-                        keyExtractor={(item: AvailableDriverProps) => item.id}
-                        renderItem={({ item }: { item: AvailableDriverProps }) => (
+                        keyExtractor={(item: AvailableDriverCompProps) => item.id}
+                        renderItem={({ item }: { item: AvailableDriverCompProps }) => (
                             <AvailableDriver
                                 {...item}
                                 onPress={() => {

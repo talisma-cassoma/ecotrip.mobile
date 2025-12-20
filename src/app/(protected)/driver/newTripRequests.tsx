@@ -10,17 +10,21 @@ import { useUserAuth } from "@/hooks/useUserAuth";
 import { api } from "@/services/api";
 import { AxiosError } from "axios";
 import { useDriver } from "@/context/driverContext";
+import { useToast } from "@/context/toastContext";
+
 
 
 export default function NewTripRequests() {
   const [selectedTrip, setSelectedTrip] = useState<TripRequestProps | null>(null);
   const [isSelected, setIsSelected] = useState(false);
 
-  const { availableTrips, lobbySocket } = useDriver() ?? {};
+   const { showToast } = useToast();
+
+  const { availableTrips, lobbySocket, setOnConfirmedTrip } = useDriver() ?? {};
   const { user } = useUserAuth();
 
   // 🚗 Aceitar viagem
-  const handleAcceptTrip = (trip: TripRequestProps) => {
+  const handleConfirmedTrip = (trip: TripRequestProps) => {
     console.log("Aceitando viagem:", trip.id);
     setIsSelected(true);
     setSelectedTrip(trip);
@@ -33,6 +37,7 @@ export default function NewTripRequests() {
     }
   };
 
+  
   // Cancelar viagem
   const cancelTripByDriver = async () => {
     if (!selectedTrip) return;
@@ -61,6 +66,7 @@ export default function NewTripRequests() {
   useEffect(() => {
     if (availableTrips) {
       console.log("Novas viagens disponíveis:", availableTrips.length);
+      showToast("Novas viagens disponíveis", "info");
     }
   }, [availableTrips]);
 
@@ -92,17 +98,28 @@ export default function NewTripRequests() {
         <NavBar />
         <Text style={styles.title}>Novos pedidos</Text>
         <View style={styles.centered}>
-          <Text>Sem novos pedidos.</Text>
+          <Text>Sem novos pedidos</Text>
         </View>
       </View>
     );
   }
 
+
+
+// define o callback
+useEffect(() => {
+  setOnConfirmedTrip((trip: TripRequestProps) => {
+    console.log("Trip confirmada!", trip);
+    handleConfirmedTrip(trip);
+  });
+}, []); // 👈 só uma vez
+;
+
   // Renderização principal
   return (
     <View style={styles.container}>
       <NavBar />
-      <Text style={styles.title}>Novos pedidos</Text>
+      <Text style={styles.title}>Novos pedidoss</Text>
 
       {selectedTrip ? (
         <View style={{ flexDirection: "column", width: "100%", height: 230 }}>
@@ -123,7 +140,7 @@ export default function NewTripRequests() {
           data={availableTrips}
           keyExtractor={(item, index) => item.id || String(index)}
           renderItem={({ item }) => (
-            <NewTripRequest item={item} onAccept={handleAcceptTrip} isSelected={isSelected} />
+            <NewTripRequest item={item} onAccept={handleConfirmedTrip} isSelected={isSelected} />
           )}
           contentContainerStyle={{ paddingBottom: 20 }}
         />

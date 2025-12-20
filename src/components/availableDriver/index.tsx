@@ -11,23 +11,15 @@ import { IconPhone, IconMessage, IconStarFilled } from "@tabler/icons-react-nati
 import { styles } from "./styles"
 import { colors, fontFamily } from "@/styles/theme"
 
-export interface AvailableDriverProps extends TouchableOpacityProps {
-  id: string,
-  email: string
-  name: string
-  image: string
-  telephone: string
-  isSelected?: boolean,
-  carModel?: string
-  carPlate?: string
-  carColor?: string,
-  rating?: number
-  complited_rides?: number
-}
+import { AvailableDriverProps } from "@/types"
+
+export interface AvailableDriverCompProps
+  extends AvailableDriverProps,
+    Omit<TouchableOpacityProps, 'id'> {}
 
 
 export function AvailableDriver({ email, name, image, telephone, isSelected,
-  carModel, carPlate, carColor, rating, complited_rides, ...rest }: AvailableDriverProps) {
+  car_model, car_plate, car_color, rating, complited_rides, ...rest }: AvailableDriverCompProps) {
   const handleCall = () => {
     // Implement call functionality
     console.log(`Calling ${telephone}`);
@@ -59,9 +51,9 @@ export function AvailableDriver({ email, name, image, telephone, isSelected,
         </View>
 
         <View style={{ flexDirection: "column", alignItems: "center", }}>
-          <Text style={styles.label}>{carModel}</Text>
-          <Text style={styles.label}> de color: {carColor}</Text>
-          <Text style={styles.label}>{carPlate}</Text>
+          <Text style={styles.label}>{car_model}</Text>
+          <Text style={styles.label}> de color: {car_color}</Text>
+          <Text style={styles.label}>{car_plate}</Text>
         </View>
 
       </View>

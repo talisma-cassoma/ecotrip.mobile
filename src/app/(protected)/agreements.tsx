@@ -28,13 +28,13 @@ export default function Agreements() {
 
                         Al acceder y utilizar la aplicación EcoTrip, el usuario acepta plenamente estos Términos de Uso, así como cualquier modificación futura. Si no está de acuerdo con ellos, debe abstenerse de utilizar la plataforma.
 
-                        ---
+                        
                     </Text>
                     <Text>
                         2. Descripción del servicio
 
                         EcoTrip es una plataforma digital que conecta pasajeros con conductores independientes para facilitar servicios de transporte urbano e interurbano. EcoTrip no presta directamente servicios de transporte, sino que actúa como intermediario tecnológico.
-                        ---
+                        
                     </Text>
                     <Text>
                         3. Registro y acceso
@@ -44,7 +44,7 @@ export default function Agreements() {
                         EcoTrip se reserva el derecho de suspender o cancelar cuentas que incumplan los presentes términos.
 
                         Los conductores deberán cumplir requisitos adicionales como: licencia de conducir válida, documentos del vehículo, y aceptación del acuerdo de conductor.
-                        ---
+                        
                     </Text>
                     <Text>
                         4. Condiciones de uso
@@ -55,7 +55,7 @@ export default function Agreements() {
 
                         El incumplimiento de estas reglas puede conllevar la suspensión o eliminación de la cuenta, sin derecho a indemnización.
 
-                        ---
+                        
                     </Text>
                     <Text>
                         5. Negociación del precio
@@ -68,7 +68,7 @@ export default function Agreements() {
 
 
 
-                        ---
+                        
                     </Text>
                     <Text>
                         6. Pagos y comisiones
@@ -81,7 +81,7 @@ export default function Agreements() {
 
 
 
-                        ---
+                        
                     </Text>
                     <Text>
                         7. Cancelaciones
@@ -92,7 +92,7 @@ export default function Agreements() {
 
 
 
-                        ---
+                        
                     </Text>
                     <Text>
                         8. Responsabilidad
@@ -105,7 +105,7 @@ export default function Agreements() {
 
 
 
-                        ---
+                        
                     </Text>
                     <Text>
                         9. Protección de datos
@@ -116,7 +116,7 @@ export default function Agreements() {
 
 
 
-                        ---
+                        
                     </Text>
                     <Text>
                         10. Modificaciones
@@ -124,7 +124,7 @@ export default function Agreements() {
                         EcoTrip podrá modificar estos Términos de Uso en cualquier momento. Las nuevas versiones se comunicarán a través de la aplicación o el sitio web. El uso continuado tras una modificación implica la aceptación de los nuevos términos.
 
 
-                        ---
+                        
                     </Text>
                     <Text>
                         11. Legislación aplicable
@@ -132,7 +132,7 @@ export default function Agreements() {
                         Estos términos se rigen por las leyes de Guinea Ecuatorial. En caso de conflicto, las partes se someten a los tribunales competentes del país.
 
 
-                        ---
+                        
                     </Text>
                 </ScrollView>
         </View>

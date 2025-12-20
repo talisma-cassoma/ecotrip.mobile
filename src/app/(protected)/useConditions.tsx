@@ -108,7 +108,7 @@ export default function useConditions() {
                     Estos términos se rigen por las leyes de Guinea Ecuatorial. Cualquier controversia será resuelta ante los tribunales locales.
 
 
-                    ---
+                    
                 </Text>
 
                 <Text>

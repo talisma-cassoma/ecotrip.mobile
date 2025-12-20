@@ -3,84 +3,108 @@ import SocketBuilder from "../services/socketBuilder";
 import { constants } from "../configs/constants";
 import { AuthUser } from "@/types";
 import { Socket } from "socket.io-client";
-import { TripRequestProps} from "@/types";
-
+import { TripRequestProps } from "@/types";
+import { useToast } from "@/context/toastContext";
+import { useUserAuth } from "@/hooks/useUserAuth";
 
 interface DriverContextType {
   availableTrips: TripRequestProps[];
   lobbySocket: Socket | null;
   roomSocket: Socket | null;
   selectTrip: (user: AuthUser, room: TripRequestProps) => void;
+  setOnConfirmedTrip: (callback: (trip: TripRequestProps) => void) => void; // novo
 }
+
 
 const DriverContext = createContext<DriverContextType | null>(null);
 
-export function DriverProvider({
-  user,
-  children,
-}: {
-  user: AuthUser;
-  children: React.ReactNode;
-}) {
-  const [availableTrips, setAvailableTrips] = useState<TripRequestProps[]>([]);
+const mockTrip: TripRequestProps = {
+  id: "trip-tester-001",
+  origin: {
+    name: "Origin Tester",
+    location: { lat: 40.7128, lng: -74.0060 },
+  },
+  destination: {
+    name: "Destination Tester",
+    location: { lat: 40.73061, lng: -73.935242 },
+  },
+  price: 25.50,
+  status: "requested",
+  distance: 10,
+  duration: 15,
+};
+
+
+export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [availableTrips, setAvailableTrips] = useState<TripRequestProps[]>([mockTrip]);
   const [lobbySocket, setLobbySocket] = useState<Socket | null>(null);
   const [roomSocket, setRoomSocket] = useState<Socket | null>(null);
+  const { showToast } = useToast();
+  const { user } = useUserAuth();
+  const [onConfirmedTrip, setOnConfirmedTripState] = useState<((trip: TripRequestProps) => void) | null>(null);
 
-  console.log("DriverProvider renderizado para usuário:", user?.id);
+  const onConfirmedTripRef = React.useRef<
+    ((trip: TripRequestProps) => void) | null
+  >(null);
+
+  const setOnConfirmedTrip = (callback: (trip: TripRequestProps) => void) => {
+    onConfirmedTripRef.current = callback;
+  };
+
+
+
+  console.log(`DriverProvider renderizado para driver com socket: ${lobbySocket?.id}`);
+
+  const handleLobbyUpdate = (rooms: TripRequestProps[]) => {
+    console.log('[Lobby] LOBBY_UPDATED recebido:', rooms);
+
+    setAvailableTrips(rooms);
+
+    const acceptedRooms = rooms.filter(
+      (room) => room.status === 'accepted'
+    );
+
+    if (acceptedRooms.length === 1) {
+      console.log('🚨 Existe exatamente UMA room com status ACCEPTED:', acceptedRooms[0]);
+      onConfirmedTripRef.current?.(acceptedRooms[0]);
+    }
+  };
 
   // ✅ Conexão com o LOBBY
   useEffect(() => {
-    const lobbyInstance = new SocketBuilder({
-      socketUrl: constants.socketUrl,
-      namespace: constants.socketNamespaces.lobby,
-    })
-      .setOnUserConnected(() => console.log("Driver conectado ao lobby"))
-      .setOnUserDisconnected(() => console.log("Driver desconectado do lobby"))
-      .build();
+    let lobbyInstance: Socket;
 
-    lobbyInstance.on("connect_error", (err) => {
-      console.warn("[Lobby Socket Error]", err.message);
-    });
+    const connectLobby = () => {
+      lobbyInstance = new SocketBuilder({
+        socketUrl: constants.socketUrl,
+        namespace: constants.socketNamespaces.lobby,
+      })
+        .setOnConnect(() => {
+          console.log('Driver conectado ao lobby');
+        })
+        .build();
 
-    // ✅ Escutar atualizações do lobby
-    lobbyInstance.on(constants.events.LOBBY_UPDATED, (trips: TripRequestProps[]) => {
-      const newTrips: TripRequestProps[] = trips.map((trip) => ({
-        id: trip.id ?? "",
-        status: trip.status ?? "requested",
-        distance: trip.distance ,
-        duration: trip.duration ,
-        price: trip.price ?? 0,
-        directions: {} as any,
-        driver_id: null,
-        passengerId: trip.owner,
-        origin: {
-          name: trip.origin?.name ?? "",
-          location: {
-            lat: trip.origin?.location?.lat ?? 0,
-            lng: trip.origin?.location?.lng ?? 0,
-          },
-        },
-        destination: {
-          name: trip.destination?.name ?? "",
-          location: {
-            lat: trip.destination?.location?.lat ?? 0,
-            lng: trip.destination?.location?.lng ?? 0,
-          },
-        },
-        isSelected: false,
-        onAccept: (t: TripRequestProps) => selectTrip(user, trip),
-      }));
-      console.log("LOBBY_UPDATED recebido:", JSON.stringify(newTrips));
-      setAvailableTrips(newTrips);
-    });
+      // ✅ ÚNICO EVENTO NECESSÁRIO
+      lobbyInstance.on(
+        constants.events.LOBBY_UPDATED,
+        handleLobbyUpdate
+      );
 
-    setLobbySocket(lobbyInstance);
+      setLobbySocket(lobbyInstance);
+    };
+
+    connectLobby();
 
     return () => {
-      lobbyInstance.removeAllListeners();
-      lobbyInstance.disconnect();
+      if (lobbyInstance) {
+        lobbyInstance.off(
+          constants.events.LOBBY_UPDATED,
+          handleLobbyUpdate
+        );
+        lobbyInstance.disconnect();
+      }
     };
-  }, [user?.id]);
+  }, []);
 
   // ✅ Conexão com o ROOM
   const selectTrip = (user: AuthUser, room: TripRequestProps) => {
@@ -95,7 +119,10 @@ export function DriverProvider({
     });
 
     const clientSocket = builder
-      .setOnConnect(() => console.log("Driver conectado ao room"))
+      .setOnConnect(() => {
+        console.log("Driver conectado ao room")
+        showToast("Driver conectado ao room", "success");
+      })
       .setOnDisconnect(() => console.log("Driver desconectado do room"))
       .setOnUserConnected((u: { id: string; message: string }) => {
         console.log("USER_CONNECTED recebido:", u);
@@ -109,16 +136,18 @@ export function DriverProvider({
     setRoomSocket(clientSocket);
   };
 
-  // ✅ Sempre renderiza o provider (não retorna null)
-  const value: DriverContextType = {
-    availableTrips,
-    lobbySocket,
-    roomSocket,
-    selectTrip,
-  };
 
   return (
-    <DriverContext.Provider value={value}>{children}</DriverContext.Provider>
+    <DriverContext.Provider value={{
+      availableTrips,
+      lobbySocket,
+      roomSocket,
+      selectTrip,
+      setOnConfirmedTrip,
+    }}>
+      {children}
+    </DriverContext.Provider>
+
   );
 }
 

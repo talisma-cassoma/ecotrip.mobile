@@ -13,7 +13,7 @@ type PassengerRole = {
     type: 'passenger';
 };
 
-type DriverRole = {
+export type DriverRole = {
     type: 'driver';
     data: {
         car_model: string;
@@ -87,4 +87,18 @@ export type PlaceProps = {
   address: string
   phone: string
   cover: string
+}
+
+export interface AvailableDriverProps {
+  id: string,
+  email: string
+  name: string
+  image: string
+  telephone: string
+  isSelected?: boolean,
+  car_model?: string
+  car_plate?: string
+  car_color?: string,
+  rating?: number
+  complited_rides?: number
 }

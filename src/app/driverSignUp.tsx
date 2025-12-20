@@ -68,7 +68,7 @@ export default function DriverSignUp() {
         });
         
         setUser(storedUser)
-        router.navigate("./newTripRequests");
+        router.replace("./newTripRequests");
       
       }catch(error) {
         console.error('Erro na criação do passageiro:', error);

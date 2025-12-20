@@ -1,16 +1,13 @@
 import React, { useEffect, useRef } from "react";
-import { Stack, router } from "expo-router";
-import { colors } from "@/styles/theme";
-import { PassengerProvider } from "@/context/passengerContext";
-import { DriverProvider } from "@/context/driverContext";
-import { TripProvider } from "@/context/tripContext";
+import { Slot, router } from "expo-router";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { Loading } from "@/components/loading";
+
 
 export default function ProtectedLayout() {
   const { user, isLoggedIn, isLoaded } = useUserAuth();
   const hasNavigated = useRef(false);
-console.log("oi estou logado", user);
+
   useEffect(() => {
     // Aguardar até que o contexto termine de carregar
     if (!isLoaded) {
@@ -23,7 +20,7 @@ console.log("oi estou logado", user);
       return;
     }
 
-    console.log("🔍 Protected layout - isLoggedIn:", isLoggedIn, "user:", user);
+    //console.log("🔍 Protected layout - isLoggedIn:", isLoggedIn, "user:", user);
 
     // Se não autenticado, redireciona para login
     if (!isLoggedIn) {
@@ -36,17 +33,17 @@ console.log("oi estou logado", user);
     // Usuário autenticado — redireciona conforme papel
     if (user?.role.type === "driver") {
       console.log("✅ Redirecionando driver para /newTripRequests");
-      router.replace("/(protected)/newTripRequests");
-      hasNavigated.current = true;
+      router.replace("/(protected)/driver/newTripRequests");
+      
     } else if (user?.role.type === "passenger") {
       console.log("✅ Redirecionando passenger para /home");
-      router.replace("/(protected)/home");
-      hasNavigated.current = true;
+      router.replace("/(protected)/passenger/home");
+     
     } else {
       console.warn("⚠️ Papel de usuário desconhecido, redirecionando para /login");
-      router.replace("/login");
-      hasNavigated.current = true;
+      router.replace("/login");   
     }
+    hasNavigated.current = true;
   }, [isLoaded, isLoggedIn, user?.role.type]);
 
   // Timeout de segurança
@@ -62,33 +59,8 @@ console.log("oi estou logado", user);
     return () => clearTimeout(timeout);
   }, [isLoaded]);
 
-  // Mostrar loading enquanto carrega
-  if (!isLoaded) {
-    return <Loading />;
-  }
-
   // Mostrar conteúdo baseado no tipo de usuário
-  return (
-    <TripProvider>
-      {user?.role.type === "driver" ? (
-        <DriverProvider user={user}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colors.gray[100] },
-            }}
-          />
-        </DriverProvider>
-      ) : user?.role.type === "passenger" ? (
-        <PassengerProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colors.gray[100] },
-            }}
-          />
-        </PassengerProvider>
-      ) : null}
-    </TripProvider>
+    return (  
+      isLoaded ? <Slot />:<Loading />
   );
 }

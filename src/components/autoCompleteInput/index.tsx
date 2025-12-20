@@ -15,13 +15,13 @@ interface AutoCompleteInputProps {
 
 // Mock com coordenadas simuladas
 const MOCK_PLACES = [
-  { name: 'Bata', latitude: 1.8575, longitude: 9.7686 },
-  { name: 'Malabo', latitude: 3.7500, longitude: 8.7833 },
-  { name: 'Libreville', latitude: 0.3901, longitude: 9.4544 },
-  { name: 'São Tomé', latitude: 0.3365, longitude: 6.7273 },
-  { name: 'Libreville Airport', latitude: 0.4586, longitude: 9.4123 },
-  { name: 'Malabo Port', latitude: 3.7554, longitude: 8.7792 },
-  { name: 'Bata Station', latitude: 1.8600, longitude: 9.7720 },
+    { name: 'Bata', latitude: 1.8575, longitude: 9.7686 },
+    { name: 'Malabo', latitude: 3.7500, longitude: 8.7833 },
+    { name: 'Libreville', latitude: 0.3901, longitude: 9.4544 },
+    { name: 'São Tomé', latitude: 0.3365, longitude: 6.7273 },
+    { name: 'Libreville Airport', latitude: 0.4586, longitude: 9.4123 },
+    { name: 'Malabo Port', latitude: 3.7554, longitude: 8.7792 },
+    { name: 'Bata Station', latitude: 1.8600, longitude: 9.7720 },
 ];
 
 
@@ -61,60 +61,60 @@ export function AutoCompleteInput({
             setDestinationCoords({ latitude: lat, longitude: lng, name });
             console.log('Destino selecionado:', { latitude: lat, longitude: lng });
         }
-          
-  setTimeout(() => {
-    if (originCoords?.latitude && destinationCoords?.latitude) {
-      const distanceMeters = getDistance(
-        { latitude: originCoords.latitude, longitude: originCoords.longitude },
-        { latitude: destinationCoords.latitude, longitude: destinationCoords.longitude }
-      );
 
-      const distanceKm = distanceMeters / 1000;
-      setDistance(distanceKm);
+        setTimeout(() => {
+            if (originCoords?.latitude && destinationCoords?.latitude) {
+                const distanceMeters = getDistance(
+                    { latitude: originCoords.latitude, longitude: originCoords.longitude },
+                    { latitude: destinationCoords.latitude, longitude: destinationCoords.longitude }
+                );
 
-      console.log(`🧭 Distância aproximada: ${distanceKm.toFixed(2)} km`);
-    }
-  }, 100);
+                const distanceKm = distanceMeters / 1000;
+                setDistance(distanceKm);
+
+                console.log(`🧭 Distância aproximada: ${distanceKm.toFixed(2)} km`);
+            }
+        }, 100);
     };
 
     // fallback manual
-      const handleSelect = (place: { name: string; latitude: number; longitude: number }) => {
-    const { name, latitude, longitude } = place;
-    const coords = { latitude, longitude, name };
+    const handleSelect = (place: { name: string; latitude: number; longitude: number }) => {
+        const { name, latitude, longitude } = place;
+        const coords = { latitude, longitude, name };
 
-    if (type === 'origin') {
-      setOriginCoords(coords);
-      setLocatePressed && setLocatePressed(false);
-    } else {
-      setDestinationCoords(coords);
-    }
+        if (type === 'origin') {
+            setOriginCoords(coords);
+            setLocatePressed && setLocatePressed(false);
+        } else {
+            setDestinationCoords(coords);
+        }
 
-    setManualInput(name);
-    setShowSuggestions(false);
-  };
+        setManualInput(name);
+        setShowSuggestions(false);
+    };
 
-  const handleChange = (text: string) => {
-    setManualInput(text);
-    if (text.length > 0) {
-      const filtered = MOCK_PLACES.filter((p) =>
-        p.name.toLowerCase().includes(text.toLowerCase())
-      );
-      setFilteredPlaces(filtered);
-      setShowSuggestions(true);
-    } else {
-      setShowSuggestions(false);
-    }
-  };
+    const handleChange = (text: string) => {
+        setManualInput(text);
+        if (text.length > 0) {
+            const filtered = MOCK_PLACES.filter((p) =>
+                p.name.toLowerCase().includes(text.toLowerCase())
+            );
+            setFilteredPlaces(filtered);
+            setShowSuggestions(true);
+        } else {
+            setShowSuggestions(false);
+        }
+    };
 
-  const handleManualSubmit = () => {
-    const coords = { latitude: 0, longitude: 0, name: manualInput };
-    if (type === 'origin') {
-      setOriginCoords(coords);
-      setLocatePressed && setLocatePressed(false);
-    } else {
-      setDestinationCoords(coords);
-    }
-  };
+    const handleManualSubmit = () => {
+        const coords = { latitude: 0, longitude: 0, name: manualInput };
+        if (type === 'origin') {
+            setOriginCoords(coords);
+            setLocatePressed && setLocatePressed(false);
+        } else {
+            setDestinationCoords(coords);
+        }
+    };
 
     return (
         <View
@@ -129,6 +129,8 @@ export function AutoCompleteInput({
                     placeholder={placeholders[type]}
                     nearbyPlacesAPI="GooglePlacesSearch"
                     debounce={400}
+                    predefinedPlaces={[]}
+                    textInputProps={{}}
                     fetchDetails={true}
                     query={{
                         key: process.env.GOOGLE_API_KEY || '',
@@ -183,7 +185,7 @@ export function AutoCompleteInput({
                         <View style={styles.suggestionsWrapper}>
                             <FlatList
                                 data={filteredPlaces}
-                                 keyExtractor={(item, index) => item.name || String(index)}
+                                keyExtractor={(item, index) => item.name || String(index)}
                                 renderItem={({ item }) => (
                                     <TouchableOpacity onPress={() => handleSelect(item)} style={styles.suggestionItem}>
                                         <Text style={styles.suggestionText}>{item.name}</Text>

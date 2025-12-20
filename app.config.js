@@ -62,7 +62,7 @@ export default ({ config }) => ({
       typedRoutes: true
     },
     updates: {  
-      url: "https://u.expo.dev/4f078bc7-ebc6-44f5-bdcc-43249fcd0a01"
+      url: "AIzaSyD2FE_WbQ9qZf-o4SRD98O5lnktWA675Wk"
     },
     runtimeVersion: {
       policy: "appVersion"

@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { colors } from "@/styles/theme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider} from "@/context/userAuthContext";
+import { ToastProvider } from "@/context/toastContext";
 
 
 import {
@@ -29,12 +30,14 @@ export default function ProtectedLayout() {
   
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <ToastProvider>
       < AuthProvider> 
         <Stack screenOptions={{
-                headerShown: false,
-              }}>
+          headerShown: false,
+        }}>
         </Stack>
       </AuthProvider>
+    </ToastProvider>
     </GestureHandlerRootView>
   );
 }

@@ -1,3 +1,5 @@
+import { blue } from "react-native-reanimated/lib/typescript/Colors";
+
 export const colors = {
   gray: {
     100: "#FCFDFE",
@@ -6,6 +8,7 @@ export const colors = {
     400: "#73808C",
     500: "#45525F",
     600: "#1A1F24",
+    carbon: "#333333",
   },
 
   green: {
@@ -19,4 +22,13 @@ export const colors = {
     light: "#FDEDED",
     base: "#F94144",
   },
+
+  blue:{
+    cean: "#6FB8E3"
+  },
+
+  orange: {
+    bright: "#F28C0F"
+  },
+
 }

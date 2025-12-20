@@ -14,12 +14,12 @@ export default function SignUp() {
 
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 20, marginBottom: 20 }}>
         <Pressable onPress={() => router.replace("./passengerSignUp")} style={styles.roleChoice}>
-          <IconFriends size={24} stroke={colors.green.base}/>
-          <Text >Pasajero</Text>
+          <IconFriends size={24} stroke={colors.blue.cean}/>
+          <Text style={{color: colors.orange.bright}}>Pasajero</Text>
         </Pressable>
         <Pressable onPress={() => router.replace("/driverSignUp")} style={styles.roleChoice}>
-          <IconCarSuv size={24} stroke={colors.green.base}/>
-          <Text>Conductor</Text>
+          <IconCarSuv size={24} stroke={colors.blue.cean}/>
+          <Text style={{color: colors.orange.bright}}>Conductor</Text>
         </Pressable>
       </View>
       <Text style={{ textAlign: 'center', marginTop: 16 }}>Elige una opción para continuar con el registro</Text>
