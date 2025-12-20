@@ -8,7 +8,7 @@ import { AxiosError } from "axios";
 import { router } from "expo-router";
 
 import { fontFamily, colors } from "@/styles/theme";
-import { api, socket } from "@/services/api";
+import { api } from "@/services/api";
 import { useTrip } from "@/context/tripContext";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { usePassenger } from "@/context/passengerContext";
@@ -214,7 +214,7 @@ export default function SelectADriver() {
 
     const { originCoords, destinationCoords, distance, duration, price } = useTrip();
     const { user } = useUserAuth();
-    const { createRoom, availableDrivers, isConnected } = usePassenger();
+    const { createRoom, availableDrivers, isConnected, socket } = usePassenger();
 
     const fetchDrivers = async () => {
         if (!user) {
@@ -248,7 +248,7 @@ export default function SelectADriver() {
             const room = {
                 owner: {
                     ...user,
-                    socketId: socket.id
+                    socketId: socket?.id
                 },
                 price: newTrip?.price ?? 0,
                 origin: newTrip.origin,
@@ -259,10 +259,10 @@ export default function SelectADriver() {
                 email: user.email,
             };
 
-            console.log("socketId:",socket.id);
+            console.log("socketId:",socket?.id);
             createRoom({
                 ...user,
-                socketId: socket.id
+                socketId: socket?.id
             }, room);
             console.log("Criando nova viagem:", newTrip);
             const response = await api.post(
