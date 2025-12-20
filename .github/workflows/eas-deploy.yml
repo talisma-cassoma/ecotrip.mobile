@@ -16,14 +16,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # Atualizado para a versão 20 (Resolve o erro do minimatch)
+          node-version: 20
           cache: 'npm'
 
       - name: Setup Expo
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
-          token: ${{ secrets.EAS_UPDATE_ACCESS_TOKEN }} # Sua secret atual
+          token: ${{ secrets.EAS_UPDATE_ACCESS_TOKEN }}
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -38,11 +38,11 @@ jobs:
             echo "BRANCH=production" >> $GITHUB_ENV
           fi
 
-      # Publica a atualização OTA (JS/Assets)
+      # PUBLICAR APENAS PARA ANDROID E IOS (Ignora Web)
       - name: Publish OTA update
-        run: eas update --branch ${{ env.BRANCH }} --platform all --non-interactive --message "${{ github.event.head_commit.message }}"
+        run: eas update --branch ${{ env.BRANCH }} --platform android --platform ios --non-interactive --message "${{ github.event.head_commit.message }}"
 
-      # Opcional: Gera o build (APK) apenas se o commit tiver "[build]" no texto
+      # BUILD DO APK (Apenas Android)
       - name: Build Android APK
         if: contains(github.event.head_commit.message, '[build]')
         run: eas build --platform android --profile ${{ env.PROFILE }} --non-interactive --no-wait
