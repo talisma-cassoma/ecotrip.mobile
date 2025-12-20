@@ -7,7 +7,7 @@ on:
       - staging
 
 jobs:
-  deploy:
+  ota_or_build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -16,35 +16,33 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20 # Atualizado para a versão 20 (Resolve o erro do minimatch)
           cache: 'npm'
 
       - name: Setup Expo
         uses: expo/expo-github-action@v8
         with:
-          expo-version: latest
           eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+          token: ${{ secrets.EAS_UPDATE_ACCESS_TOKEN }} # Sua secret atual
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Set profile and branch
+      - name: Set profile and branch variables
         run: |
           if [ "${{ github.ref_name }}" == "staging" ]; then
             echo "PROFILE=staging" >> $GITHUB_ENV
-            echo "CHANNEL=staging" >> $GITHUB_ENV
+            echo "BRANCH=staging" >> $GITHUB_ENV
           else
             echo "PROFILE=production" >> $GITHUB_ENV
-            echo "CHANNEL=production" >> $GITHUB_ENV
+            echo "BRANCH=production" >> $GITHUB_ENV
           fi
 
-      # Tenta fazer o Update OTA primeiro (JS changes)
+      # Publica a atualização OTA (JS/Assets)
       - name: Publish OTA update
-        run: eas update --branch ${{ env.CHANNEL }} --message "${{ github.event.head_commit.message }}" --non-interactive
+        run: eas update --branch ${{ env.BRANCH }} --platform all --non-interactive --message "${{ github.event.head_commit.message }}"
 
-      # Opcional: Fazer build do APK se o commit contiver "[build]" no nome
-      # Isso evita gastar créditos de build em todo push.
+      # Opcional: Gera o build (APK) apenas se o commit tiver "[build]" no texto
       - name: Build Android APK
         if: contains(github.event.head_commit.message, '[build]')
         run: eas build --platform android --profile ${{ env.PROFILE }} --non-interactive --no-wait
