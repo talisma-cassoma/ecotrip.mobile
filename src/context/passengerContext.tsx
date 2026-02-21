@@ -3,23 +3,11 @@ import SocketBuilder from "../services/socketBuilder";
 import { constants } from "../configs/constants";
 import { Socket } from "socket.io-client";
 import { useUserAuth } from "@/hooks/useUserAuth";
-import { AuthUser, AvailableDriverProps, DriverRole } from "@/types";
+import { AuthUser, AvailableDriverProps, DriverRole} from "@/types";
 import { TripRequestProps } from "@/types";
 import { useToast } from "@/context/toastContext";
 
-
-export type LocationPoint = {
-  name: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-};
-
-export type TripStatus = "requested" | "offered" | "accepted" | "in_progress" | "completed" | "cancelled";
-
-
-interface PassengerContextProps {
+export interface PassengerContextProps {
   socket: Socket | null;
   isConnected: boolean;
   usersOnline: string[];
@@ -28,9 +16,7 @@ interface PassengerContextProps {
 }
 
 
-
 const PassengerContext = createContext<PassengerContextProps | null>(null);
-
 
 const mockupDriver: AvailableDriverProps = {
   id: "tester-driver-001",
@@ -54,8 +40,6 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const { user } = useUserAuth();
 
-  console.log(`Passenger renderizado para passenger :${user?.id} e socket: ${socket?.id}`);
-
   useEffect(() => {
 
     if (!user) {
@@ -72,52 +56,159 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const clientSocket = builder
       .setOnConnect(() => {
-        setIsConnected(true)
         showToast("Passenger conectado ao room", "success");
+        console.log("✅ [PassengerContext] Socket conectado, listeners registrados");
       }
       )
       .setOnDisconnect(() => setIsConnected(false))
-      .setOnUserConnected((_user) => {
-        setUsersOnline((prev) => [...new Set([...prev, _user.id])]);
+      .setOnUserConnected((_payload: any) => {
+        try {
+          // Validar payload
+          if (!_payload || typeof _payload !== 'object') {
+            console.error("❌ [PassengerContext] USER_CONNECTED: Payload inválido", _payload);
+            return;
+          }
+
+          // Extrair e validar socketId ou id
+          const userId = _payload.socketId || _payload.id;
+          if (!userId) {
+            console.warn("⚠️ [PassengerContext] USER_CONNECTED sem socketId/id");
+            return;
+          }
+
+          console.log("✅ [PassengerContext] USER_CONNECTED válido:", userId);
+          setUsersOnline((prev) => [...new Set([...prev, userId])]);
+        } catch (error) {
+          console.error("❌ [PassengerContext] Erro ao processar USER_CONNECTED:", error);
+        }
       })
       .setOnUserDisconnected((userId: string) => {
+        if (!userId) {
+          console.warn("⚠️ [PassengerContext] USER_DISCONNECTED sem userId");
+          return;
+        }
         setUsersOnline((prev) => prev.filter((u) => u !== userId));
       })
       .build();
 
-  clientSocket.on(constants.events.JOIN_ROOM, (usersInRoom: AuthUser[]) => {
-  console.log("🔵 JOIN_ROOM recebido:", usersInRoom.length, "users");
+    // Listener robusto para JOIN_ROOM com validação
+    const handleJoinRoom = (payload: any) => {
+      try {
+        console.log("🔵 [PassengerContext] JOIN_ROOM evento recebido, payload:", payload);
 
-  const drivers: AvailableDriverProps[] = usersInRoom
-    .filter(
-      (u): u is AuthUser & { role: { type: "driver"; data: DriverRole["data"] } } =>
-        u.id !== user.id && u.role.type === "driver"
-    )
-    .map((driver) => ({
-      id: driver.id!,
-      name: driver.name,
-      email: driver.email,
-      image: driver.image ?? "",
-      telephone: driver.telephone ?? "",
-      carModel: driver.role.data.car_model,
-      carPlate: driver.role.data.car_plate,
-      carColor: driver.role.data.car_color,
-      rating: driver.role.data.rating,
-      complited_rides: driver.role.data.complited_rides,
-    }));
+        // Validar payload
+        if (!payload) {
+          console.warn("⚠️ [PassengerContext] JOIN_ROOM: Payload é null/undefined");
+          return;
+        }
 
-  setAvailableDrivers(drivers);
-});
+        // Aceitar array ou objeto
+        const usersInRoom = Array.isArray(payload) ? payload : [payload];
+        
+        if (!Array.isArray(usersInRoom)) {
+          console.error("❌ [PassengerContext] JOIN_ROOM: Payload não é um array", payload);
+          return;
+        }
 
+        console.log("✅ [PassengerContext] JOIN_ROOM válido:", usersInRoom.length, "users");
+
+        const drivers: AvailableDriverProps[] = usersInRoom
+          .filter(
+            (u): u is AuthUser & { role: { type: "driver"; data: DriverRole["data"] } } =>
+              u && u.id !== user?.id && u.role?.type === "driver"
+          )
+          .map((driver) => ({
+            id: driver.id!,
+            name: driver.name,
+            email: driver.email,
+            image: driver.image ?? "",
+            telephone: driver.telephone ?? "",
+            carModel: driver.role.data.car_model,
+            carPlate: driver.role.data.car_plate,
+            carColor: driver.role.data.car_color,
+            rating: driver.role.data.rating,
+            complited_rides: driver.role.data.complited_rides,
+          }));
+
+        setAvailableDrivers(drivers);
+      } catch (error) {
+        console.error("❌ [PassengerContext] Erro ao processar JOIN_ROOM:", error);
+      }
+    };
+
+    clientSocket.on(constants.event.JOIN_ROOM, handleJoinRoom);
+
+    // ✅ Listeners prontos, agora marcar como conectado
+    setIsConnected(true);
+
+    // Listener para TRIP_ACCEPTED - quando um driver aceita a viagem
+    const handleTripAccepted = (payload: any) => {
+      try {
+        console.log("🎉 [PassengerContext] TRIP_ACCEPTED recebido:", payload);
+
+        if (!payload || typeof payload !== 'object') {
+          console.error("❌ [PassengerContext] TRIP_ACCEPTED: Payload inválido", payload);
+          return;
+        }
+
+        const { tripId, driver, status, message } = payload;
+
+        if (!tripId || !driver) {
+          console.warn("⚠️ [PassengerContext] TRIP_ACCEPTED: Faltam dados críticos", { tripId, driver });
+          return;
+        }
+
+        if (status === 'accepted') {
+          console.log("✅ [PassengerContext] Trip aceita por driver:", driver.id);
+          showToast(`${driver.username} aceitou sua viagem!`, "success");
+          
+          // Aqui você pode atualizar UI, navegar, etc.
+          // Por exemplo, abrir tela de detalhes do motorista
+        }
+      } catch (error) {
+        console.error("❌ [PassengerContext] Erro ao processar TRIP_ACCEPTED:", error);
+      }
+    };
+
+    clientSocket.on(constants.event.TRIP_ACCEPTED, handleTripAccepted);
+
+    // Listener para TRIP_CANCELED - quando uma trip é cancelada
+    const handleTripCanceled = (payload: any) => {
+      try {
+        console.log("❌ [PassengerContext] TRIP_CANCELED recebido:", payload);
+
+        if (!payload || typeof payload !== 'object') {
+          console.error("❌ [PassengerContext] TRIP_CANCELED: Payload inválido", payload);
+          return;
+        }
+
+        const { tripId, status, reason } = payload;
+
+        if (status === 'cancelled') {
+          console.log("Trip cancelada:", reason);
+          showToast(reason || "A viagem foi cancelada", "warning");
+          // Aqui você pode:
+          // - Limpar estado da viagem
+          // - Voltar para lista de viagens
+          // - Mostrar modal de cancelamento
+        }
+      } catch (error) {
+        console.error("❌ [PassengerContext] Erro ao processar TRIP_CANCELED:", error);
+      }
+    };
+
+    clientSocket.on(constants.event.TRIP_CANCELED, handleTripCanceled);
 
     setSocket(clientSocket);
 
     return () => {
       clientSocket.off("connect");
       clientSocket.off("disconnect");
-      clientSocket.off(constants.events.USER_CONNECTED);
-      clientSocket.off(constants.events.USER_DISCONNECTED);
-      clientSocket.off(constants.events.JOIN_ROOM);
+      clientSocket.off(constants.event.USER_CONNECTED);
+      clientSocket.off(constants.event.USER_DISCONNECTED);
+      clientSocket.off(constants.event.JOIN_ROOM, handleJoinRoom);
+      clientSocket.off(constants.event.TRIP_ACCEPTED, handleTripAccepted);
+      clientSocket.off(constants.event.TRIP_CANCELED, handleTripCanceled);
       clientSocket.disconnect();
     };
   }, [user]);
@@ -125,7 +216,19 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const createRoom = (userParam: AuthUser, roomParam?: TripRequestProps) => {
     if (!socket) return console.warn("⚠️ Socket não inicializado ainda.");
     showToast("Criando sala de viagem...", "info");
-    socket.emit(constants.events.JOIN_ROOM, { user: userParam, room: roomParam });
+    
+    // Convert AuthUser to backend User format
+    const userForBackend = {
+      id: userParam.id,
+      socketId: socket.id,
+      username: userParam.name, // name → username
+      email: userParam.email,
+      image: userParam.image,
+      telephone: userParam.telephone,
+      role: userParam.role, // Send full role object
+    };
+    
+    socket.emit(constants.event.JOIN_ROOM, { user: userForBackend, room: roomParam });
   };
 
   return (

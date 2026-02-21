@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { IconUser, IconHome, IconBell, IconClock } from "@tabler/icons-react-native";
 import { colors, fontFamily } from "@/styles/theme";
-import { router } from "expo-router";
-import { NewTripRequest} from "@/components/newTripRequest";
-import { TripRequestProps} from "@/types";
+import { router, useFocusEffect } from "expo-router";
+import { NewTripRequest } from "@/components/newTripRequest";
+import { TripRequestProps } from "@/types";
 import { Button } from "@/components/button";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { api } from "@/services/api";
@@ -12,65 +12,76 @@ import { AxiosError } from "axios";
 import { useDriver } from "@/context/driverContext";
 import { useToast } from "@/context/toastContext";
 
-
-
 export default function NewTripRequests() {
   const [selectedTrip, setSelectedTrip] = useState<TripRequestProps | null>(null);
   const [isSelected, setIsSelected] = useState(false);
-
-   const { showToast } = useToast();
-
-  const { availableTrips, lobbySocket, setOnConfirmedTrip } = useDriver() ?? {};
+  const { showToast } = useToast();
   const { user } = useUserAuth();
 
-  // 🚗 Aceitar viagem
-  const handleConfirmedTrip = (trip: TripRequestProps) => {
-    console.log("Aceitando viagem:", trip.id);
+  // Obtendo funções e estado do contexto do motorista
+  const {
+    availableTrips,
+    connectLobby,
+    disconnectLobby,
+    selectTrip,
+    //setOnConfirmedTrip,
+  } = useDriver();
+
+  // Conecta e desconecta do lobby com base no foco da tela
+  useFocusEffect(
+    useCallback(() => {
+      console.log("Entrando na tela de novos pedidos, conectando ao lobby...");
+      connectLobby();
+
+      return () => {
+        console.log("Saindo da tela de novos pedidos, desconectando do lobby...");
+        disconnectLobby();
+      };
+    }, [connectLobby, disconnectLobby])
+  );
+
+  // 🚗 Lida com a confirmação/aceite de uma viagem
+  const handleAcceptTrip = (trip: TripRequestProps) => {
+    if (!user) {
+      showToast("Usuário não autenticado", "error");
+      return;
+    }
+    console.log("Selecionando viagem no contexto:", trip.id);
     setIsSelected(true);
     setSelectedTrip(trip);
-
-    if (user?.role.type === "driver" && lobbySocket) {
-      lobbySocket.emit("client:accept-trip", {
-        trip_id: trip.id,
-        driver_email: user.email,
-      });
-    }
+    // Delega a lógica de entrar na sala para o contexto
+    selectTrip(user, trip);
   };
 
-  
-  // Cancelar viagem
+  // Cancela a viagem
   const cancelTripByDriver = async () => {
     if (!selectedTrip) return;
     try {
-      const reason = "driver cancel because is bored"; // exemplo
-      // await api.post(
-      //   `/trips/${selectedTrip.id}/cancel/driver`,
-      //   { user_id: user?.id, reason },
-      //   {
-      //     headers: {
-      //       access_token: user?.access_token,
-      //       refresh_token: user?.refresh_token,
-      //     },
-      //   }
-      // );
+      // Lógica de API para cancelar
       console.log("Viagem cancelada com sucesso");
       setSelectedTrip(null);
       setIsSelected(false);
+      // O ideal é que o lobby notifique a remoção, mas podemos limpar localmente por otimismo
     } catch (error) {
       const err = error as AxiosError;
       console.error("Erro ao cancelar viagem:", err.message);
     }
   };
 
-  // ⚙️ Quando novas viagens estiverem disponíveis via contexto
-  useEffect(() => {
-    if (availableTrips) {
-      console.log("Novas viagens disponíveis:", availableTrips.length);
-      showToast("Novas viagens disponíveis", "info");
-    }
-  }, [availableTrips]);
+  // Efeito para registrar o callback de confirmação de viagem
+  // useEffect(() => {
+  //   // A função setOnConfirmedTrip pode não estar disponível imediatamente se o contexto for nulo
+  //   if (setOnConfirmedTrip) {
+  //     setOnConfirmedTrip((trip: TripRequestProps) => {
+  //       console.log("Viagem confirmada pelo contexto!", trip);
+  //       handleAcceptTrip(trip);
+  //     });
+  //   }
+  //   // Cleanup não é necessário se o callback for estável
+  // }, [setOnConfirmedTrip]);
 
-  // 🧭 UI de navegação inferior
+
+  // UI de navegação inferior
   const NavBar = () => (
     <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 50 }}>
       <TouchableOpacity style={styles.iconButton}>
@@ -98,28 +109,17 @@ export default function NewTripRequests() {
         <NavBar />
         <Text style={styles.title}>Novos pedidos</Text>
         <View style={styles.centered}>
-          <Text>Sem novos pedidos</Text>
+          <Text>Sem novos pedidos no momento.</Text>
         </View>
       </View>
     );
   }
 
-
-
-// define o callback
-useEffect(() => {
-  setOnConfirmedTrip((trip: TripRequestProps) => {
-    console.log("Trip confirmada!", trip);
-    handleConfirmedTrip(trip);
-  });
-}, []); // 👈 só uma vez
-;
-
   // Renderização principal
   return (
     <View style={styles.container}>
       <NavBar />
-      <Text style={styles.title}>Novos pedidoss</Text>
+      <Text style={styles.title}>Novos pedidos</Text>
 
       {selectedTrip ? (
         <View style={{ flexDirection: "column", width: "100%", height: 230 }}>
@@ -140,7 +140,7 @@ useEffect(() => {
           data={availableTrips}
           keyExtractor={(item, index) => item.id || String(index)}
           renderItem={({ item }) => (
-            <NewTripRequest item={item} onAccept={handleConfirmedTrip} isSelected={isSelected} />
+            <NewTripRequest item={item} onAccept={() => handleAcceptTrip(item)} isSelected={false} />
           )}
           contentContainerStyle={{ paddingBottom: 20 }}
         />

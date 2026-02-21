@@ -31,4 +31,6 @@ export const colors = {
     bright: "#F28C0F"
   },
 
+  white: "#FFFFFF",
+
 }

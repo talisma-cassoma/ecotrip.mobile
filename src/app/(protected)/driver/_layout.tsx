@@ -1,13 +1,12 @@
-import React from "react";
-import { DriverProvider } from "@/context/driverContext";
 import { Stack } from "expo-router";
-import { colors } from "@/styles/theme";
+import { DriverProvider } from "@/context/driverContext";
 import { useUserAuth } from "@/hooks/useUserAuth";
+import { colors } from "@/styles/theme";
 
 export default function DriverLayout() {
-  const { user } = useUserAuth();
+  const { isLoaded, user } = useUserAuth();
 
-  // Nota: garantimos que user existe e é driver antes de chegar aqui por causa do redirect do parent layout
+  if (!isLoaded || !user) return null;
 
   return (
     <DriverProvider>

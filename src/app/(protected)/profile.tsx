@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Profile() {
 
-  const { user, setUser } = useUserAuth()
+  const { user, logout } = useUserAuth()
 
   // console.log("user:", user)
   // Gera uma cor vibrante e consistente com base no nome
@@ -39,11 +39,12 @@ const getInitials = (name:string | undefined) => {
 
   const handleLogOut = async () => {
     try {
-      // const response = await api.post('/users/logout', {email: user?.email}
-      //{ headers: { Authorization: `Bearer ${user?.access_token}`,}}
-      // );
-      setUser(null)
-      await AsyncStorage.removeItem(COLLECTION_USERS)
+      // const response = await api.post('/users/logout', {email: user?.email},
+      // { headers: { Authorization: `Bearer ${user?.access_token}`,}}
+      //  );
+      await logout()
+      //await AsyncStorage.removeItem(COLLECTION_USERS)
+
       router.replace("/login")
     } catch (error) {
       console.log(error)

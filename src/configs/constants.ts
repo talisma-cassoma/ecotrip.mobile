@@ -6,14 +6,17 @@ export const constants = {
         room: 'room',
         lobby: 'lobby'
     },
-    events: {
+    event: {
         USER_CONNECTED: 'userConnection',
         USER_DISCONNECTED: 'userDisconnection',
 
         JOIN_ROOM: 'joinRoom',
         LOBBY_UPDATED: 'lobbyUpdated',
         //Atualizações específicas de trip rooms
-        SELECT_DRIVER:'selectDriver',
-        LEAVE_ROOM:'leaveRoom',
+        SELECT_DRIVER: 'selectDriver',
+
+        TRIP_CREATED: 'tripCreated',
+        TRIP_ACCEPTED: 'tripAccepted',
+        TRIP_CANCELED: 'tripCanceled',
     }
 }

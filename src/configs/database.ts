@@ -6,45 +6,27 @@ const DABASE_NAME = '@ecotrip';
 const COLLECTION_USERS = `${DABASE_NAME}:user`;
 const COLLECTION_RIDES = `${DABASE_NAME}:ride`;
 
-async function storeUser({
-    id,
-    name,
-    email,
-    image,
-    telephone,
-    access_token,
-    refresh_token,
-    role,
-    driverData,
-}: {
-    id?: string;
-    name: string;
-    email: string;
-    image?: string;
-    telephone?: string;
-    access_token: string;
-    refresh_token: string;
-    role: 'passenger' | 'driver';
-    driverData?: DriverInfo;
-}): Promise<AuthUser> {
+async function storeUser(userData: AuthUser): Promise<AuthUser> {
+    const { id, name, email, image, telephone, access_token, refresh_token, role } = userData;
+    
     const base = {
         id,
         name,
         email,
         image,
         telephone,
-        access_token,
-        refresh_token,
+        access_token: access_token || '',
+        refresh_token: refresh_token || '',
     };
 
     let newUser: AuthUser;
 
-    if (role === 'driver' && driverData) {
+    if (role.type === 'driver' && role.data) {
         newUser = {
             ...base,
             role: {
                 type: 'driver',
-                data: driverData,
+                data: role.data,
             },
         };
     } else {
@@ -69,4 +51,4 @@ export {
     COLLECTION_USERS,
     COLLECTION_RIDES,
     storeUser,
-}
+};

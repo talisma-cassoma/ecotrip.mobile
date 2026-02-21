@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 
-export type ToastType = "success" | "error" | "info";
+export type ToastType = "success" | "error" | "info" | "warning";
 
 export interface ToastState {
   visible: boolean;
@@ -105,4 +105,5 @@ const styles = StyleSheet.create({
   success: { backgroundColor: "#4CAF50" },
   error: { backgroundColor: "#F44336" },
   info: { backgroundColor: "#2196F3" },
+  warning: { backgroundColor: "#FF9800" },
 });

@@ -5,15 +5,15 @@ export default ({ config }) => ({
     name: "ecotrip",
     slug: "ecotrip",
     version: "1.0.0",
-    orientation: "portrait",
+    orientation: "default",
     icon: "./assets/images/icon.png",
-    scheme: "myapp",
+    scheme: "ecotrip", // Caso queira usar deep linking com development build
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
-    
+
     splash: {
-      image: "./src/assets/splash2.png",
-      resizeMode: "contain",
+      image: "./assets/images/icon.png",
+      resizeMode: "center",
       backgroundColor: "#257F49"
     },
 
@@ -24,7 +24,7 @@ export default ({ config }) => ({
     },
 
     android: {
-      /*...config.expo?.android,*/
+      //...config.expo?.android,
       package: "com.talismadev.ecotrip",
       adaptiveIcon: {
         foregroundImage: "./assets/images/icon.png",
@@ -70,9 +70,9 @@ export default ({ config }) => ({
     },
 
     // Configuração de Updates centralizada (Apenas uma vez)
-    updates: {  
-      url: "https://u.expo.dev/4f078bc7-ebc6-44f5-bdcc-43249fcd0a01"
-    },
+    updates: process.env.NODE_ENV === "development"
+      ? { fallbackToCacheTimeout: 0 } :
+      { url: "https://u.expo.dev/4f078bc7-ebc6-44f5-bdcc-43249fcd0a01" },
 
     // Runtime Version baseada na versão do App (Importante para OTA)
     runtimeVersion: {
@@ -88,6 +88,7 @@ export default ({ config }) => ({
       },
       // Variáveis de ambiente para o seu código JS
       EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL,
+      NODE_ENV: process.env.NODE_ENV,
     }
   }
 });

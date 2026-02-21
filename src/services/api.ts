@@ -1,12 +1,11 @@
 import axios from "axios"
-import { io, Socket } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLLECTION_USERS } from '../configs/database';
 import { Alert } from "react-native"
 
 
-const URL = 'https://ecotrip-api.onrender.com'
-//'http://192.168.11.197:3000' 
+const URL = 'http://192.168.11.103:3000' 
+//'https://ecotrip-api.onrender.com'
 export const socketUrl =URL
 
 if (!URL) {
@@ -16,10 +15,6 @@ if (!URL) {
 export const api = axios.create({
   baseURL: URL,
   timeout: 9000,
-})
-
-export const socket: Socket = io(socketUrl, {
-  autoConnect: false,
 });
 
 // Interceptor de requisição: adiciona o access_token

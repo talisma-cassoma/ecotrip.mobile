@@ -208,7 +208,7 @@ export default function Login() {
           showsVerticalScrollIndicator={false}
         >
           <Button
-            style={{ justifyContent: "space-between", backgroundColor: "black" }}
+            style={{ justifyContent: "space-between", backgroundColor: colors.green.dark }}
             onPress={() => alert("Funcionalidad no implementada")}
           >
             <View
@@ -216,7 +216,7 @@ export default function Login() {
                 width: 60,
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: colors.green.dark,
+                backgroundColor: colors.green.base,
                 borderRadius: 10,
                 height: "100%",
               }}
@@ -225,12 +225,12 @@ export default function Login() {
             </View>
 
             <View
-              style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+              style={{ flex: 1, alignItems: "center", justifyContent: "center"}}
             >
               <Button.Title>
                 <Text
                   style={{
-                    color: colors.orange.bright,
+                    color: colors.white,
                     fontSize: 16,
                     fontFamily: fontFamily.semiBold,
                   }}
@@ -240,7 +240,7 @@ export default function Login() {
               </Button.Title>
             </View>
           </Button>
-          <View style={{  backgroundColor: colors.blue.cean, flex: 1, margin: 16, flexDirection: 'row', alignItems: "center", justifyContent: "space-around", padding: 8, borderRadius: 20, alignSelf: "center", maxWidth: 400 }}>
+          <View style={{  backgroundColor: colors.gray[200], flex: 1, margin: 16, flexDirection: 'row', alignItems: "center", justifyContent: "space-around", padding: 8, borderRadius: 20, alignSelf: "center", maxWidth: 400 }}>
             <IconUserCog size={24} stroke={colors.green.base} />
             <Text
               style={{
@@ -280,7 +280,7 @@ export default function Login() {
           <TextInput
             style={styles.input}
             placeholder="email@ejemplo.com"
-            placeholderTextColor="#aaa"
+            placeholderTextColor={colors.gray[300]}
             keyboardType="email-address"
             value={email}
             onChangeText={setEmail}
@@ -290,7 +290,7 @@ export default function Login() {
             <TextInput
               style={[styles.input, { flex: 1 }]}
               placeholder="********"
-              placeholderTextColor="#aaa"
+              placeholderTextColor={colors.gray[300]}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: "#555",
+    color: colors.gray[500],
     marginBottom: 28,
     textAlign: "center",
   },
@@ -359,13 +359,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   input: {
-    color: "#333",
+    color: colors.gray[600],
     fontSize: 16,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: "#DDD",
+    borderColor: colors.gray[300],
     marginBottom: 20,
   },
   bar: {

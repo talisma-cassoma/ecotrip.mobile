@@ -1,0 +1,23 @@
+services:
+  builder:
+    # Usa a imagem desse projeto que você encontrou
+    image: erayalakese/eas-like-local-builder:latest
+    container_name: ecotrip_builder
+    # O DNS que você pediu para não ter erro de conexão do Gradle
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    volumes:
+      - .:/app
+      # Cache do Gradle e npm para as próximas vezes serem rápidas
+      - gradle_cache:/root/.gradle
+      - node_modules_cache:/app/node_modules
+    environment:
+      - EXPO_TOKEN=${EXPO_TOKEN}
+      - EXPO_PUBLIC_GOOGLE_MAPS_APIKEY=${EXPO_PUBLIC_GOOGLE_MAPS_APIKEY}
+      - EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL}
+    working_dir: /app
+
+volumes:
+  gradle_cache:
+  node_modules_cache:
