@@ -1,89 +1,169 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { IconUser, IconHome, IconBell, IconClock } from "@tabler/icons-react-native";
+import React, { useState, useCallback } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import {
+  IconPointFilled,
+  IconMapPinFilled,
+  IconPhone,
+  IconMessage,
+  IconUser,
+  IconHome,
+  IconBell,
+  IconClock,
+} from "@tabler/icons-react-native";
+
+import { VerticalDashedLine } from "@/components/dottedLine";
 import { colors, fontFamily } from "@/styles/theme";
-import { router, useFocusEffect } from "expo-router";
-import { NewTripRequest } from "@/components/newTripRequest";
 import { TripRequestProps } from "@/types";
 import { Button } from "@/components/button";
 import { useUserAuth } from "@/hooks/useUserAuth";
-import { api } from "@/services/api";
-import { AxiosError } from "axios";
 import { useDriver } from "@/context/driverContext";
 import { useToast } from "@/context/toastContext";
+import { router, useFocusEffect } from "expo-router";
+import { constants } from "@/configs/constants";
 
 export default function NewTripRequests() {
-  const [selectedTrip, setSelectedTrip] = useState<TripRequestProps | null>(null);
-  const [isSelected, setIsSelected] = useState(false);
+  const [selectedTrip, setSelectedTrip] =
+    useState<TripRequestProps | null>(null);
+
   const { showToast } = useToast();
   const { user } = useUserAuth();
-
-  // Obtendo funções e estado do contexto do motorista
   const {
     availableTrips,
     connectLobby,
     disconnectLobby,
     selectTrip,
-    //setOnConfirmedTrip,
+    //roomSocket,
   } = useDriver();
 
-  // Conecta e desconecta do lobby com base no foco da tela
+  // 🔌 Conexão lobby
   useFocusEffect(
     useCallback(() => {
-      console.log("Entrando na tela de novos pedidos, conectando ao lobby...");
       connectLobby();
-
-      return () => {
-        console.log("Saindo da tela de novos pedidos, desconectando do lobby...");
-        disconnectLobby();
-      };
+      return () => disconnectLobby();
     }, [connectLobby, disconnectLobby])
   );
 
-  // 🚗 Lida com a confirmação/aceite de uma viagem
+  // 🚗 Aceitar viagem
   const handleAcceptTrip = (trip: TripRequestProps) => {
     if (!user) {
       showToast("Usuário não autenticado", "error");
       return;
     }
-    console.log("Selecionando viagem no contexto:", trip.id);
-    setIsSelected(true);
+
     setSelectedTrip(trip);
-    // Delega a lógica de entrar na sala para o contexto
     selectTrip(user, trip);
+   //roomSocket?.emit(constants.event.JOIN_ROOM, { user, trip });
   };
 
-  // Cancela a viagem
-  const cancelTripByDriver = async () => {
-    if (!selectedTrip) return;
-    try {
-      // Lógica de API para cancelar
-      console.log("Viagem cancelada com sucesso");
-      setSelectedTrip(null);
-      setIsSelected(false);
-      // O ideal é que o lobby notifique a remoção, mas podemos limpar localmente por otimismo
-    } catch (error) {
-      const err = error as AxiosError;
-      console.error("Erro ao cancelar viagem:", err.message);
-    }
+  const cancelTrip = () => setSelectedTrip(null);
+
+  const isSelected = !!selectedTrip;
+
+  // 🔹 Card interno
+  const TripCard = ({
+    item,
+    isSelected,
+  }: {
+    item: TripRequestProps;
+    isSelected: boolean;
+  }) => {
+    const [status, setStatus] = useState<"idle" | "loading" | "disabled">(
+      "idle"
+    );
+
+    const handleAccept = () => {
+      if (status !== "idle") return;
+
+      setStatus("loading");
+
+      setTimeout(() => {
+        setStatus("disabled");
+        handleAcceptTrip(item);
+      }, 500);
+    };
+
+    const isLoading = status === "loading";
+    const isDisabled = status === "disabled";
+
+    return (
+      <View style={styles.card}>
+        <View style={styles.cardContent}>
+          <View style={styles.leftSection}>
+            <View style={styles.iconColumn}>
+              <IconPointFilled size={20} fill={colors.green.base} />
+              <VerticalDashedLine height={38} width={4} color="#aaa" />
+              <IconMapPinFilled size={15} fill={colors.green.base} />
+            </View>
+
+            <View style={styles.locationColumn}>
+              <View>
+                <Text style={styles.label}>Origem</Text>
+                <Text style={styles.bold}>{item.origin?.name}</Text>
+              </View>
+
+              <View>
+                <Text style={styles.label}>Destino</Text>
+                <Text style={styles.bold}>{item.destination?.name}</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.rightSection}>
+            <Text style={styles.label}>
+              Valor{"\n"}
+              <Text style={styles.bold}>
+                ${item.price?.toFixed(2)}
+              </Text>
+            </Text>
+
+            <Text style={styles.label}>
+              Distância{"\n"}
+              <Text style={styles.bold}>{item.distance}</Text>
+            </Text>
+          </View>
+        </View>
+
+        {isSelected ? (
+          <View style={styles.actionColumn}>
+            <TouchableOpacity>
+              <IconPhone size={24} color={colors.green.light} />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <IconMessage size={24} color={colors.green.light} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={[
+              styles.acceptButton,
+              (isLoading || isDisabled) && styles.disabledButton,
+            ]}
+            disabled={isLoading || isDisabled}
+            onPress={handleAccept}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.acceptText}>
+                {isDisabled ? "Aguarde" : "Aceitar"}
+              </Text>
+            )}
+          </TouchableOpacity>
+        )}
+      </View>
+    );
   };
 
-  // Efeito para registrar o callback de confirmação de viagem
-  // useEffect(() => {
-  //   // A função setOnConfirmedTrip pode não estar disponível imediatamente se o contexto for nulo
-  //   if (setOnConfirmedTrip) {
-  //     setOnConfirmedTrip((trip: TripRequestProps) => {
-  //       console.log("Viagem confirmada pelo contexto!", trip);
-  //       handleAcceptTrip(trip);
-  //     });
-  //   }
-  //   // Cleanup não é necessário se o callback for estável
-  // }, [setOnConfirmedTrip]);
-
-
-  // UI de navegação inferior
+  // 🔹 Navbar
   const NavBar = () => (
-    <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 50 }}>
+    <View style={styles.navBar}>
       <TouchableOpacity style={styles.iconButton}>
         <IconHome size={20} fill={colors.gray[500]} />
       </TouchableOpacity>
@@ -92,18 +172,23 @@ export default function NewTripRequests() {
         <IconBell size={20} color={colors.gray[500]} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.iconButton} onPress={() => router.push("/profile")}>
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={() => router.push("/profile")}
+      >
         <IconUser size={20} color={colors.gray[500]} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.iconButton} onPress={() => router.push("/historic")}>
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={() => router.push("/historic")}
+      >
         <IconClock size={20} color={colors.gray[500]} />
       </TouchableOpacity>
     </View>
   );
 
-  // Se não houver viagens
-  if (!availableTrips || availableTrips.length === 0) {
+  if (!availableTrips?.length) {
     return (
       <View style={styles.container}>
         <NavBar />
@@ -115,34 +200,26 @@ export default function NewTripRequests() {
     );
   }
 
-  // Renderização principal
   return (
     <View style={styles.container}>
       <NavBar />
       <Text style={styles.title}>Novos pedidos</Text>
 
       {selectedTrip ? (
-        <View style={{ flexDirection: "column", width: "100%", height: 230 }}>
-          <NewTripRequest item={selectedTrip} onAccept={() => {}} isSelected={isSelected} />
-          <Text style={{ fontFamily: fontFamily.regular, fontSize: 16, color: colors.gray[600] }}>
-            Você pode ligar clicando em “Ligar” ou enviar uma mensagem.
-          </Text>
+        <>
+          <TripCard item={selectedTrip} isSelected={true} />
 
-          <Button
-            onPress={() => cancelTripByDriver()}
-            style={{ marginTop: 16 }}
-          >
+          <Button onPress={cancelTrip} style={{ marginTop: 16 }}>
             <Button.Title>Cancelar</Button.Title>
           </Button>
-        </View>
+        </>
       ) : (
         <FlatList
           data={availableTrips}
           keyExtractor={(item, index) => item.id || String(index)}
           renderItem={({ item }) => (
-            <NewTripRequest item={item} onAccept={() => handleAcceptTrip(item)} isSelected={false} />
+            <TripCard item={item} isSelected={false} />
           )}
-          contentContainerStyle={{ paddingBottom: 20 }}
         />
       )}
     </View>
@@ -155,16 +232,25 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: colors.green.soft,
   },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 15,
   },
+
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  navBar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 50,
+  },
+
   iconButton: {
     borderRadius: 10,
     padding: 10,
@@ -172,5 +258,77 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  card: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 12,
+    marginBottom: 12,
+    backgroundColor: "#fff",
+    height: 120,
+  },
+
+  cardContent: {
+    flex: 1,
+    flexDirection: "row",
+    padding: 10,
+    justifyContent: "space-between",
+  },
+
+  leftSection: {
+    flexDirection: "row",
+    flex: 1,
+  },
+
+  iconColumn: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginRight: 6,
+  },
+
+  locationColumn: {
+    justifyContent: "space-between",
+  },
+
+  rightSection: {
+    justifyContent: "space-between",
+    width: 80,
+  },
+
+  actionColumn: {
+    width: 50,
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+
+  label: {
+    fontSize: 11,
+  },
+
+  bold: {
+    fontSize: 14,
+    fontFamily: fontFamily.bold,
+    color: colors.gray[600],
+  },
+
+  acceptButton: {
+    width: 80,
+    backgroundColor: colors.green.base,
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+
+  disabledButton: {
+    backgroundColor: colors.gray[400],
+  },
+
+  acceptText: {
+    color: colors.gray[100],
+    fontFamily: fontFamily.semiBold,
+    fontSize: 16,
   },
 });

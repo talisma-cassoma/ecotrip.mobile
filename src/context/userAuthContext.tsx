@@ -6,6 +6,7 @@ import { COLLECTION_USERS, storeUser } from "@/configs/database";
 
 interface AuthContextProps {
   user: AuthUser | null;
+  setUser: React.Dispatch<React.SetStateAction<AuthUser | null>>;
   isLoggedIn: boolean;
   isLoaded: boolean;
   login: (user: AuthUser) => Promise<void>;
@@ -66,7 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoggedIn, isLoaded, login, logout }}
+      value={{ user,setUser, isLoggedIn, isLoaded, login, logout }}
     >
       {children}
     </AuthContext.Provider>

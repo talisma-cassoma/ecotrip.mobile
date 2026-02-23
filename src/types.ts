@@ -51,6 +51,7 @@ export type DriverInfo = {
 export interface TripRequestProps {
     id?: string;
     status?: TripStatus;
+    interestedDrivers?: Set<AuthUser>;  
     owner?: AuthUser;
     users?: Set<AuthUser>;
     assignedDriver?: AuthUser | null;        

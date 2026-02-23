@@ -31,12 +31,11 @@ export default function SelectADriver() {
 
     const [selectedDriver, setSelectedDriver] = useState<AvailableDriverCompProps | null>(null);
     const [isSelected, setIsSelected] = useState(false);
-    const [tripId, setTripId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
     const { originCoords, destinationCoords, distance, duration, price, setDistance, setDuration } = useTrip();
     const { user } = useUserAuth();
-    const { createRoom, availableDrivers, isConnected, socket } = usePassenger();
+    const { createRoom, availableDrivers, isConnected, socket, newTrip} = usePassenger();
 
     const safeApiError = (error: unknown, defaultMessage: string): ApiResult<any> => {
         const err = error as AxiosError;
@@ -64,6 +63,7 @@ export default function SelectADriver() {
                 id: "", // Será preenchido após criação da viagem
                 owner: {
                     ...user,
+                    id: user.id,
                     socketId: socket.id,
                 },
                 price: price ?? 0,
@@ -87,6 +87,9 @@ export default function SelectADriver() {
                 email: user.email,
             };
 
+            // console.log("user:", user);
+            console.log("user id:", user?.id);;
+
             const response = await api.post(
                 "/trips/new-trip",
                 room,
@@ -98,9 +101,11 @@ export default function SelectADriver() {
                 }
             );
 
-            const tripId = response.data.tripId;
-            setTripId(tripId);
-            room.id = tripId;
+            const trip_id = response.data.tripId;
+            console.log("trip_id:", trip_id);
+
+            room.id = trip_id
+
             createRoom(room.owner, room);
 
         } catch (error) {
@@ -109,14 +114,16 @@ export default function SelectADriver() {
     };
 
     const confirmTrip = async (driverEmail: string): Promise<ApiResult<any>> => {
-        if (!tripId) {
+        if (!newTrip?.id) {
             return { ok: false, message: "Viagem ainda não criada" };
         }
+        
+        console.log("trip id para viagem:", newTrip.id);
 
         try {
             const response = await api.post(
-                `/trips/${tripId}/confirm`,
-                { driver_email: driverEmail },
+                `/trips/${newTrip.id}/confirm`,
+                newTrip,
                 {
                     headers: {
                         access_token: user?.access_token,
@@ -132,14 +139,14 @@ export default function SelectADriver() {
         }
     };
 
- const cancelTripByPassenger = async (): Promise<ApiResult<any>> => {
-        if (!tripId || !user) {
+    const cancelTripByPassenger = async (): Promise<ApiResult<any>> => {
+        if (!newTrip?.id || !user) {
             return { ok: false, message: "Viagem inválida" };
         }
 
         try {
             const response = await api.post(
-                `/trips/${tripId}/cancel/passenger`,
+                `/trips/${newTrip.id}/cancel/passenger`,
                 { user_id: user.id, reason: "Cancelado pelo passageiro" },
                 {
                     headers: {
@@ -221,7 +228,7 @@ export default function SelectADriver() {
             >
                 {selectedDriver ? (
                     <View style={{ padding: 24 }}>
-                        <AvailableDriver {...selectedDriver} onPress={() => {}} />
+                        <AvailableDriver {...selectedDriver} onPress={() => { }} />
                         <BookingTripCard />
                         <Button onPress={handleRideCancel}>
                             <Button.Title>Cancelar</Button.Title>
@@ -230,7 +237,7 @@ export default function SelectADriver() {
                 ) : (
                     <BottomSheetFlatList
                         data={availableDrivers}
-                          keyExtractor={(item: AvailableDriverCompProps) => item.id}
+                        keyExtractor={(item: AvailableDriverCompProps) => item.id}
                         renderItem={({ item }: { item: AvailableDriverCompProps }) => (
                             <AvailableDriver
                                 {...item}

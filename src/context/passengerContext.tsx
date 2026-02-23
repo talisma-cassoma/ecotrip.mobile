@@ -11,6 +11,7 @@ export interface PassengerContextProps {
   socket: Socket | null;
   isConnected: boolean;
   usersOnline: string[];
+  newTrip: TripRequestProps | null;
   availableDrivers: AvailableDriverProps[];
   createRoom: (user: AuthUser, room?: TripRequestProps) => void;
 }
@@ -36,6 +37,7 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [usersOnline, setUsersOnline] = useState<string[]>([]);
   const [availableDrivers, setAvailableDrivers] = useState<AvailableDriverProps[]>([mockupDriver]);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [newTrip, setNewTrip] = useState<TripRequestProps | null>(null);
   const { showToast } = useToast();
 
   const { user } = useUserAuth();
@@ -111,6 +113,7 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
 
         console.log("✅ [PassengerContext] JOIN_ROOM válido:", usersInRoom.length, "users");
+        console.log("Users in room:", usersInRoom);
 
         const drivers: AvailableDriverProps[] = usersInRoom
           .filter(
@@ -233,7 +236,7 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   return (
     <PassengerContext.Provider
-      value={{ socket, isConnected, usersOnline, availableDrivers, createRoom }}
+      value={{ socket, isConnected, usersOnline, availableDrivers, createRoom, newTrip }}
     >
       {children}
     </PassengerContext.Provider>
