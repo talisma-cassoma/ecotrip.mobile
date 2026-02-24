@@ -13,9 +13,10 @@ import { useTrip } from "@/context/tripContext";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { usePassenger } from "@/context/passengerContext";
 
-import { AvailableDriver, AvailableDriverCompProps } from "@/components/availableDriver";
+import { AvailableDriver } from "@/components/availableDriver";
 import { BookingTripCard } from "@/components/bookingTripCard";
 import { Button } from "@/components/button";
+import { TripRequestProps, AvailableDriverCompProps } from "@/types";
 
 
 type ApiResult<T> =
@@ -35,7 +36,7 @@ export default function SelectADriver() {
 
     const { originCoords, destinationCoords, distance, duration, price, setDistance, setDuration } = useTrip();
     const { user } = useUserAuth();
-    const { createRoom, availableDrivers, isConnected, socket, newTrip} = usePassenger();
+    const { requestNewTrip, availableDrivers, isConnected, socket, newTrip, setNewTrip } = usePassenger();
 
     const safeApiError = (error: unknown, defaultMessage: string): ApiResult<any> => {
         const err = error as AxiosError;
@@ -106,24 +107,35 @@ export default function SelectADriver() {
 
             room.id = trip_id
 
-            createRoom(room.owner, room);
+            requestNewTrip(room.owner, room);
 
         } catch (error) {
             console.error("Erro ao criar viagem", error);
         }
     };
 
-    const confirmTrip = async (driverEmail: string): Promise<ApiResult<any>> => {
-        if (!newTrip?.id) {
+    const confirmTrip = async (driver: AvailableDriverCompProps): Promise<ApiResult<any>> => {
+        if (!newTrip?.trip?.id || !user) {
             return { ok: false, message: "Viagem ainda não criada" };
         }
-        
-        console.log("trip id para viagem:", newTrip.id);
 
+        console.log("trip id para viagem:", newTrip.trip?.id);
+
+        setNewTrip((prev) => {
+            if (!prev || !prev.trip) return prev;
+
+            const updatedTrip: TripRequestProps = {
+                ...prev.trip,
+                assignedDriver: driver,
+            };
+
+            console.log("updatedNewTrip:", updatedTrip);
+            return { ...prev, trip: updatedTrip };
+        });
         try {
             const response = await api.post(
-                `/trips/${newTrip.id}/confirm`,
-                newTrip,
+                `/trips/${newTrip.trip?.id}/confirm`,
+                newTrip.trip,
                 {
                     headers: {
                         access_token: user?.access_token,
@@ -140,14 +152,14 @@ export default function SelectADriver() {
     };
 
     const cancelTripByPassenger = async (): Promise<ApiResult<any>> => {
-        if (!newTrip?.id || !user) {
+        if (!newTrip?.trip?.id || !user) {
             return { ok: false, message: "Viagem inválida" };
         }
 
         try {
             const response = await api.post(
-                `/trips/${newTrip.id}/cancel/passenger`,
-                { user_id: user.id, reason: "Cancelado pelo passageiro" },
+                `/trips/${newTrip.trip?.id}/cancel/passenger`,
+                { trip: newTrip.trip, reason: "Cancelado pelo passageiro" },
                 {
                     headers: {
                         access_token: user.access_token,
@@ -174,10 +186,11 @@ export default function SelectADriver() {
     }, [selectedDriver]);
 
     const handleSelectDriver = async (driver: AvailableDriverCompProps) => {
-        if (loading) return;
+        //if (loading) return;
 
         setLoading(true);
-        const result = await confirmTrip(driver.email);
+
+        const result = await confirmTrip(driver);
         setLoading(false);
 
         if (!result.ok) {

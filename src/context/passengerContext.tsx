@@ -11,9 +11,10 @@ export interface PassengerContextProps {
   socket: Socket | null;
   isConnected: boolean;
   usersOnline: string[];
-  newTrip: TripRequestProps | null;
+  newTrip: { user: AuthUser | null ; trip: TripRequestProps| null} | null;
+  setNewTrip: React.Dispatch<React.SetStateAction<{ user: AuthUser | null ; trip: TripRequestProps | null} | null>>;
   availableDrivers: AvailableDriverProps[];
-  createRoom: (user: AuthUser, room?: TripRequestProps) => void;
+  requestNewTrip: (user: AuthUser, room?: TripRequestProps) => void;
 }
 
 
@@ -37,7 +38,7 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [usersOnline, setUsersOnline] = useState<string[]>([]);
   const [availableDrivers, setAvailableDrivers] = useState<AvailableDriverProps[]>([mockupDriver]);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [newTrip, setNewTrip] = useState<TripRequestProps | null>(null);
+  const [newTrip, setNewTrip] = useState<{ user: AuthUser | null , trip: TripRequestProps| null} | null>(null);
   const { showToast } = useToast();
 
   const { user } = useUserAuth();
@@ -216,7 +217,7 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [user]);
 
-  const createRoom = (userParam: AuthUser, roomParam?: TripRequestProps) => {
+  const requestNewTrip = (userParam: AuthUser, roomParam?: TripRequestProps) => {
     if (!socket) return console.warn("⚠️ Socket não inicializado ainda.");
     showToast("Criando sala de viagem...", "info");
     
@@ -230,13 +231,15 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       telephone: userParam.telephone,
       role: userParam.role, // Send full role object
     };
+
+    setNewTrip({ user: userParam, trip: roomParam || {} as TripRequestProps });
     
     socket.emit(constants.event.JOIN_ROOM, { user: userForBackend, room: roomParam });
   };
 
   return (
     <PassengerContext.Provider
-      value={{ socket, isConnected, usersOnline, availableDrivers, createRoom, newTrip }}
+      value={{ socket, isConnected, usersOnline, availableDrivers, requestNewTrip, newTrip, setNewTrip }}
     >
       {children}
     </PassengerContext.Provider>

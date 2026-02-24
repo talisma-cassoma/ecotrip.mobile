@@ -1,3 +1,5 @@
+import { TouchableOpacityProps } from "react-native-gesture-handler/lib/typescript/components/touchables/TouchableOpacity";
+
 export type LocationPoint = {
     name: string;
     location: {
@@ -51,10 +53,10 @@ export type DriverInfo = {
 export interface TripRequestProps {
     id?: string;
     status?: TripStatus;
-    interestedDrivers?: Set<AuthUser>;  
+    interestedDrivers?: Set<AvailableDriverProps>;  
     owner?: AuthUser;
     users?: Set<AuthUser>;
-    assignedDriver?: AuthUser | null;        
+    assignedDriver?: AvailableDriverCompProps | null;        
     distance: number;
     duration: number;
     price: number;
@@ -105,3 +107,6 @@ export interface AvailableDriverProps {
 }
 
 
+export interface AvailableDriverCompProps
+  extends AvailableDriverProps,
+    Omit<TouchableOpacityProps, 'id'> {}

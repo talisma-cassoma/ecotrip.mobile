@@ -11,11 +11,9 @@ import { IconPhone, IconMessage, IconStarFilled } from "@tabler/icons-react-nati
 import { styles } from "./styles"
 import { colors, fontFamily } from "@/styles/theme"
 
-import { AvailableDriverProps } from "@/types"
+import { AvailableDriverCompProps} from "@/types"
 
-export interface AvailableDriverCompProps
-  extends AvailableDriverProps,
-    Omit<TouchableOpacityProps, 'id'> {}
+
 
 
 export function AvailableDriver({ email, name, image, telephone, isSelected,

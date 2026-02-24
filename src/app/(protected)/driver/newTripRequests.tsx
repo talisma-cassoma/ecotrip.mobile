@@ -59,7 +59,7 @@ export default function NewTripRequests() {
 
     setSelectedTrip(trip);
     selectTrip(user, trip);
-   //roomSocket?.emit(constants.event.JOIN_ROOM, { user, trip });
+    //roomSocket?.emit(constants.event.JOIN_ROOM, { user, trip });
   };
 
   const cancelTrip = () => setSelectedTrip(null);
@@ -332,3 +332,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+// { "assignedDriver": { "carColor": "Verde", "carModel": "Bmw", "carPlate": "Asd_123", "complited_rides": undefined, "email": "talisma63@gmail.com", "id": "ZOkX3-nYF8Qe", "image": "http://github.com/talisma-cassoma.png", "name": undefined, "rating": undefined, "telephone": "+2126000000" }, 
+// "destination": { "location": { "lat": -1.4033, "lng": 5.6322 }, "name": "Loja Nova" }, 
+// "directions": { }, 
+// "distance": 586.715, 
+// "duration": 704.0580000000001, 
+// "email": "geoneto42@gmail.com", 
+// "id": "B-tXSwAXt1GF", 
+// "origin": { "location": { "lat": 1.8575468799281134, "lng": 9.773508861048843 }, 
+// "name": "Ubicatión atual" }, 
+// "owner": { "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODhjZGY0OWFjMTNhYWZhMzg1NDc1MGMiLCJ1c2VyUm9sZSI6InBhc3NlbmdlciIsImlhdCI6MTc3MTg4MDQ0NiwiZXhwIjoxNzcxOTY2ODQ2fQ.ekGmU-VDfXO8EhwDXuooohWWyJvMOC8eGQl0KKWh_LI", "email": "geoneto42@gmail.com", "id": "Rudu9qrOCX3I", 
+//   "image": null, "name": "geovana neto", 
+//   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODhjZGY0OWFjMTNhYWZhMzg1NDc1MGMiLCJ1c2VyUm9sZSI6InBhc3NlbmdlciIsImlhdCI6MTc3MTg4MDQ0NiwiZXhwIjoxNzcyNDg1MjQ2fQ.C24b0eCV7MJA1yMi5AGk6uqRk12mEKiKxqGCE19lvtg", 
+//   "role": { "type": "passenger" }, "socketId": "IEmccC1x3AQL4Bd4AAAV" }, "price": 88200 }
