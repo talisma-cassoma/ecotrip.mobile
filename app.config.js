@@ -70,8 +70,9 @@ export default ({ config }) => ({
     },
 
     // Configuração de Updates centralizada (Apenas uma vez)
-    updates: process.env.NODE_ENV === "development"
-      ? { fallbackToCacheTimeout: 0 } :
+    updates: 
+    // process.env.NODE_ENV === "development"
+    //   ? { fallbackToCacheTimeout: 0 } :
       { url: "https://u.expo.dev/4f078bc7-ebc6-44f5-bdcc-43249fcd0a01" },
 
     // Runtime Version baseada na versão do App (Importante para OTA)
