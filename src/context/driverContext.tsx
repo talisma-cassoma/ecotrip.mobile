@@ -132,14 +132,13 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     roomSock.on(constants.event.TRIP_CANCELED, (payload) => {
       if (payload?.status === "cancelled") {
         showToast(payload.message || "Viagem cancelada", "warning");
+
+        // Limpa a viagem confirmada e permite que a FlatList volte a aparecer
+        setConfirmedTrip(null);
+        setPendingTripId(null);
+        setSelectedTrip(null);
       }
     });
-
-    // roomSock.on('connect', () => {
-    //   roomSock.emit(constants.event.JOIN_ROOM, { user, room }, (response: any) => {
-    //     console.log('JOIN_ROOM callback response:', response);
-    //   });
-    // });
 
     roomSocketRef.current = roomSock;
   };

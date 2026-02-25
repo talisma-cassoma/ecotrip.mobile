@@ -28,6 +28,7 @@ import { useDriver } from "@/context/driverContext";
 import { useToast } from "@/context/toastContext";
 import { router, useFocusEffect } from "expo-router";
 import { constants } from "@/configs/constants";
+import { api } from "@/services/api";
 
 export default function NewTripRequests() {
   const [selectedTrip, setSelectedTrip] = useState<TripRequestProps | null>(null);
@@ -62,13 +63,46 @@ export default function NewTripRequests() {
     selectTrip(user, trip);
   };
 
-  const cancelTrip = () => setSelectedTrip(null);
+  const cancelTripByDriver = async (trip: TripRequestProps) => {
+    if (!user) {
+      showToast("Usuário não autenticado", "error");
+      return;
+    }
+
+    setTripStatus(prev => ({ ...prev, [trip.id as string]: "loading" }));
+
+    try {
+      const response = await api.post(
+        `/trips/${trip.id}/cancel/driver`,
+        {
+          trip,
+          reason: "Motorista cancelou a viagem"
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.access_token}`,
+          }
+        }
+      );
+
+      // Atualiza estado apenas se deu certo
+      setSelectedTrip(null);
+      setTripStatus(prev => ({ ...prev, [trip.id as string]: "idle" }));
+
+      showToast(response.data.message, "success");
+
+    } catch (err: any) {
+      console.log(err);
+      showToast(err?.response?.data?.message || "Erro ao cancelar viagem", "error");
+      setTripStatus(prev => ({ ...prev, [trip.id as string]: "idle" }));
+    }
+  };
 
   // 🚦 Aceitar viagem (atualiza status externo)
   const handleAccept = (trip: TripRequestProps) => {
-    
+
     if (tripStatus[trip.id as string] === "loading" || tripStatus[trip.id as string] === "disabled") return;
-    
+
     setTripStatus(prev => ({ ...prev, [trip.id as string]: "loading" }));
 
     setTimeout(() => {
@@ -189,17 +223,41 @@ export default function NewTripRequests() {
   }
 
   if (confirmedTrip) {
-    return (
-      <View style={styles.container}>
-        <NavBar />
-        <TripCard item={confirmedTrip} isSelected status="disabled" onAccept={handleAccept} />
-        <Button onPress={cancelTrip} style={{ marginTop: 16 }}>
-          <Button.Title>Cancelar</Button.Title>
-        </Button>
+  return (
+    <View style={styles.container}>
+      <NavBar />
+      <TripCard item={confirmedTrip} isSelected status="disabled" onAccept={handleAccept} />
+      <Button
+        onPress={() => cancelTripByDriver(confirmedTrip)}
+        style={{
+          marginTop: 16,
+          backgroundColor:
+            tripStatus[confirmedTrip.id as string] === "loading"
+              ? colors.gray[400]
+              : colors.red.base
+        }}
+        disabled={tripStatus[confirmedTrip.id as string] === "loading"}
+      >
+        <Button.Title>
+          {tripStatus[confirmedTrip.id as string] === "loading"
+            ? "Cancelando..."
+            : "Cancelar"}
+        </Button.Title>
+      </Button>
+    </View>
+  );
+}
+if (!availableTrips?.length) {
+  return (
+    <View style={styles.container}>
+      <NavBar />
+      <Text style={styles.title}>Novos pedidos</Text>
+      <View style={styles.centered}>
+        <Text>Sem novos pedidos no momento.</Text>
       </View>
-    );
-  }
-
+    </View>
+  );
+}
   return (
     <View style={styles.container}>
       <NavBar />

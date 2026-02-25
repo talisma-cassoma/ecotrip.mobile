@@ -114,43 +114,7 @@ export default function SelectADriver() {
         }
     };
 
-    const confirmTrip = async (driver: AvailableDriverCompProps): Promise<ApiResult<any>> => {
-        if (!newTrip?.trip?.id || !user) {
-            return { ok: false, message: "Viagem ainda não criada" };
-        }
-
-        console.log("trip id para viagem:", newTrip.trip?.id);
-
-        setNewTrip((prev) => {
-            if (!prev || !prev.trip) return prev;
-
-            const updatedTrip: TripRequestProps = {
-                ...prev.trip,
-                assignedDriver: driver,
-            };
-
-            console.log("updatedNewTrip:", updatedTrip);
-            return { ...prev, trip: updatedTrip };
-        });
-        try {
-            const response = await api.post(
-                `/trips/${newTrip.trip?.id}/confirm`,
-                newTrip.trip,
-                {
-                    headers: {
-                        access_token: user?.access_token,
-                        refresh_token: user?.refresh_token,
-                    },
-                }
-            );
-
-            return { ok: true, data: response.data };
-
-        } catch (error) {
-            return safeApiError(error, "Erro ao confirmar viagem");
-        }
-    };
-
+ 
     const cancelTripByPassenger = async (): Promise<ApiResult<any>> => {
         if (!newTrip?.trip?.id || !user) {
             return { ok: false, message: "Viagem inválida" };
@@ -185,21 +149,54 @@ export default function SelectADriver() {
         setIsSelected(!!selectedDriver);
     }, [selectedDriver]);
 
-    const handleSelectDriver = async (driver: AvailableDriverCompProps) => {
-        //if (loading) return;
+const handleSelectDriver = async (driver: AvailableDriverCompProps) => {
+    if (!newTrip?.trip || !user) {
+        Alert.alert("Erro", "Viagem ainda não criada");
+        return;
+    }
 
-        setLoading(true);
+    setLoading(true);
 
-        const result = await confirmTrip(driver);
-        setLoading(false);
-
-        if (!result.ok) {
-            Alert.alert("Erro", result.message);
-            return;
-        }
-
-        setSelectedDriver(driver);
+    // Cria uma cópia do trip atual com driver selecionado
+    const updatedTrip: TripRequestProps = {
+        ...newTrip.trip,
+        assignedDriver: driver,
     };
+
+    try {
+        const response = await api.post(
+            `/trips/${newTrip.trip.id}/confirm`,
+            updatedTrip,
+            {
+                headers: {
+                    access_token: user.access_token,
+                    refresh_token: user.refresh_token,
+                },
+            }
+        );
+
+        // Atualiza o estado apenas depois da confirmação
+         setNewTrip((prev) => {
+            if (!prev || !prev.trip) return prev;
+
+            const updatedTrip: TripRequestProps = {
+                ...prev.trip,
+                assignedDriver: driver,
+            };
+
+            console.log("updatedNewTrip:", updatedTrip);
+            return { ...prev, trip: updatedTrip };
+        });
+        setSelectedDriver(driver);
+    } catch (error) {
+        const err = error as AxiosError;
+        console.error("Erro ao confirmar viagem:", err.response?.data || err.message);
+        Alert.alert("Erro ao confirmar viagem");
+
+    } finally {
+        setLoading(false);
+    }
+};
 
     const handleRideCancel = () => {
         Alert.alert("Cancelar corrida", "Deseja cancelar a corrida?", [
@@ -208,7 +205,7 @@ export default function SelectADriver() {
                 text: "Sim",
                 onPress: async () => {
                     await cancelTripByPassenger();
-                    //setSelectedDriver(null);
+                    setSelectedDriver(null);
                     setNewTrip(null);
                     router.replace("/(protected)/passenger/home");
                 },
