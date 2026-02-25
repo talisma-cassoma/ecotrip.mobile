@@ -208,6 +208,8 @@ export default function SelectADriver() {
                 text: "Sim",
                 onPress: async () => {
                     await cancelTripByPassenger();
+                    //setSelectedDriver(null);
+                    setNewTrip(null);
                     router.replace("/(protected)/passenger/home");
                 },
             },

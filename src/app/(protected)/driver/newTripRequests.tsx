@@ -1,4 +1,4 @@
-import React, { useState, useCallback,  useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -30,19 +30,14 @@ import { router, useFocusEffect } from "expo-router";
 import { constants } from "@/configs/constants";
 
 export default function NewTripRequests() {
-  const [selectedTrip, setSelectedTrip] =
-    useState<TripRequestProps | null>(null);
+  const [selectedTrip, setSelectedTrip] = useState<TripRequestProps | null>(null);
+
+  // Estado externo de status dos trips
+  const [tripStatus, setTripStatus] = useState<{ [id: string]: "idle" | "loading" | "disabled" }>({});
 
   const { showToast } = useToast();
   const { user } = useUserAuth();
-  const {
-    availableTrips,
-    connectLobby,
-    disconnectLobby,
-    selectTrip,
-    //roomSocket,
-    confirmedTrip
-  } = useDriver();
+  const { availableTrips, connectLobby, disconnectLobby, selectTrip, confirmedTrip } = useDriver();
 
   // 🔌 Conexão lobby
   useFocusEffect(
@@ -53,8 +48,8 @@ export default function NewTripRequests() {
   );
 
   useEffect(() => {
-  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-}, [availableTrips]);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [availableTrips]);
 
   // 🚗 Aceitar viagem
   const handleAcceptTrip = (trip: TripRequestProps) => {
@@ -65,109 +60,102 @@ export default function NewTripRequests() {
 
     setSelectedTrip(trip);
     selectTrip(user, trip);
-    //roomSocket?.emit(constants.event.JOIN_ROOM, { user, trip });
   };
 
   const cancelTrip = () => setSelectedTrip(null);
 
-  const isSelected = !!selectedTrip;
+  // 🚦 Aceitar viagem (atualiza status externo)
+  const handleAccept = (trip: TripRequestProps) => {
+    
+    if (tripStatus[trip.id as string] === "loading" || tripStatus[trip.id as string] === "disabled") return;
+    
+    setTripStatus(prev => ({ ...prev, [trip.id as string]: "loading" }));
 
-  // 🔹 Card interno
-  const TripCard = ({
-    item,
-    isSelected,
-  }: {
-    item: TripRequestProps;
-    isSelected: boolean;
-  }) => {
-    const [status, setStatus] = useState<"idle" | "loading" | "disabled">(
-      "idle"
-    );
-
-    const handleAccept = () => {
-      if (status !== "idle") return;
-
-      setStatus("loading");
-
-      setTimeout(() => {
-        setStatus("disabled");
-        handleAcceptTrip(item);
-      }, 500);
-    };
-
-    const isLoading = status === "loading";
-    const isDisabled = status === "disabled";
-
-    return (
-      <View style={styles.card}>
-        <View style={styles.cardContent}>
-          <View style={styles.leftSection}>
-            <View style={styles.iconColumn}>
-              <IconPointFilled size={20} fill={colors.green.base} />
-              <VerticalDashedLine height={38} width={4} color="#aaa" />
-              <IconMapPinFilled size={15} fill={colors.green.base} />
-            </View>
-
-            <View style={styles.locationColumn}>
-              <View>
-                <Text style={styles.label}>Origem</Text>
-                <Text style={styles.bold}>{item.origin?.name}</Text>
-              </View>
-
-              <View>
-                <Text style={styles.label}>Destino</Text>
-                <Text style={styles.bold}>{item.destination?.name}</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.rightSection}>
-            <Text style={styles.label}>
-              Valor{"\n"}
-              <Text style={styles.bold}>
-                ${item.price?.toFixed(2)}
-              </Text>
-            </Text>
-
-            <Text style={styles.label}>
-              Distância{"\n"}
-              <Text style={styles.bold}>{item.distance}</Text>
-            </Text>
-          </View>
-        </View>
-
-        {isSelected ? (
-          <View style={styles.actionColumn}>
-            <TouchableOpacity>
-              <IconPhone size={24} color={colors.green.light} />
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <IconMessage size={24} color={colors.green.light} />
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <TouchableOpacity
-            style={[
-              styles.acceptButton,
-              (isLoading || isDisabled) && styles.disabledButton,
-            ]}
-            disabled={isLoading || isDisabled}
-            onPress={handleAccept}
-          >
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Text style={styles.acceptText}>
-                {isDisabled ? "Aguarde" : "Aceitar"}
-              </Text>
-            )}
-          </TouchableOpacity>
-        )}
-      </View>
-    );
+    setTimeout(() => {
+      setTripStatus(prev => ({ ...prev, [trip.id as string]: "disabled" }));
+      handleAcceptTrip(trip);
+    }, 500);
   };
 
-  // 🔹 Navbar
+  const TripCard = React.memo(
+    ({
+      item,
+      isSelected,
+      status,
+      onAccept,
+    }: {
+      item: TripRequestProps;
+      isSelected: boolean;
+      status: "idle" | "loading" | "disabled";
+      onAccept: (trip: TripRequestProps) => void;
+    }) => {
+      const isLoading = status === "loading";
+      const isDisabled = status === "disabled";
+
+      return (
+        <View style={styles.card}>
+          <View style={styles.cardContent}>
+            <View style={styles.leftSection}>
+              <View style={styles.iconColumn}>
+                <IconPointFilled size={20} fill={colors.green.base} />
+                <VerticalDashedLine height={38} width={4} color="#aaa" />
+                <IconMapPinFilled size={15} fill={colors.green.base} />
+              </View>
+
+              <View style={styles.locationColumn}>
+                <View>
+                  <Text style={styles.label}>Origem</Text>
+                  <Text style={styles.bold}>{item.origin?.name}</Text>
+                </View>
+
+                <View>
+                  <Text style={styles.label}>Destino</Text>
+                  <Text style={styles.bold}>{item.destination?.name}</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.rightSection}>
+              <Text style={styles.label}>
+                Valor{"\n"}
+                <Text style={styles.bold}>${item.price?.toFixed(2)}</Text>
+              </Text>
+
+              <Text style={styles.label}>
+                Distância{"\n"}
+                <Text style={styles.bold}>{item.distance}</Text>
+              </Text>
+            </View>
+          </View>
+
+          {isSelected ? (
+            <View style={styles.actionColumn}>
+              <TouchableOpacity>
+                <IconPhone size={24} color={colors.green.light} />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <IconMessage size={24} color={colors.green.light} />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[styles.acceptButton, (isLoading || isDisabled) && styles.disabledButton]}
+              disabled={isLoading || isDisabled}
+              onPress={() => onAccept(item)}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.acceptText}>{isDisabled ? "Aguarde" : "Aceitar"}</Text>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+      );
+    },
+    (prev, next) => prev.status === next.status && prev.isSelected === next.isSelected
+  );
+
   const NavBar = () => (
     <View style={styles.navBar}>
       <TouchableOpacity style={styles.iconButton}>
@@ -178,17 +166,11 @@ export default function NewTripRequests() {
         <IconBell size={20} color={colors.gray[500]} />
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.iconButton}
-        onPress={() => router.push("/profile")}
-      >
+      <TouchableOpacity style={styles.iconButton} onPress={() => router.push("/profile")}>
         <IconUser size={20} color={colors.gray[500]} />
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.iconButton}
-        onPress={() => router.push("/historic")}
-      >
+      <TouchableOpacity style={styles.iconButton} onPress={() => router.push("/historic")}>
         <IconClock size={20} color={colors.gray[500]} />
       </TouchableOpacity>
     </View>
@@ -206,136 +188,55 @@ export default function NewTripRequests() {
     );
   }
 
-  
   if (confirmedTrip) {
     return (
       <View style={styles.container}>
         <NavBar />
-        <TripCard item={confirmedTrip} isSelected />
+        <TripCard item={confirmedTrip} isSelected status="disabled" onAccept={handleAccept} />
         <Button onPress={cancelTrip} style={{ marginTop: 16 }}>
           <Button.Title>Cancelar</Button.Title>
         </Button>
       </View>
     );
   }
+
   return (
     <View style={styles.container}>
       <NavBar />
       <Text style={styles.title}>Novos pedidos</Text>
-        <FlatList
-          data={availableTrips}
-          keyExtractor={(item, index) => item.id || String(index)}
-          renderItem={({ item }) => (
-            <TripCard item={item} isSelected={false} />
-          )}
-        />
+      <FlatList
+        data={availableTrips}
+        keyExtractor={(item, index) => item.id || String(index)}
+        renderItem={({ item }) => (
+          <TripCard
+            item={item}
+            isSelected={false}
+            status={tripStatus[item.id as string] || "idle"}
+            onAccept={handleAccept}
+          />
+        )}
+        extraData={tripStatus} // só re-renderiza itens que mudaram
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: colors.green.soft,
-  },
-
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  navBar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 50,
-  },
-
-  iconButton: {
-    borderRadius: 10,
-    padding: 10,
-    width: 50,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  card: {
-    flexDirection: "row",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 12,
-    marginBottom: 12,
-    backgroundColor: "#fff",
-    height: 120,
-  },
-
-  cardContent: {
-    flex: 1,
-    flexDirection: "row",
-    padding: 10,
-    justifyContent: "space-between",
-  },
-
-  leftSection: {
-    flexDirection: "row",
-    flex: 1,
-  },
-
-  iconColumn: {
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginRight: 6,
-  },
-
-  locationColumn: {
-    justifyContent: "space-between",
-  },
-
-  rightSection: {
-    justifyContent: "space-between",
-    width: 80,
-  },
-
-  actionColumn: {
-    width: 50,
-    justifyContent: "space-around",
-    alignItems: "center",
-  },
-
-  label: {
-    fontSize: 11,
-  },
-
-  bold: {
-    fontSize: 14,
-    fontFamily: fontFamily.bold,
-    color: colors.gray[600],
-  },
-
-  acceptButton: {
-    width: 80,
-    backgroundColor: colors.green.base,
-    justifyContent: "center",
-    alignItems: "center",
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-
-  disabledButton: {
-    backgroundColor: colors.gray[400],
-  },
-
-  acceptText: {
-    color: colors.gray[100],
-    fontFamily: fontFamily.semiBold,
-    fontSize: 16,
-  },
+  container: { flex: 1, padding: 20, backgroundColor: colors.green.soft },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 15 },
+  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
+  navBar: { flexDirection: "row", justifyContent: "space-around", marginBottom: 50 },
+  iconButton: { borderRadius: 10, padding: 10, width: 50, height: 40, justifyContent: "center", alignItems: "center" },
+  card: { flexDirection: "row", borderWidth: 1, borderColor: "#ddd", borderRadius: 12, marginBottom: 12, backgroundColor: "#fff", height: 120 },
+  cardContent: { flex: 1, flexDirection: "row", padding: 10, justifyContent: "space-between" },
+  leftSection: { flexDirection: "row", flex: 1 },
+  iconColumn: { justifyContent: "space-between", alignItems: "center", marginRight: 6 },
+  locationColumn: { justifyContent: "space-between" },
+  rightSection: { justifyContent: "space-between", width: 80 },
+  actionColumn: { width: 50, justifyContent: "space-around", alignItems: "center" },
+  label: { fontSize: 11 },
+  bold: { fontSize: 14, fontFamily: fontFamily.bold, color: colors.gray[600] },
+  acceptButton: { width: 80, backgroundColor: colors.green.base, justifyContent: "center", alignItems: "center", borderTopRightRadius: 12, borderBottomRightRadius: 12 },
+  disabledButton: { backgroundColor: colors.gray[400] },
+  acceptText: { color: colors.gray[100], fontFamily: fontFamily.semiBold, fontSize: 16 },
 });
