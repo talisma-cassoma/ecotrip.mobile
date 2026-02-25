@@ -15,7 +15,7 @@ interface DriverContextType {
   selectTrip: (user: AuthUser, room: TripRequestProps) => void;
   setOnConfirmedTrip: (callback: (trip: TripRequestProps) => void) => void;
   setOnLobbyUpdated: (callback: (rooms: TripRequestProps[]) => void) => void;
-
+  confirmedTrip: TripRequestProps | null;
 }
 
 const DriverContext = createContext<DriverContextType | null>(null);
@@ -31,6 +31,10 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const onConfirmedTripRef = useRef<((trip: TripRequestProps) => void) | null>(null);
   const onLobbyUpdatedRef = useRef<((rooms: TripRequestProps[]) => void) | null>(null);
+
+  const [selectedTrip, setSelectedTrip] = useState<TripRequestProps | null>(null);
+  const [pendingTripId, setPendingTripId] = useState<string | null>(null);
+  const [confirmedTrip, setConfirmedTrip] = useState<TripRequestProps | null>(null);
 
   // Lobby
   const connectLobby = useCallback(() => {
@@ -48,8 +52,13 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       .setOnConnect(() => console.log("[DriverContext] Lobby conectado"))
       .setOnDisconnect((reason) => console.log("[DriverContext] Lobby desconectado:", reason))
       .on(constants.event.LOBBY_UPDATED, (rooms: TripRequestProps[]) => {
-        console.log("[DriverContext] LOBBY_UPDATED recebido com", rooms.length, "rooms");
         setAvailableTrips(rooms);
+
+        // 🔥 Se a trip que estou aguardando sumiu da lista
+        if (pendingTripId && !rooms.find(r => r.id === pendingTripId)) {
+          setPendingTripId(null);
+        }
+
         onLobbyUpdatedRef.current?.(rooms);
       })
       .build();
@@ -73,42 +82,50 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   //Room
   const selectTrip = async (user: AuthUser, room: TripRequestProps) => {
-  selectedTripRef.current = { user, room };
 
-  if (roomSocketRef.current) {
-    roomSocketRef.current.disconnect();
-  }
+    if (room.id) {
+      setSelectedTrip(room);
+      setPendingTripId(room?.id); // 🔥 ativa disabled + animação
+      selectedTripRef.current = { user, room };
+    }
 
-  const roomSock = new SocketBuilder({
-    socketUrl: constants.socketUrl,
-    namespace: constants.socketNamespaces.room,
-  })
-    .setOnConnect(() => {
-      console.log("[DriverContext] Conectado ao room", room.id);
-      showToast("Conectado à sala", "success");
+    if (roomSocketRef.current) {
+      roomSocketRef.current.disconnect();
+    }
+
+    const roomSock = new SocketBuilder({
+      socketUrl: constants.socketUrl,
+      namespace: constants.socketNamespaces.room,
     })
-    .setOnDisconnect((reason) => console.log("[DriverContext] Room desconectado:", reason))
-    .build();
+      .setOnConnect(() => {
+        console.log("[DriverContext] Conectado ao room", room.id);
+        showToast("Conectado à sala", "success");
+      })
+      .setOnDisconnect((reason) => console.log("[DriverContext] Room desconectado:", reason))
+      .build();
 
-  // Função para emitir (evita repetição de código)
-  const emitJoinRoom = () => {
-    // ⚠️ CERTIFIQUE-SE QUE constants.event.JOIN_ROOM === "joinRoom"
-    roomSock.emit(constants.event.JOIN_ROOM, { user, room }, (response: any) => {
-      console.log('JOIN_ROOM callback response:', response);
-    });
-  };
+    // Função para emitir (evita repetição de código)
+    const emitJoinRoom = () => {
+      // ⚠️ CERTIFIQUE-SE QUE constants.event.JOIN_ROOM === "joinRoom"
+      roomSock.emit(constants.event.JOIN_ROOM, { user, room }, (response: any) => {
+        console.log('JOIN_ROOM callback response:', response);
+      });
+    };
 
-  // ✅ Previne Race Condition: Verifica se já conectou rápido demais
-  if (roomSock.connected) {
-    emitJoinRoom();
-  } else {
-    roomSock.on('connect', emitJoinRoom);
-  }
-      // Eventos do room
-      roomSock.on(constants.event.TRIP_ACCEPTED, (payload) => {
+    // ✅ Previne Race Condition: Verifica se já conectou rápido demais
+    if (roomSock.connected) {
+      emitJoinRoom();
+    } else {
+      roomSock.on('connect', emitJoinRoom);
+    }
+    // Eventos do room
+    roomSock.on(constants.event.TRIP_ACCEPTED, (payload) => {
       if (payload?.status === "accepted") {
-        showToast(payload.message || "Viagem aceita!", "success");
-        onConfirmedTripRef.current?.(room);
+
+        setConfirmedTrip(selectedTripRef.current?.room ?? null);
+        setPendingTripId(null);
+
+        showToast("Viagem aceita!", "success");
       }
     });
 
@@ -117,12 +134,12 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         showToast(payload.message || "Viagem cancelada", "warning");
       }
     });
-    
-    roomSock.on('connect', () => {
-      roomSock.emit(constants.event.JOIN_ROOM, { user, room }, (response: any) => {
-        console.log('JOIN_ROOM callback response:', response);
-      });
-    });
+
+    // roomSock.on('connect', () => {
+    //   roomSock.emit(constants.event.JOIN_ROOM, { user, room }, (response: any) => {
+    //     console.log('JOIN_ROOM callback response:', response);
+    //   });
+    // });
 
     roomSocketRef.current = roomSock;
   };
@@ -150,6 +167,7 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         selectTrip,
         setOnConfirmedTrip,
         setOnLobbyUpdated,
+        confirmedTrip
       }}
     >
       {children}
