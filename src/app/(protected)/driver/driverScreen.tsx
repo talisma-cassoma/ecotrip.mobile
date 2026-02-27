@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   LayoutAnimation,
+  Alert,
 } from "react-native";
 import {
   IconPointFilled,
@@ -30,7 +31,7 @@ import { router, useFocusEffect } from "expo-router";
 import { constants } from "@/configs/constants";
 import { api } from "@/services/api";
 
-export default function NewTripRequests() {
+export default function DriverScreen() {
   const [selectedTrip, setSelectedTrip] = useState<TripRequestProps | null>(null);
 
   // Estado externo de status dos trips
@@ -61,6 +62,18 @@ export default function NewTripRequests() {
 
     setSelectedTrip(trip);
     selectTrip(user, trip);
+  };
+
+  const handleRideCancel = () => {
+    Alert.alert("Cancelar corrida", "Deseja cancelar a corrida?", [
+      { text: "Não", style: "cancel" },
+      {
+        text: "Sim",
+        onPress: async () => {
+          await cancelTripByDriver(confirmedTrip as TripRequestProps);
+        },
+      },
+    ]);
   };
 
   const cancelTripByDriver = async (trip: TripRequestProps) => {
@@ -223,41 +236,43 @@ export default function NewTripRequests() {
   }
 
   if (confirmedTrip) {
-  return (
-    <View style={styles.container}>
-      <NavBar />
-      <TripCard item={confirmedTrip} isSelected status="disabled" onAccept={handleAccept} />
-      <Button
-        onPress={() => cancelTripByDriver(confirmedTrip)}
-        style={{
-          marginTop: 16,
-          backgroundColor:
-            tripStatus[confirmedTrip.id as string] === "loading"
-              ? colors.gray[400]
-              : colors.red.base
-        }}
-        disabled={tripStatus[confirmedTrip.id as string] === "loading"}
-      >
-        <Button.Title>
-          {tripStatus[confirmedTrip.id as string] === "loading"
-            ? "Cancelando..."
-            : "Cancelar"}
-        </Button.Title>
-      </Button>
-    </View>
-  );
-}
-if (!availableTrips?.length) {
-  return (
-    <View style={styles.container}>
-      <NavBar />
-      <Text style={styles.title}>Novos pedidos</Text>
-      <View style={styles.centered}>
-        <Text>Sem novos pedidos no momento.</Text>
+    return (
+      <View style={styles.container}>
+        <NavBar />
+        <TripCard item={confirmedTrip} isSelected status="disabled" onAccept={handleAccept} />
+        <Button
+          onPress={handleRideCancel}
+          style={{
+            marginTop: 16,
+            backgroundColor:
+              tripStatus[confirmedTrip.id as string] === "loading"
+                ? colors.gray[400]
+                : colors.red.base
+          }}
+          disabled={tripStatus[confirmedTrip.id as string] === "loading"}
+        >
+          <Button.Title>
+            {tripStatus[confirmedTrip.id as string] === "loading"
+              ? "Cancelando..."
+              : "Cancelar"}
+          </Button.Title>
+        </Button>
       </View>
-    </View>
-  );
-}
+    );
+  }
+
+  if (!availableTrips?.length) {
+    return (
+      <View style={styles.container}>
+        <NavBar />
+        <Text style={styles.title}>Novos pedidos</Text>
+        <View style={styles.centered}>
+          <Text>Sem novos pedidos no momento.</Text>
+        </View>
+      </View>
+    );
+  }
+  
   return (
     <View style={styles.container}>
       <NavBar />

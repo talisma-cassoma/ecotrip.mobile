@@ -6,6 +6,12 @@ import { useToast } from "@/context/toastContext";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { AuthUser, TripRequestProps } from "@/types";
 
+type DriverTripState =
+  | { status: "idle" }
+  | { status: "pending"; trip: TripRequestProps }
+  | { status: "confirmed"; trip: TripRequestProps };
+
+
 interface DriverContextType {
   availableTrips: TripRequestProps[];
   lobbySocket: Socket | null;
@@ -16,6 +22,8 @@ interface DriverContextType {
   setOnConfirmedTrip: (callback: (trip: TripRequestProps) => void) => void;
   setOnLobbyUpdated: (callback: (rooms: TripRequestProps[]) => void) => void;
   confirmedTrip: TripRequestProps | null;
+  resetDriverTripState: () => void;
+  tripState: DriverTripState;
 }
 
 const DriverContext = createContext<DriverContextType | null>(null);
@@ -23,6 +31,8 @@ const DriverContext = createContext<DriverContextType | null>(null);
 export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useUserAuth();
   const { showToast } = useToast();
+
+  const [tripState, setTripState] = useState<DriverTripState>({ status: "idle" });
 
   const [availableTrips, setAvailableTrips] = useState<TripRequestProps[]>([]);
   const lobbySocketRef = useRef<Socket | null>(null);
@@ -56,7 +66,7 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         // 🔥 Se a trip que estou aguardando sumiu da lista
         if (pendingTripId && !rooms.find(r => r.id === pendingTripId)) {
-          setPendingTripId(null);
+          resetDriverTripState();
         }
 
         onLobbyUpdatedRef.current?.(rooms);
@@ -134,9 +144,7 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         showToast(payload.message || "Viagem cancelada", "warning");
 
         // Limpa a viagem confirmada e permite que a FlatList volte a aparecer
-        setConfirmedTrip(null);
-        setPendingTripId(null);
-        setSelectedTrip(null);
+        resetDriverTripState();
       }
     });
 
@@ -147,6 +155,18 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     onConfirmedTripRef.current = callback;
   };
 
+  const resetDriverTripState = () => {
+    setSelectedTrip(null);
+    setConfirmedTrip(null);
+    setPendingTripId(null);
+    selectedTripRef.current = null;
+
+    if (roomSocketRef.current) {
+      roomSocketRef.current.disconnect();
+      roomSocketRef.current = null;
+    }
+  };
+
   //Cleanup
   useEffect(() => {
     return () => {
@@ -154,6 +174,12 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (roomSocketRef.current) roomSocketRef.current.disconnect();
     };
   }, [disconnectLobby]);
+
+  useEffect(() => {
+    return () => {
+      resetDriverTripState();
+    };
+  }, []);
 
   return (
     <DriverContext.Provider
@@ -166,7 +192,9 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         selectTrip,
         setOnConfirmedTrip,
         setOnLobbyUpdated,
-        confirmedTrip
+        confirmedTrip,
+        resetDriverTripState,
+        tripState
       }}
     >
       {children}

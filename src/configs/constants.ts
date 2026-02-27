@@ -12,6 +12,8 @@ export const constants = {
 
         JOIN_ROOM: 'joinRoom',
         LOBBY_UPDATED: 'lobbyUpdated',
+        UPDATE_ROOM: 'updateRoom',
+
         //Atualizações específicas de trip rooms
         SELECT_DRIVER: 'selectDriver',
 

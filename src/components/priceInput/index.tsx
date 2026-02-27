@@ -1,6 +1,8 @@
 import { useTrip } from '@/context/tripContext';
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { usePassenger } from '@/context/passengerContext';
+import { TripRequestProps } from '@/types';
 
 interface PriceInputProps {
   initialValue?: number;
@@ -18,13 +20,16 @@ export function PriceInput({
 
   const { price, setPrice, distance } = useTrip();
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null);
+   const { newTrip, updateTrip, setNewTrip, availableDrivers } = usePassenger();
+   const canEdit = availableDrivers.length === 0;
+ 
 
   // Reset calculatedPrice quando a distance mudar
   useEffect(() => {
     setCalculatedPrice(null);
   }, [distance]);
 
- const updatePrice = (newPrice: number) => {
+const updatePrice = (newPrice: number) => {
   let base = calculatedPrice;
 
   if (base === null) {
@@ -34,14 +39,31 @@ export function PriceInput({
 
   const minAllowed = base * 0.85;
   const clampedPrice = Math.max(newPrice, minAllowed);
-
-  // Arredonda sem subir injustamente
   const validPrice = Math.ceil(clampedPrice / 50) * 50;
-
-  console.log(`Tentativa de definir preço: ${newPrice}, Preço válido após validação: ${validPrice}`);
 
   setPrice(validPrice);
   onChange?.(validPrice);
+
+  if (!newTrip?.trip?.id) {
+    console.warn("Room ainda não criada, não é possível atualizar.");
+    return;
+  }
+
+  // Atualiza estado local primeiro
+  setNewTrip((prev) => {
+    if (!prev || !prev.trip) return prev;
+
+    return {
+      ...prev,
+      trip: {
+        ...prev.trip,
+        price: validPrice,
+      },
+    };
+  });
+
+  // Envia apenas o campo alterado
+  updateTrip(newTrip.trip.id, { price: validPrice });
 };
 
 
@@ -56,12 +78,12 @@ export function PriceInput({
   const minAllowed = calculatedPrice ? calculatedPrice : 0;
 
 
-  return price && distance ? (
+  return price ? (
     <View style={styles.container}>
       <TouchableOpacity
         onPress={() => handleDecrement(price)}
         style={styles.button}
-       disabled={calculatedPrice !== null && price <= (minAllowed ?? 0)}
+       disabled={!canEdit || calculatedPrice !== null && price <= (minAllowed ?? 0)}
       >
         <Text
           style={[
@@ -83,11 +105,11 @@ export function PriceInput({
         <Text style={styles.currency}>{currencySymbol}</Text>
       </View>
 
-      <TouchableOpacity onPress={() => handleIncrement(price)} style={styles.button}>
+      <TouchableOpacity onPress={() => handleIncrement(price)} style={styles.button}  disabled={!canEdit}>
         <Text style={styles.buttonText}>+</Text>
       </TouchableOpacity>
     </View>
-  ) : (
+   ) : (
     <View style={{ alignSelf: 'center' }}>
       <Text>Elige un destino válido</Text>
     </View>

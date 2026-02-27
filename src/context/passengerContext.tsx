@@ -3,18 +3,24 @@ import SocketBuilder from "../services/socketBuilder";
 import { constants } from "../configs/constants";
 import { Socket } from "socket.io-client";
 import { useUserAuth } from "@/hooks/useUserAuth";
-import { AuthUser, AvailableDriverProps, DriverRole} from "@/types";
+import { AuthUser, AvailableDriverProps, DriverRole } from "@/types";
 import { TripRequestProps } from "@/types";
 import { useToast } from "@/context/toastContext";
+//import { router } from "expo-router";
+import { useTrip } from "@/context/tripContext";
+import { api } from "@/services/api";
 
 export interface PassengerContextProps {
   socket: Socket | null;
   isConnected: boolean;
   usersOnline: string[];
-  newTrip: { user: AuthUser | null ; trip: TripRequestProps| null} | null;
-  setNewTrip: React.Dispatch<React.SetStateAction<{ user: AuthUser | null ; trip: TripRequestProps | null} | null>>;
+  newTrip: { user: AuthUser | null; trip: TripRequestProps | null } | null;
+  setNewTrip: React.Dispatch<React.SetStateAction<{ user: AuthUser | null; trip: TripRequestProps | null } | null>>;
   availableDrivers: AvailableDriverProps[];
   requestNewTrip: (user: AuthUser, room?: TripRequestProps) => void;
+  updateTrip: (roomId: string, updates: Partial<TripRequestProps>) => void;
+  fetchDrivers: () => Promise<void>;
+  resetPassengerState: () => void;
 }
 
 
@@ -38,10 +44,89 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [usersOnline, setUsersOnline] = useState<string[]>([]);
   const [availableDrivers, setAvailableDrivers] = useState<AvailableDriverProps[]>([mockupDriver]);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [newTrip, setNewTrip] = useState<{ user: AuthUser | null , trip: TripRequestProps| null} | null>(null);
+  const [newTrip, setNewTrip] = useState<{ user: AuthUser | null, trip: TripRequestProps | null } | null>(null);
+  
   const { showToast } = useToast();
 
   const { user } = useUserAuth();
+  const { distance, duration, price, originCoords, destinationCoords } = useTrip();
+
+  const updateTrip = (roomId: string, updates: Partial<TripRequestProps>) => {
+    if (!socket) return;
+    if (!roomId) return;
+
+    socket.emit(
+      constants.event.UPDATE_ROOM,
+      { roomId, updates },
+      (response: any) => {
+        if (!response?.success) {
+          showToast(response?.error || "Não foi possível atualizar", "warning");
+          return;
+        }
+
+        //showToast("Atualizado com sucesso", "success");
+      }
+    );
+  };
+
+  const fetchDrivers = async (): Promise<void> => {
+    if (!user || !socket?.id) return;
+
+    try {
+      const room = {
+        id: "", // Será preenchido após criação da viagem
+        owner: {
+          ...user,
+          id: user.id,
+          socketId: socket.id,
+        },
+        status: "requested",
+        price: price ?? 0,
+        origin: {
+          name: originCoords?.name || "",
+          location: {
+            lat: originCoords?.latitude || 0,
+            lng: originCoords?.longitude || 0,
+          },
+        },
+        destination: {
+          name: destinationCoords?.name || "",
+          location: {
+            lat: destinationCoords?.latitude || 0,
+            lng: destinationCoords?.longitude || 0,
+          },
+        },
+        distance: distance ?? 0,
+        duration: duration ?? 0,
+        directions: {},
+        email: user.email,
+      };
+
+      // console.log("user:", user);
+      console.log("user id:", user?.id);;
+
+      const response = await api.post(
+        "/trips/new-trip",
+        room,
+        {
+          headers: {
+            access_token: user.access_token,
+            refresh_token: user.refresh_token,
+          },
+        }
+      );
+
+      const trip_id = response.data.tripId;
+      console.log("trip_id:", trip_id);
+
+      room.id = trip_id
+
+      requestNewTrip(room.owner, room as TripRequestProps);
+
+    } catch (error) {
+      console.error("Erro ao criar viagem", error);
+    }
+  };
 
   useEffect(() => {
 
@@ -51,6 +136,8 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setSocket(null);
       return;
     }
+
+    
 
     const builder = new SocketBuilder({
       socketUrl: constants.socketUrl,
@@ -107,7 +194,7 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         // Aceitar array ou objeto
         const usersInRoom = Array.isArray(payload) ? payload : [payload];
-        
+
         if (!Array.isArray(usersInRoom)) {
           console.error("❌ [PassengerContext] JOIN_ROOM: Payload não é um array", payload);
           return;
@@ -165,7 +252,7 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         if (status === 'accepted') {
           console.log("✅ [PassengerContext] Trip aceita por driver:", driver.id);
           showToast(`${driver.username} aceitou sua viagem!`, "success");
-          
+
           // Aqui você pode atualizar UI, navegar, etc.
           // Por exemplo, abrir tela de detalhes do motorista
         }
@@ -190,7 +277,11 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         if (status === 'cancelled') {
           console.log("Trip cancelada:", reason);
+          //router.replace("/(protected)/passenger/passengerScreen");
           showToast(reason || "A viagem foi cancelada", "warning");
+          resetPassengerState();
+
+          //router.replace("/(protected)/passenger/passengerScreen");
           // Aqui você pode:
           // - Limpar estado da viagem
           // - Voltar para lista de viagens
@@ -217,10 +308,17 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [user]);
 
+  useEffect(() => {
+  if (newTrip?.trip?.status === "cancelled" || 
+      newTrip?.trip?.status === "completed") {
+    resetPassengerState();
+  }
+}, []);
+
   const requestNewTrip = (userParam: AuthUser, roomParam?: TripRequestProps) => {
     if (!socket) return console.warn("⚠️ Socket não inicializado ainda.");
     showToast("Criando sala de viagem...", "info");
-    
+
     // Convert AuthUser to backend User format
     const userForBackend = {
       id: userParam.id,
@@ -233,13 +331,19 @@ export const PassengerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
 
     setNewTrip({ user: userParam, trip: roomParam || {} as TripRequestProps });
-    
+
     socket.emit(constants.event.JOIN_ROOM, { user: userForBackend, room: roomParam });
   };
 
+  const resetPassengerState = () => {
+  setNewTrip(null);
+  setAvailableDrivers([]);
+  setUsersOnline([]);
+};
+
   return (
     <PassengerContext.Provider
-      value={{ socket, isConnected, usersOnline, availableDrivers, requestNewTrip, newTrip, setNewTrip }}
+      value={{ socket, isConnected, usersOnline, availableDrivers, requestNewTrip, newTrip, setNewTrip, updateTrip, fetchDrivers, resetPassengerState }}
     >
       {children}
     </PassengerContext.Provider>

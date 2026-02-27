@@ -15,11 +15,13 @@ import { colors } from "@/styles/theme"
 import { router } from 'expo-router';
 import { formatDistance, formatDuration } from '@/utils/converter';
 import { AutoCompleteInput } from '../autoCompleteInput';
+import { usePassenger } from '@/context/passengerContext';
 
 
 export function BookRideDialog() {
   const [locatePressed, setLocatePressed] = useState(false);
   const { setOriginCoords, setDestinationCoords, originCoords, destinationCoords, duration, price, distance } = useTrip();
+    const { requestNewTrip, availableDrivers, isConnected, socket, newTrip, setNewTrip, fetchDrivers } = usePassenger();
 
   const VerticalDashedLineHeight = 45;
   const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY;
@@ -45,8 +47,9 @@ export function BookRideDialog() {
   };
 
   const handleRideRequest = async () => {
-    router.navigate("./selectADriver")
-
+    if (isConnected) {
+      await fetchDrivers();
+    }
   }
 
   useEffect(() => {

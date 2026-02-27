@@ -103,9 +103,9 @@ export default function Login() {
       // Redirecionar explicitamente para o grupo protegido.
       // Se tiver papel, enviar direto para a rota apropriada para evitar um passo extra.
       if (userData.role?.type === "driver") {
-        router.replace("/(protected)/driver/newTripRequests");
+        router.replace("/(protected)/driver/driverScreen");
       } else {
-        router.replace("/(protected)/passenger/home");
+        router.replace("/(protected)/passenger/passengerScreen");
       }
       // O redirecionamento automático acontece em (protected)/_layout.tsx
 
@@ -158,7 +158,7 @@ export default function Login() {
           },
         },
       });
-      router.replace("/(protected)/driver/newTripRequests");
+      router.replace("/(protected)/driver/driverScreen");
     } else {
       setUser({
         id: "tester-passenger-001",
@@ -171,7 +171,7 @@ export default function Login() {
           type: "passenger",
         },
       });
-      router.replace("/(protected)/passenger/home");
+      router.replace("/(protected)/passenger/passengerScreen");
     }
   };
 

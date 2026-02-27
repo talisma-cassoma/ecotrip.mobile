@@ -52,7 +52,7 @@ export default function PassengerSignUp() {
         setUser(storedUser);
         
         console.log('Usuário autenticado com sucesso');
-        router.replace("/(protected)/passenger/home");
+        router.replace("/(protected)/passenger/passengerScreen");
       } 
     } catch (error) {
       console.error('Erro na criação do passageiro:', error);

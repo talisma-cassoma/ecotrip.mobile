@@ -32,12 +32,12 @@ export default function ProtectedLayout() {
 
     // Usuário autenticado — redireciona conforme papel
     if (user?.role.type === "driver") {
-      console.log("✅ Redirecionando driver para /newTripRequests");
-      router.replace("/(protected)/driver/newTripRequests");
+      console.log("✅ Redirecionando driver para /driverScreen");
+      router.replace("/(protected)/driver/driverScreen");
       
     } else if (user?.role.type === "passenger") {
-      console.log("✅ Redirecionando passenger para /home");
-      router.replace("/(protected)/passenger/home");
+      console.log("✅ Redirecionando passenger para /passengerScreen");
+      router.replace("/(protected)/passenger/passengerScreen");
      
     } else {
       console.warn("⚠️ Papel de usuário desconhecido, redirecionando para /login");
