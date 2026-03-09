@@ -28,120 +28,77 @@ import { useUserAuth } from "@/hooks/useUserAuth";
 import { useDriver } from "@/context/driverContext";
 import { useToast } from "@/context/toastContext";
 import { router, useFocusEffect } from "expo-router";
-import { constants } from "@/configs/constants";
 import { api } from "@/services/api";
 
 export default function DriverScreen() {
   const [selectedTrip, setSelectedTrip] = useState<TripRequestProps | null>(null);
 
-  // Estado externo de status dos trips
-  const [tripStatus, setTripStatus] = useState<{ [id: string]: "idle" | "loading" | "disabled" }>({});
-
   const { showToast } = useToast();
   const { user } = useUserAuth();
-  const { availableTrips, connectLobby, disconnectLobby, selectTrip, confirmedTrip } = useDriver();
 
-  // 🔌 Conexão lobby
+  const {
+    availableTrips,connectLobby,disconnectLobby,selectTrip,
+    confirmedTrip, setDriverState, driverState } = useDriver();
+
+  console.log("DriverScreen renderizado, driverState:", driverState);
+
   useFocusEffect(
     useCallback(() => {
       connectLobby();
       return () => disconnectLobby();
-    }, [connectLobby, disconnectLobby])
+    }, [])
   );
 
   useEffect(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-  }, [availableTrips]);
+    setDriverState("idle");
+  }, []);
 
   // 🚗 Aceitar viagem
-  const handleAcceptTrip = (trip: TripRequestProps) => {
-    if (!user) {
-      showToast("Usuário não autenticado", "error");
-      return;
-    }
+  const handleAccept = (trip: TripRequestProps) => {
+    if (!user || driverState !== "idle") return;
 
     setSelectedTrip(trip);
+    setDriverState("pending");
     selectTrip(user, trip);
   };
 
-  const handleRideCancel = () => {
-    Alert.alert("Cancelar corrida", "Deseja cancelar a corrida?", [
-      { text: "Não", style: "cancel" },
-      {
-        text: "Sim",
-        onPress: async () => {
-          await cancelTripByDriver(confirmedTrip as TripRequestProps);
-        },
-      },
-    ]);
-  };
-
+  // ❌ Cancelar corrida
   const cancelTripByDriver = async (trip: TripRequestProps) => {
-    if (!user) {
-      showToast("Usuário não autenticado", "error");
-      return;
-    }
-
-    setTripStatus(prev => ({ ...prev, [trip.id as string]: "loading" }));
+    if (!user) return;
 
     try {
-      const response = await api.post(
+      await api.post(
         `/trips/${trip.id}/cancel/driver`,
         {
           trip,
-          reason: "Motorista cancelou a viagem"
+          reason: "Motorista cancelou a viagem",
         },
         {
           headers: {
             Authorization: `Bearer ${user.access_token}`,
-          }
+          },
         }
       );
 
-      // Atualiza estado apenas se deu certo
       setSelectedTrip(null);
-      setTripStatus(prev => ({ ...prev, [trip.id as string]: "idle" }));
-
-      showToast(response.data.message, "success");
-
+      setDriverState("idle");
+      showToast("Viagem cancelada", "success");
     } catch (err: any) {
-      console.log(err);
-      showToast(err?.response?.data?.message || "Erro ao cancelar viagem", "error");
-      setTripStatus(prev => ({ ...prev, [trip.id as string]: "idle" }));
+      showToast("Erro ao cancelar viagem", "error");
     }
-  };
+  }
 
-  // 🚦 Aceitar viagem (atualiza status externo)
-  const handleAccept = (trip: TripRequestProps) => {
+  const TripCard = ({
+    item,
+  }: {
+    item: TripRequestProps;
+  }) => {
+    const isPending = driverState === "pending" && selectedTrip?.id === item.id;
+    const isConfirmed = driverState === "confirmed";
 
-    if (tripStatus[trip.id as string] === "loading" || tripStatus[trip.id as string] === "disabled") return;
-
-    setTripStatus(prev => ({ ...prev, [trip.id as string]: "loading" }));
-
-    setTimeout(() => {
-      setTripStatus(prev => ({ ...prev, [trip.id as string]: "disabled" }));
-      handleAcceptTrip(trip);
-    }, 500);
-  };
-
-  const TripCard = React.memo(
-    ({
-      item,
-      isSelected,
-      status,
-      onAccept,
-    }: {
-      item: TripRequestProps;
-      isSelected: boolean;
-      status: "idle" | "loading" | "disabled";
-      onAccept: (trip: TripRequestProps) => void;
-    }) => {
-      const isLoading = status === "loading";
-      const isDisabled = status === "disabled";
-
-      return (
-        <View style={styles.card}>
-          <View style={styles.cardContent}>
+    return (
+      <View style={styles.card}>
+       <View style={styles.cardContent}>
             <View style={styles.leftSection}>
               <View style={styles.iconColumn}>
                 <IconPointFilled size={20} fill={colors.green.base} />
@@ -175,124 +132,84 @@ export default function DriverScreen() {
             </View>
           </View>
 
-          {isSelected ? (
-            <View style={styles.actionColumn}>
-              <TouchableOpacity>
-                <IconPhone size={24} color={colors.green.light} />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <IconMessage size={24} color={colors.green.light} />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={[styles.acceptButton, (isLoading || isDisabled) && styles.disabledButton]}
-              disabled={isLoading || isDisabled}
-              onPress={() => onAccept(item)}
-            >
-              {isLoading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.acceptText}>{isDisabled ? "Aguarde" : "Aceitar"}</Text>
-              )}
+        {isConfirmed ? (
+          <View style={styles.actionColumn}>
+            <TouchableOpacity>
+              <IconPhone size={24} color={colors.green.light} />
             </TouchableOpacity>
-          )}
-        </View>
-      );
-    },
-    (prev, next) => prev.status === next.status && prev.isSelected === next.isSelected
-  );
-
-  const NavBar = () => (
-    <View style={styles.navBar}>
-      <TouchableOpacity style={styles.iconButton}>
-        <IconHome size={20} fill={colors.gray[500]} />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.iconButton}>
-        <IconBell size={20} color={colors.gray[500]} />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.iconButton} onPress={() => router.push("/profile")}>
-        <IconUser size={20} color={colors.gray[500]} />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.iconButton} onPress={() => router.push("/historic")}>
-        <IconClock size={20} color={colors.gray[500]} />
-      </TouchableOpacity>
-    </View>
-  );
-
-  if (!availableTrips?.length) {
-    return (
-      <View style={styles.container}>
-        <NavBar />
-        <Text style={styles.title}>Novos pedidos</Text>
-        <View style={styles.centered}>
-          <Text>Sem novos pedidos no momento.</Text>
-        </View>
+            <TouchableOpacity>
+              <IconMessage size={24} color={colors.green.light} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={[
+              styles.acceptButton,
+              (driverState !== "idle") && styles.disabledButton,
+            ]}
+            disabled={driverState !== "idle"}
+            onPress={() => handleAccept(item)}
+          >
+            {isPending ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.acceptText}>Aceitar</Text>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
     );
-  }
+  };
 
-  if (confirmedTrip) {
-    return (
-      <View style={styles.container}>
-        <NavBar />
-        <TripCard item={confirmedTrip} isSelected status="disabled" onAccept={handleAccept} />
-        <Button
-          onPress={handleRideCancel}
-          style={{
-            marginTop: 16,
-            backgroundColor:
-              tripStatus[confirmedTrip.id as string] === "loading"
-                ? colors.gray[400]
-                : colors.red.base
-          }}
-          disabled={tripStatus[confirmedTrip.id as string] === "loading"}
-        >
-          <Button.Title>
-            {tripStatus[confirmedTrip.id as string] === "loading"
-              ? "Cancelando..."
-              : "Cancelar"}
-          </Button.Title>
-        </Button>
-      </View>
-    );
-  }
-
-  if (!availableTrips?.length) {
-    return (
-      <View style={styles.container}>
-        <NavBar />
-        <Text style={styles.title}>Novos pedidos</Text>
-        <View style={styles.centered}>
-          <Text>Sem novos pedidos no momento.</Text>
-        </View>
-      </View>
-    );
-  }
-  
+  // 🟡 IDLE ou PENDING
   return (
-    <View style={styles.container}>
-      <NavBar />
-      <Text style={styles.title}>Novos pedidos</Text>
-      <FlatList
-        data={availableTrips}
-        keyExtractor={(item, index) => item.id || String(index)}
-        renderItem={({ item }) => (
-          <TripCard
-            item={item}
-            isSelected={false}
-            status={tripStatus[item.id as string] || "idle"}
-            onAccept={handleAccept}
+   !confirmedTrip ? (
+      <View style={styles.container}>
+        <View style={styles.navBar}>
+          <TouchableOpacity style={styles.iconButton}>
+            <IconHome size={20} fill={colors.gray[500]} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.iconButton}>
+            <IconBell size={20} color={colors.gray[500]} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.push("/(protected)/driver/profile")}>
+            <IconUser size={20} color={colors.gray[500]} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.push("/(protected)/driver/historic")}>
+            <IconClock size={20} color={colors.gray[500]} />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.title}>Novos pedidos</Text>
+
+        {!availableTrips?.length ? (
+          <View style={styles.centered}>
+            <Text>Sem novos pedidos no momento.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={availableTrips}
+            keyExtractor={(item, index) => item.id || String(index)}
+            renderItem={({ item }) => <TripCard item={item} />}
           />
         )}
-        extraData={tripStatus} // só re-renderiza itens que mudaram
-      />
-    </View>
+      </View>
+    ) : (
+       <View style={[styles.container, {marginTop: 50}]}>
+        <TripCard item={confirmedTrip} />
+
+        <Button
+          onPress={() => cancelTripByDriver(confirmedTrip)}
+          style={{ marginTop: 16, backgroundColor: colors.red.base }}
+        >
+          <Button.Title>Cancelar</Button.Title>
+        </Button>
+      </View>
+    )
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: colors.green.soft },

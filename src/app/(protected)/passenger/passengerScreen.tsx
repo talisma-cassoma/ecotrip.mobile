@@ -12,13 +12,13 @@ import { useTrip } from "@/context/tripContext"
 import { DropDownMenu } from "@/components/dropDownMenu"
 import { MapsDirections } from "@/components/mapsDirections"
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { IconArrowLeft } from "@tabler/icons-react-native";
+
 import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { usePassenger } from "@/context/passengerContext";
 import { AvailableDriver } from "@/components/availableDriver";
-import { BookingTripCard } from "@/components/bookingTripCard";
+
 import { Button } from "@/components/button";
 import { IconArrowRight } from "@tabler/icons-react-native"
 import { TripRequestProps, AvailableDriverCompProps } from "@/types";
