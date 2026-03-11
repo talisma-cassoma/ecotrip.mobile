@@ -225,7 +225,7 @@ export default function Login() {
             </View>
 
             <View
-              style={{ flex: 1, alignItems: "center", justifyContent: "center"}}
+              style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
             >
               <Button.Title>
                 <Text
@@ -240,7 +240,7 @@ export default function Login() {
               </Button.Title>
             </View>
           </Button>
-          <View style={{  backgroundColor: colors.gray[200], flex: 1, margin: 16, flexDirection: 'row', alignItems: "center", justifyContent: "space-around", padding: 8, borderRadius: 20, alignSelf: "center", maxWidth: 400 }}>
+          <View style={{ backgroundColor: colors.gray[200], flex: 1, margin: 16, flexDirection: 'row', alignItems: "center", justifyContent: "space-around", padding: 8, borderRadius: 20, alignSelf: "center", maxWidth: 400 }}>
             <IconUserCog size={24} stroke={colors.green.base} />
             <Text
               style={{
@@ -286,7 +286,7 @@ export default function Login() {
             onChangeText={setEmail}
             autoCapitalize="none"
           />
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View style={{ flexDirection: "row", alignItems: "center", position: "relative" }}>
             <TextInput
               style={[styles.input, { flex: 1 }]}
               placeholder="********"
@@ -296,10 +296,26 @@ export default function Login() {
               secureTextEntry={!showPassword}
             />
             <TouchableOpacity
-              style={styles.toggleButton}
               onPress={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                width: 40,
+                height: 40,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                margin:6,
+                borderRadius: 8,
+                backgroundColor: colors.green.soft,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
             >
-              <View>{showPassword ?  <IconEyeClosed size={24} stroke={colors.green.base} /> : <Text style={{color: colors.green.base}}>Mostar</Text>}</View>
+              {showPassword ? (
+                <IconEye size={24} color="#00AA00" />
+              ) : (
+                <IconEyeClosed size={24} color="#00AA00" />
+              )}
             </TouchableOpacity>
           </View>
 
