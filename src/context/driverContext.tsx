@@ -62,12 +62,6 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       .on(constants.event.LOBBY_UPDATED, (rooms: TripRequestProps[]) => {
         setAvailableTrips(rooms);
 
-        // 🔥 Se a trip que estou aguardando sumiu da lista
-        if (pendingTripId && !rooms.find(r => r.id === pendingTripId)) {
-          resetDriverState
-();
-        }
-
         onLobbyUpdatedRef.current?.(rooms);
       })
       .build();
@@ -142,11 +136,9 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     roomSock.on(constants.event.TRIP_CANCELED, (payload) => {
       if (payload?.status === "cancelled") {
         showToast(payload.message || "Viagem cancelada", "warning");
-        setDriverState("idle");
 
         // Limpa a viagem confirmada e permite que a FlatList volte a aparecer
-        resetDriverState
-();
+        resetDriverState();
       }
     });
 
@@ -157,12 +149,13 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     onConfirmedTripRef.current = callback;
   };
 
-  const resetDriverState
- = () => {
+  const resetDriverState = () => {
+    setAvailableTrips([]);
     setSelectedTrip(null);
     setConfirmedTrip(null);
     setPendingTripId(null);
     selectedTripRef.current = null;
+    setDriverState("idle");
 
     if (roomSocketRef.current) {
       roomSocketRef.current.disconnect();
@@ -177,13 +170,6 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (roomSocketRef.current) roomSocketRef.current.disconnect();
     };
   }, [disconnectLobby]);
-
-  useEffect(() => {
-    return () => {
-      resetDriverState
-();
-    };
-  }, []);
 
   return (
     <DriverContext.Provider

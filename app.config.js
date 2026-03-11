@@ -5,7 +5,7 @@ export default ({ config }) => ({
     name: "ecotrip",
     slug: "ecotrip",
     version: "1.0.0",
-    orientation: "portrait",
+    orientation: "default",
     icon: "./assets/images/icon.png",
     scheme: "myapp",
     userInterfaceStyle: "automatic",

@@ -12,13 +12,13 @@ import { useTrip } from "@/context/tripContext"
 import { DropDownMenu } from "@/components/dropDownMenu"
 import { MapsDirections } from "@/components/mapsDirections"
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
-
+import { IconArrowLeft } from "@tabler/icons-react-native";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { usePassenger } from "@/context/passengerContext";
 import { AvailableDriver } from "@/components/availableDriver";
-
+import { BookingTripCard } from "@/components/bookingTripCard";
 import { Button } from "@/components/button";
 import { IconArrowRight } from "@tabler/icons-react-native"
 import { TripRequestProps, AvailableDriverCompProps } from "@/types";
@@ -584,7 +584,7 @@ export default function PassengerScreen() {
 
   const { originCoords, destinationCoords, distance, duration, price, setDistance, setDuration } = useTrip();
   const { user } = useUserAuth();
-  const { requestNewTrip, availableDrivers, isConnected, socket, newTrip, setNewTrip } = usePassenger();
+  const { requestNewTrip, availableDrivers, isConnected, socket, newTrip, setNewTrip, resetPassengerState } = usePassenger();
 
   async function fetchCategories() {
     try {
@@ -649,8 +649,8 @@ export default function PassengerScreen() {
         }
       );
 
+      resetPassengerState()
       return { ok: true, data: response.data };
-
     } catch (error) {
       return safeApiError(error, "Erro ao cancelar viagem");
     }
@@ -723,7 +723,6 @@ export default function PassengerScreen() {
         onPress: async () => {
           await cancelTripByPassenger();
           setSelectedDriver(null);
-          //setNewTrip(null);
           //router.replace("/(protected)/passenger/passengerScreen");
         },
       },
@@ -824,7 +823,7 @@ export default function PassengerScreen() {
             </>
           )}
         </MapView>
-        {!newTrip?.trip?.status ? (
+        {!newTrip?.trip ? (
           <>
             <Categories
               data={categories}

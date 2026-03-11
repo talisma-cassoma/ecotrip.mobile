@@ -20,7 +20,7 @@ export function PriceInput({
 
   const { price, setPrice, distance } = useTrip();
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null);
-   const { newTrip, updateTrip, setNewTrip, availableDrivers } = usePassenger();
+   const { newTrip, updateTrip, setNewTrip, availableDrivers,  } = usePassenger();
    const canEdit = availableDrivers.length === 0;
  
 
