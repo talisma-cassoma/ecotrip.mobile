@@ -117,7 +117,10 @@ export function BookRideDialog() {
             <View style={styles.dashedLineWrapper}>
               <VerticalDashedLine height={VerticalDashedLineHeight} width={0} color={colors.gray[600]} />
             </View>
-            <TouchableOpacity onPress={() => { /* swap logic */ }}>
+            <TouchableOpacity onPress={() => { 
+              const temp = originCoords; 
+              setOriginCoords(destinationCoords); 
+              setDestinationCoords(temp); }} activeOpacity={0.8}>
               <MaterialCommunityIcons name="swap-vertical" size={20} color="#aaa" />
             </TouchableOpacity>
           </View>

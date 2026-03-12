@@ -4,8 +4,8 @@ import { COLLECTION_USERS } from '../configs/database';
 import { Alert } from "react-native"
 
 
-const URL = 'https://ecotrip-api.onrender.com'
-//'http://192.168.11.107:3000' 
+const URL = false ? 'http://192.168.11.101:3000' : 'https://ecotrip-api.onrender.com'
+
 export const socketUrl =URL
 
 if (!URL) {

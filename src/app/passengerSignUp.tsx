@@ -5,7 +5,9 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, Alert, Image, useWindowDimensions, TouchableOpacity } from 'react-native';
 import { storeUser } from "../configs/database"
 import {
-  IconBrandGoogleFilled
+  IconBrandGoogleFilled,
+  IconEye,
+  IconEyeClosed
 } from "@tabler/icons-react-native";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { api } from "@/services/api";
@@ -18,6 +20,7 @@ export default function PassengerSignUp() {
   const [telephone, setTelephone] = useState('');
   const dimensions = useWindowDimensions()
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
   const role = 'passenger'
   const image = 'https://cdn3.iconfinder.com/data/icons/flat-classy-users-1/256/Male_SkinTone3_HairStyle1-256.png'
 
@@ -46,14 +49,16 @@ export default function PassengerSignUp() {
           telephone: passenger.user.telephone,
           access_token: passenger.session.access_token,
           refresh_token: passenger.session.refresh_token,
-          role,
+          role: {
+            type: 'passenger',
+          },
         });
 
         setUser(storedUser);
-        
+
         console.log('Usuário autenticado com sucesso');
         router.replace("/(protected)/passenger/passengerScreen");
-      } 
+      }
     } catch (error) {
       console.error('Erro na criação do passageiro:', error);
       Alert.alert('Erro ao registrar. Verifique os dados e tente novamente.');
@@ -118,14 +123,38 @@ export default function PassengerSignUp() {
             onChangeText={setTelephone}
             autoCapitalize="words"
           />
-          <TextInput
-            style={styles.input}
-            placeholder="********"
-            placeholderTextColor="#aaa"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
+          <View style={{ flexDirection: "row", alignItems: "center", position: "relative" }}>
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              placeholder="********"
+              placeholderTextColor={colors.gray[300]}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                width: 40,
+                height: 40,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                margin: 6,
+                borderRadius: 8,
+                backgroundColor: colors.green.soft,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {showPassword ? (
+                <IconEye size={24} color="#00AA00" />
+              ) : (
+                <IconEyeClosed size={24} color="#00AA00" />
+              )}
+            </TouchableOpacity>
+          </View>
           <Button onPress={handlePassengerSignUp} isLoading={isLoading}>
             <Button.Title>Registrarse como Pasajero</Button.Title>
           </Button>

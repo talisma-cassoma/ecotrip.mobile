@@ -331,7 +331,7 @@ export default function Login() {
             }}
           >
             <Text
-              onPress={() => router.replace("/register")}
+              onPress={() => router.replace("/useConditions")}
               style={{ color: colors.green.dark }}
             >
               Regístrate

@@ -838,31 +838,34 @@ export default function PassengerScreen() {
             snapPoints={[snapPoints.min, snapPoints.max]}
             backgroundStyle={s.container}
           >
+            <Button style={{ margin: 10, width: 40, height: 40 }} onPress={async() => await cancelTripByPassenger()}>
+              <Button.Icon icon={IconArrowLeft} />
+            </Button>
             {originCoords && destinationCoords && (
-                  <View style={{ flexDirection: "column", gap: 10, margin: 10 }}>
-                    <View style={{ marginBottom: 10, marginTop: 10, alignItems: 'center' }}>
-                      <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
-                        <Text>{originCoords.name}</Text>
-                        <IconArrowRight
-                          width={24}
-                          height={24}
-                          color={colors.gray[600]}
-                        />
-                        <Text>{destinationCoords.name}</Text>
-                      </View>
-                      {distance && <Text> {formatDistance(distance)}</Text>}
-                      <Text >{duration ? (`el tempo previsto de viaje es ${formatDuration(duration)}`) : ("")}</Text>
-                    </View>
-                    {price && (
-                      <PriceInput
-                        initialValue={price}
-                        currencySymbol="Francos"
-                        step={price / 10}
-                      />
-
-                    )}
+              <View style={{ flexDirection: "column", gap: 10, margin: 10 }}>
+                <View style={{ marginBottom: 10, marginTop: 10, alignItems: 'center' }}>
+                  <View style={{ width: "auto", flexDirection: "row", gap: 12, margin: 16, justifyContent: "center" }}>
+                    <Text>{originCoords.name}</Text>
+                    <IconArrowRight
+                      width={24}
+                      height={24}
+                      color={colors.gray[600]}
+                    />
+                    <Text>{destinationCoords.name}</Text>
                   </View>
+                  {distance && <Text> {formatDistance(distance)}</Text>}
+                  <Text >{duration ? (`el tempo previsto de viaje es ${formatDuration(duration)}`) : ("")}</Text>
+                </View>
+                {price && (
+                  <PriceInput
+                    initialValue={price}
+                    currencySymbol="Francos"
+                    step={price / 10}
+                  />
+
                 )}
+              </View>
+            )}
             {selectedDriver ? (
               <View style={{ padding: 24 }}>
                 <AvailableDriver {...selectedDriver} onPress={() => { }} />

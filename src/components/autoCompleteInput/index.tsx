@@ -1,5 +1,5 @@
 // AutoCompleteInput.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, FlatList, TouchableOpacity, Text } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { useTrip } from '../../context/tripContext';
@@ -36,6 +36,16 @@ export function AutoCompleteInput({
     const [manualInput, setManualInput] = useState('');
     const [filteredPlaces, setFilteredPlaces] = useState<typeof MOCK_PLACES>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+
+    useEffect(() => {
+    if (type === 'origin' && originCoords?.name) {
+        setManualInput(originCoords.name);
+    }
+
+    if (type === 'destination' && destinationCoords?.name) {
+        setManualInput(destinationCoords.name);
+    }
+}, [originCoords?.name, destinationCoords?.name, type]);
 
     // placeholders personalizados
     const placeholders = {
@@ -85,11 +95,12 @@ export function AutoCompleteInput({
         if (type === 'origin') {
             setOriginCoords(coords);
             setLocatePressed && setLocatePressed(false);
+            setManualInput(originCoords?.name || '');
         } else {
             setDestinationCoords(coords);
+            setManualInput(destinationCoords?.name || '');
         }
 
-        setManualInput(name);
         setShowSuggestions(false);
     };
 
@@ -200,8 +211,6 @@ export function AutoCompleteInput({
         </View>
     );
 }
-
-
 
 const styles = StyleSheet.create({
     container: {
