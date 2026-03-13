@@ -6,14 +6,14 @@ export default ({ config }) => ({
     slug: "ecotrip",
     version: "1.0.0",
     orientation: "default",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/images/adaptive-icon.png",
     scheme: "myapp",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     
     splash: {
-      image: "./src/assets/splash2.png",
-      resizeMode: "contain",
+      image: "./assets/images/icon.png",
+      resizeMode: "center",
       backgroundColor: "#257F49"
     },
 
@@ -28,7 +28,7 @@ export default ({ config }) => ({
       package: "com.talismadev.ecotrip",
       adaptiveIcon: {
         foregroundImage: "./assets/images/icon.png",
-        backgroundColor: "#257F49"
+        backgroundColor: "#257F49",
       },
       permissions: [
         "android.permission.ACCESS_COARSE_LOCATION",
@@ -52,6 +52,18 @@ export default ({ config }) => ({
       "expo-router",
       "expo-font",
       [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#232323",
+          "image": "./assets/images/adaptive-icon.png",
+          "dark": {
+            "image": "./assets/images/adaptive-icon.png",
+            "backgroundColor": "#000000"
+          },
+          "imageWidth": 200
+        }
+      ],
+      [
         "expo-location",
         {
           locationAlwaysAndWhenInUsePermission: "Allow $(PRODUCT_NAME) to use your location."
@@ -61,6 +73,20 @@ export default ({ config }) => ({
         "expo-screen-orientation",
         {
           "initialOrientation": "DEFAULT"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends.",
+          "colors": {
+            "cropToolbarColor": "#000000",
+          },
+          "dark": {
+            "colors": {
+              "cropToolbarColor": "#000000",
+            }
+          }
         }
       ]
     ],

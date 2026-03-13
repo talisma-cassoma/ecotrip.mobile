@@ -7,8 +7,11 @@ import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert, useWindowD
 import { storeUser } from "../configs/database"
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { api } from "@/services/api";
-import { IconEye, IconEyeClosed } from "@tabler/icons-react-native";
-
+import { IconEye, IconEyeClosed, } from "@tabler/icons-react-native";
+import { ImageSourcePropType } from "react-native";
+import AvatarPicker from "@/components/avatarPicker";
+import { avatars } from "@/assets/avatars";
+import { PasswordInput } from "@/components/passwordInput";
 
 
 export default function DriverSignUp() {
@@ -21,12 +24,12 @@ export default function DriverSignUp() {
   const [vehicleColor, setVehicleColor] = useState('');
   const [driverName, setDriverName] = useState('');
   const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false);
+  //const [showPassword, setShowPassword] = useState(false);
 
   const { setUser } = useUserAuth()
 
   const role = 'driver'
-  const image = 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/afro_avatar_male_man-256.png'  
+  const image = 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/afro_avatar_male_man-256.png'
 
   const dimensions = useWindowDimensions()
 
@@ -42,50 +45,50 @@ export default function DriverSignUp() {
         telephone: telephone,
         image: image,
         role: {
-            type: 'driver',
-             data: {
-              car_model: vehicleModel,
-              car_plate: vehiclePlate,
-              car_color:  vehicleColor,
-              license_number: licenseNumber,
-            }
+          type: 'driver',
+          data: {
+            car_model: vehicleModel,
+            car_plate: vehiclePlate,
+            car_color: vehicleColor,
+            license_number: licenseNumber,
           }
+        }
       }
-      
+
       const response = await api.post('/driver/create', newUser);
       const { driver } = await response.data
-      
+
       console.log("response", response.data);
 
-        const storedUser = await storeUser({
-          id: driver.user.id,
-          name: driver.user.name,
-          email: driver.user.email,
-          image: driver.user.image,
-          access_token: driver.session.access_token,
-          refresh_token: driver.session.refresh_token,
-          role:{
-            type: 'driver',
-            data: {
-              car_model: driver.user.carModel,
-              car_color: driver.user.carColor,
-              car_plate: driver.user.carPlate,
-              license_number: driver.user.licenseNumber,
-            }
+      const storedUser = await storeUser({
+        id: driver.user.id,
+        name: driver.user.name,
+        email: driver.user.email,
+        image: driver.user.image,
+        access_token: driver.session.access_token,
+        refresh_token: driver.session.refresh_token,
+        role: {
+          type: 'driver',
+          data: {
+            car_model: driver.user.carModel,
+            car_color: driver.user.carColor,
+            car_plate: driver.user.carPlate,
+            license_number: driver.user.licenseNumber,
           }
-        });
-        
-        setUser(storedUser)
-        
-        router.replace("./(protected)/driver/driverScreen");
-      
-      }catch(error) {
-        console.error('Erro na criação do conductor:', error);
-        Alert.alert('Erro ao registrar. Verifique os dados e tente novamente.');
-      } finally {
-        setIsLoading(false); // garante que o loading será desativado mesmo se der erro
-      }
+        }
+      });
+
+      setUser(storedUser)
+
+      router.replace("./(protected)/driver/driverScreen");
+
+    } catch (error) {
+      console.error('Erro na criação do conductor:', error);
+      Alert.alert('Erro ao registrar. Verifique os dados e tente novamente.');
+    } finally {
+      setIsLoading(false); // garante que o loading será desativado mesmo se der erro
     }
+  }
   return (
     <View style={styles.container}>
       <Image source={require("@/assets/logo.png")} style={{ width: 150, height: 150, marginTop: 24, marginBottom: 2, alignSelf: 'center' }} />
@@ -98,6 +101,11 @@ export default function DriverSignUp() {
           contentContainerStyle={{ paddingBottom: 40 }}
           showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
         >
+          <AvatarPicker
+            mode="both"
+            avatars={avatars}
+            onChange={(source) => console.log(source)}
+          />
           <TextInput
             style={styles.input}
             placeholder="Nombre Completo"
@@ -106,6 +114,7 @@ export default function DriverSignUp() {
             onChangeText={setDriverName}
             autoCapitalize="words"
           />
+
           <TextInput
             style={styles.input}
             placeholder="Permiso de conducir"
@@ -153,38 +162,14 @@ export default function DriverSignUp() {
             onChangeText={setEmail}
             autoCapitalize="none"
           />
-           <View style={{ flexDirection: "row", alignItems: "center", position: "relative" }}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              placeholder="********"
-              placeholderTextColor={colors.gray[300]}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={{
-                position: "absolute",
-                width: 40,
-                height: 40,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                margin:6,
-                borderRadius: 8,
-                backgroundColor: colors.green.soft,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              {showPassword ? (
-                <IconEye size={24} color="#00AA00" />
-              ) : (
-                <IconEyeClosed size={24} color="#00AA00" />
-              )}
-            </TouchableOpacity>
-          </View>
+          <PasswordInput
+            style={styles.input}
+            placeholder="********"
+            placeholderTextColor="#aaa"
+            value={password}
+            onChangeText={setPassword}
+            isVisible={false}
+          />
           <Button onPress={handleDriverSignUp} style={{ marginTop: 10 }} isLoading={isLoading}>
             <Button.Title>Registrarse como Conductor</Button.Title>
           </Button>

@@ -134,7 +134,7 @@ const getInitials = (name:string | undefined) => {
                       size={20}
                       color={colors.gray[500]}
                     />
-                    <Text>{user?.role.type === 'driver' ? 'Condutor' : 'Passageiro'}</Text>
+                    <Text>{user?.role.type === 'driver' ? 'Conductor' : 'Pasajero'}</Text>
                   </View>
 
                   <View style={{ flexDirection: "row", gap: 10 }}>

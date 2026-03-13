@@ -22,11 +22,12 @@ import {
 
 import { useUserAuth } from "@/hooks/useUserAuth"; // ← novo hook
 import { api } from "@/services/api";
+import { PasswordInput } from "@/components/passwordInput";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  //const [showPassword, setShowPassword] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -240,7 +241,8 @@ export default function Login() {
               </Button.Title>
             </View>
           </Button>
-          <View style={{ backgroundColor: colors.gray[200], flex: 1, margin: 16, flexDirection: 'row', alignItems: "center", justifyContent: "space-around", padding: 8, borderRadius: 20, alignSelf: "center", maxWidth: 400 }}>
+          
+          {/* <View style={{ backgroundColor: colors.gray[200], flex: 1, margin: 16, flexDirection: 'row', alignItems: "center", justifyContent: "space-around", padding: 8, borderRadius: 20, alignSelf: "center", maxWidth: 400 }}>
             <IconUserCog size={24} stroke={colors.green.base} />
             <Text
               style={{
@@ -261,8 +263,7 @@ export default function Login() {
               <IconFriends size={24} stroke={colors.green.base} />
               <Text>Pasajero</Text>
             </Pressable>
-
-          </View>
+          </View> */}
 
           <View
             style={{
@@ -286,38 +287,14 @@ export default function Login() {
             onChangeText={setEmail}
             autoCapitalize="none"
           />
-          <View style={{ flexDirection: "row", alignItems: "center", position: "relative" }}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              placeholder="********"
-              placeholderTextColor={colors.gray[300]}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={{
-                position: "absolute",
-                width: 40,
-                height: 40,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                margin:6,
-                borderRadius: 8,
-                backgroundColor: colors.green.soft,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              {showPassword ? (
-                <IconEye size={24} color="#00AA00" />
-              ) : (
-                <IconEyeClosed size={24} color="#00AA00" />
-              )}
-            </TouchableOpacity>
-          </View>
+           <PasswordInput
+                      style={styles.input}
+                      placeholder="********"
+                      placeholderTextColor="#aaa"
+                      value={password}
+                      onChangeText={setPassword}
+                      isVisible={false}
+                    />
 
           <Button onPress={handleLogin} isLoading={isLoading}>
             <Button.Title>Entrar</Button.Title>

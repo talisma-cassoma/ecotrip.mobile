@@ -10,7 +10,10 @@ import {
   IconEyeClosed
 } from "@tabler/icons-react-native";
 import { useUserAuth } from "@/hooks/useUserAuth";
+import { avatars } from "@/assets/avatars";
 import { api } from "@/services/api";
+import AvatarPicker from "@/components/avatarPicker";
+import { PasswordInput } from "@/components/passwordInput";
 
 export default function PassengerSignUp() {
 
@@ -96,6 +99,11 @@ export default function PassengerSignUp() {
             <Text style={styles.label}>ou</Text>
             <View style={styles.bar} />
           </View>
+          <AvatarPicker
+            mode="both"
+            avatars={avatars}
+            onChange={(source) => console.log(source)}
+          />
           <TextInput
             style={styles.input}
             placeholder="tu nombre"
@@ -123,38 +131,14 @@ export default function PassengerSignUp() {
             onChangeText={setTelephone}
             autoCapitalize="words"
           />
-          <View style={{ flexDirection: "row", alignItems: "center", position: "relative" }}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              placeholder="********"
-              placeholderTextColor={colors.gray[300]}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={{
-                position: "absolute",
-                width: 40,
-                height: 40,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                margin: 6,
-                borderRadius: 8,
-                backgroundColor: colors.green.soft,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              {showPassword ? (
-                <IconEye size={24} color="#00AA00" />
-              ) : (
-                <IconEyeClosed size={24} color="#00AA00" />
-              )}
-            </TouchableOpacity>
-          </View>
+          <PasswordInput
+            style={styles.input}
+            placeholder="********"
+            placeholderTextColor="#aaa"
+            value={password}
+            onChangeText={setPassword}
+            isVisible={false}
+          />
           <Button onPress={handlePassengerSignUp} isLoading={isLoading}>
             <Button.Title>Registrarse como Pasajero</Button.Title>
           </Button>
