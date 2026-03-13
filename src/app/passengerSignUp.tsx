@@ -23,7 +23,7 @@ export default function PassengerSignUp() {
   const [telephone, setTelephone] = useState('');
   const dimensions = useWindowDimensions()
   const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false);
+  //const [showPassword, setShowPassword] = useState(false);
   const role = 'passenger'
   const image = 'https://cdn3.iconfinder.com/data/icons/flat-classy-users-1/256/Male_SkinTone3_HairStyle1-256.png'
 

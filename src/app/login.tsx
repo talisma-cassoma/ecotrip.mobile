@@ -241,7 +241,7 @@ export default function Login() {
               </Button.Title>
             </View>
           </Button>
-          
+
           {/* <View style={{ backgroundColor: colors.gray[200], flex: 1, margin: 16, flexDirection: 'row', alignItems: "center", justifyContent: "space-around", padding: 8, borderRadius: 20, alignSelf: "center", maxWidth: 400 }}>
             <IconUserCog size={24} stroke={colors.green.base} />
             <Text
@@ -287,14 +287,14 @@ export default function Login() {
             onChangeText={setEmail}
             autoCapitalize="none"
           />
-           <PasswordInput
-                      style={styles.input}
-                      placeholder="********"
-                      placeholderTextColor="#aaa"
-                      value={password}
-                      onChangeText={setPassword}
-                      isVisible={false}
-                    />
+          <PasswordInput
+            style={styles.input}
+            placeholder="********"
+            placeholderTextColor="#aaa"
+            value={password}
+            onChangeText={setPassword}
+            isVisible={false}
+          />
 
           <Button onPress={handleLogin} isLoading={isLoading}>
             <Button.Title>Entrar</Button.Title>

@@ -17,7 +17,7 @@ import { AuthUser } from "@/types";
 
 export default function DriverSignUp() {
   const [email, setEmail] = useState('talismac@gmail.om');
-  const [password, setPassword] = useState('12345C');
+  const [password, setPassword] = useState('');
   const [telephone, setTelephone] = useState('+5491133334444');
   const [licenseNumber, setLicenseNumber] = useState('XYZ123456');
   const [vehiclePlate, setVehiclePlate] = useState('JKL-5678');
@@ -25,7 +25,6 @@ export default function DriverSignUp() {
   const [vehicleColor, setVehicleColor] = useState('laranja');
   const [driverName, setDriverName] = useState('castor rodriguez');
   const [isLoading, setIsLoading] = useState(false)
-  //const [showPassword, setShowPassword] = useState(false);
   const [image, setImage] = useState<string>('')
 
   const { setUser } = useUserAuth()
@@ -44,7 +43,7 @@ export default function DriverSignUp() {
         email: email,
         password: password,
         telephone: telephone,
-        image:  image,
+        image: image,
         role: {
           type: 'driver',
           data: {

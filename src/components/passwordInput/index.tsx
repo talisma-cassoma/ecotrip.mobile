@@ -8,8 +8,11 @@ interface PasswordInputProps extends TextInputProps {
   isVisible?: boolean;
 }
 
+interface PasswordInputProps extends TextInputProps {
+  isVisible?: boolean;
+}
+
 export function PasswordInput({ isVisible = false, style, ...rest }: PasswordInputProps) {
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(isVisible);
 
   return (
@@ -19,10 +22,9 @@ export function PasswordInput({ isVisible = false, style, ...rest }: PasswordInp
         style={[styles.input, { flex: 1 }, style]}
         placeholder="********"
         placeholderTextColor={colors.gray[300]}
-        value={password}
-        onChangeText={setPassword}
         secureTextEntry={!showPassword}
       />
+
       <TouchableOpacity
         onPress={() => setShowPassword(!showPassword)}
         style={{
