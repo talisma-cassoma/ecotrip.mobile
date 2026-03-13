@@ -12,6 +12,7 @@ import { ImageSourcePropType } from "react-native";
 import AvatarPicker from "@/components/avatarPicker";
 import { avatars } from "@/assets/avatars";
 import { PasswordInput } from "@/components/passwordInput";
+import { AuthUser } from "@/types";
 
 
 export default function DriverSignUp() {
@@ -25,11 +26,11 @@ export default function DriverSignUp() {
   const [driverName, setDriverName] = useState('');
   const [isLoading, setIsLoading] = useState(false)
   //const [showPassword, setShowPassword] = useState(false);
+  const [image, setImage] = useState<string>('')
 
   const { setUser } = useUserAuth()
 
-  const role = 'driver'
-  const image = 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/afro_avatar_male_man-256.png'
+  //const image = 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/afro_avatar_male_man-256.png'
 
   const dimensions = useWindowDimensions()
 
@@ -43,7 +44,7 @@ export default function DriverSignUp() {
         email: email,
         password: password,
         telephone: telephone,
-        image: image,
+        image:  image,
         role: {
           type: 'driver',
           data: {
@@ -56,7 +57,7 @@ export default function DriverSignUp() {
       }
 
       const response = await api.post('/driver/create', newUser);
-      const { driver } = await response.data
+      const { driver } = response.data
 
       console.log("response", response.data);
 
@@ -65,15 +66,16 @@ export default function DriverSignUp() {
         name: driver.user.name,
         email: driver.user.email,
         image: driver.user.image,
+        telephone: driver.user.telephone,
         access_token: driver.session.access_token,
         refresh_token: driver.session.refresh_token,
         role: {
           type: 'driver',
           data: {
-            car_model: driver.user.carModel,
-            car_color: driver.user.carColor,
-            car_plate: driver.user.carPlate,
-            license_number: driver.user.licenseNumber,
+            car_model: driver.user.car_model,
+            car_color: driver.user.car_color,
+            car_plate: driver.user.car_plate,
+            license_number: driver.user.license_number,
           }
         }
       });
@@ -104,7 +106,11 @@ export default function DriverSignUp() {
           <AvatarPicker
             mode="both"
             avatars={avatars}
-            onChange={(source) => console.log(source)}
+            onChange={(source) => {
+              if (typeof source === "object" && "uri" in source) {
+                setImage(source.uri as string);
+              }
+            }}
           />
           <TextInput
             style={styles.input}
