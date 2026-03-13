@@ -13,7 +13,7 @@ export default ({ config }) => ({
     
     splash: {
       image: "./assets/images/icon.png",
-      resizeMode: "center",
+      resizeMode: "contain",
       backgroundColor: "#257F49"
     },
 

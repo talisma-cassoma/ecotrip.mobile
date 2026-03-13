@@ -16,14 +16,14 @@ import { AuthUser } from "@/types";
 
 
 export default function DriverSignUp() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [telephone, setTelephone] = useState('');
-  const [licenseNumber, setLicenseNumber] = useState('');
-  const [vehiclePlate, setVehiclePlate] = useState('');
-  const [vehicleModel, setVehicleModel] = useState('');
-  const [vehicleColor, setVehicleColor] = useState('');
-  const [driverName, setDriverName] = useState('');
+  const [email, setEmail] = useState('talismac@gmail.om');
+  const [password, setPassword] = useState('12345C');
+  const [telephone, setTelephone] = useState('+5491133334444');
+  const [licenseNumber, setLicenseNumber] = useState('XYZ123456');
+  const [vehiclePlate, setVehiclePlate] = useState('JKL-5678');
+  const [vehicleModel, setVehicleModel] = useState('MERCEDES-BENZ C300');
+  const [vehicleColor, setVehicleColor] = useState('laranja');
+  const [driverName, setDriverName] = useState('castor rodriguez');
   const [isLoading, setIsLoading] = useState(false)
   //const [showPassword, setShowPassword] = useState(false);
   const [image, setImage] = useState<string>('')
