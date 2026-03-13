@@ -7,13 +7,9 @@ import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert, useWindowD
 import { storeUser } from "../configs/database"
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { api } from "@/services/api";
-import { IconEye, IconEyeClosed, } from "@tabler/icons-react-native";
-import { ImageSourcePropType } from "react-native";
 import AvatarPicker from "@/components/avatarPicker";
 import { avatars } from "@/assets/avatars";
 import { PasswordInput } from "@/components/passwordInput";
-import { AuthUser } from "@/types";
-
 
 export default function DriverSignUp() {
   const [email, setEmail] = useState('talismac@gmail.om');
@@ -64,7 +60,7 @@ export default function DriverSignUp() {
         id: driver.user.id,
         name: driver.user.name,
         email: driver.user.email,
-        image: driver.user.image,
+        image: image,
         telephone: driver.user.telephone,
         access_token: driver.session.access_token,
         refresh_token: driver.session.refresh_token,
@@ -102,15 +98,11 @@ export default function DriverSignUp() {
           contentContainerStyle={{ paddingBottom: 40 }}
           showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
         >
-          <AvatarPicker
-            mode="both"
-            avatars={avatars}
-            onChange={(source) => {
-              if (typeof source === "object" && "uri" in source) {
-                setImage(source.uri as string);
-              }
-            }}
-          />
+           <AvatarPicker
+        mode="both"
+        avatars={avatars}
+        onChange={(uri) => console.log(uri)}
+      />
           <TextInput
             style={styles.input}
             placeholder="Nombre Completo"

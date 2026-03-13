@@ -6,7 +6,7 @@ export default ({ config }) => ({
     slug: "ecotrip",
     version: "1.0.0",
     orientation: "default",
-    icon: "./assets/images/adaptive-icon.png",
+    icon: "./assets/images/adaptiveicon.png",
     scheme: "myapp",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
@@ -55,9 +55,9 @@ export default ({ config }) => ({
         "expo-splash-screen",
         {
           "backgroundColor": "#232323",
-          "image": "./assets/images/adaptive-icon.png",
+          "image": "./assets/images/adaptiveicon.png",
           "dark": {
-            "image": "./assets/images/adaptive-icon.png",
+            "image": "./assets/images/adaptiveicon.png",
             "backgroundColor": "#000000"
           },
           "imageWidth": 200

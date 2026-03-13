@@ -23,9 +23,10 @@ export default function PassengerSignUp() {
   const [telephone, setTelephone] = useState('');
   const dimensions = useWindowDimensions()
   const [isLoading, setIsLoading] = useState(false)
+  const [image, setImage] = useState<string>('')
   //const [showPassword, setShowPassword] = useState(false);
   const role = 'passenger'
-  const image = 'https://cdn3.iconfinder.com/data/icons/flat-classy-users-1/256/Male_SkinTone3_HairStyle1-256.png'
+  //const image = 'https://cdn3.iconfinder.com/data/icons/flat-classy-users-1/256/Male_SkinTone3_HairStyle1-256.png'
 
   const { setUser } = useUserAuth()
   const handlePassengerSignUp = async () => {
@@ -48,7 +49,7 @@ export default function PassengerSignUp() {
         const storedUser = await storeUser({
           name: passenger.user.name,
           email: passenger.user.email,
-          image: passenger.user.image,
+          image: image,
           telephone: passenger.user.telephone,
           access_token: passenger.session.access_token,
           refresh_token: passenger.session.refresh_token,
@@ -102,7 +103,7 @@ export default function PassengerSignUp() {
           <AvatarPicker
             mode="both"
             avatars={avatars}
-            onChange={(source) => console.log(source)}
+            onChange={(uri) => console.log(uri)}
           />
           <TextInput
             style={styles.input}

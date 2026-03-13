@@ -6,22 +6,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   Text,
-  ImageSourcePropType,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { IconArrowBarToDown } from "@tabler/icons-react-native";
-import { LayoutAnimation, Platform, UIManager } from "react-native";
 
-// Enable on Android
-if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 type Mode = "avatar" | "gallery" | "both";
 
 interface AvatarPickerProps {
   mode?: Mode;
-  avatars: ImageSourcePropType[];
-  onChange: (source: ImageSourcePropType | { uri: string }) => void;
+  avatars: string[];
+  onChange: (uri: string) => void;
 }
 
 const AvatarPicker: React.FC<AvatarPickerProps> = ({
@@ -29,8 +22,7 @@ const AvatarPicker: React.FC<AvatarPickerProps> = ({
   avatars,
   onChange,
 }) => {
-  const [selected, setSelected] = useState<ImageSourcePropType | { uri: string } | null>(null);
-  const [isOpen, setIsOpen] = useState(true);
+  const [selected, setSelected] = useState<string | null>(null);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -39,75 +31,42 @@ const AvatarPicker: React.FC<AvatarPickerProps> = ({
     });
 
     if (!result.canceled) {
-      const source = { uri: result.assets[0].uri };
-      setSelected(source);
-      onChange(source);
-      setIsOpen(false);
+      const uri = result.assets[0].uri;
+      setSelected(uri);
+      onChange(uri);
     }
   };
 
-  const selectAvatar = (avatar: ImageSourcePropType) => {
-    setSelected(avatar);
-    onChange(avatar);
-    setIsOpen(false);
-  };
-
-  const toggle = () => {
-    // Animate next layout change
-  LayoutAnimation.configureNext(
-    LayoutAnimation.create(
-      400, // duration in ms
-      LayoutAnimation.Types.easeInEaseOut,
-      LayoutAnimation.Properties.opacity
-    )
-  );
-  setIsOpen(prev => !prev);
+  const selectAvatar = (uri: string) => {
+    setSelected(uri);
+    onChange(uri);
   };
 
   return (
     <View style={styles.container}>
-      <Text>Selecciona un avatar</Text>
-
-      {/* Preview */}
       {selected && (
-        <TouchableOpacity onPress={toggle}>
-          <Image source={selected} style={styles.preview} />
-        </TouchableOpacity>
+        <Image source={{ uri: selected }} style={styles.preview} />
       )}
 
-      {/* Content below */}
-      {isOpen && (
-        <>
-          {mode !== "gallery" && (
-            <FlatList
-              data={avatars}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              keyExtractor={(_, index) => index.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => selectAvatar(item)}>
-                  <Image source={item} style={styles.avatar} />
-                </TouchableOpacity>
-              )}
-            />
-          )}
-
-          {mode !== "avatar" && (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={async () => {
-                await pickImage();
-                toggle();
-              }}
-            >
-              <Text style={styles.buttonText}>
-                ou clique para cargar una imagen de la galería
-              </Text>
-              <IconArrowBarToDown size={24} color="#00AA00" />
+      {mode !== "gallery" ? (
+        <FlatList
+          data={avatars}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => selectAvatar(item)}>
+              <Image source={{ uri: item }} style={styles.avatar} />
             </TouchableOpacity>
           )}
-        </>
-      )}
+        />
+      ) : null}
+
+      {mode !== "avatar" ? (
+        <TouchableOpacity style={styles.button} onPress={pickImage}>
+          <Text style={styles.buttonText}>Pick from Gallery</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };
@@ -118,7 +77,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     gap: 12,
-    marginBottom: 20,
   },
   preview: {
     width: 100,
@@ -132,13 +90,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   button: {
+    backgroundColor: "#4A90E2",
     padding: 10,
     borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "column",
   },
   buttonText: {
+    color: "white",
     fontWeight: "600",
   },
 });
