@@ -103,7 +103,11 @@ export default function PassengerSignUp() {
           <AvatarPicker
             mode="both"
             avatars={avatars}
-            onChange={(uri) => console.log(uri)}
+            onChange={(source) => {
+              if (typeof source === "object" && "uri" in source) {
+                setImage(source.uri as string);
+              }
+            }}
           />
           <TextInput
             style={styles.input}

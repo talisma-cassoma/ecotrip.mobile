@@ -98,11 +98,15 @@ export default function DriverSignUp() {
           contentContainerStyle={{ paddingBottom: 40 }}
           showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
         >
-           <AvatarPicker
-        mode="both"
-        avatars={avatars}
-        onChange={(uri) => console.log(uri)}
-      />
+                 <AvatarPicker
+            mode="both"
+            avatars={avatars}
+            onChange={(source) => {
+              if (typeof source === "object" && "uri" in source) {
+                setImage(source.uri as string);
+              }
+            }}
+          />
           <TextInput
             style={styles.input}
             placeholder="Nombre Completo"
