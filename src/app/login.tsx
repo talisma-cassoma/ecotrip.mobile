@@ -23,6 +23,8 @@ import {
 import { useUserAuth } from "@/hooks/useUserAuth"; // ← novo hook
 import { api } from "@/services/api";
 import { PasswordInput } from "@/components/passwordInput";
+import { G } from "react-native-svg";
+import { GoogleOauthButton } from "@/components/googleOauthButton";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -208,39 +210,7 @@ export default function Login() {
           contentContainerStyle={{ paddingBottom: 40 }}
           showsVerticalScrollIndicator={false}
         >
-          <Button
-            style={{ justifyContent: "space-between", backgroundColor: colors.green.dark }}
-            onPress={() => alert("Funcionalidad no implementada")}
-          >
-            <View
-              style={{
-                width: 60,
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: colors.green.base,
-                borderRadius: 10,
-                height: "100%",
-              }}
-            >
-              <Button.Icon icon={IconBrandGoogleFilled} />
-            </View>
-
-            <View
-              style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
-            >
-              <Button.Title>
-                <Text
-                  style={{
-                    color: colors.white,
-                    fontSize: 16,
-                    fontFamily: fontFamily.semiBold,
-                  }}
-                >
-                  Login con google
-                </Text>
-              </Button.Title>
-            </View>
-          </Button>
+          <GoogleOauthButton />
 
           {/* <View style={{ backgroundColor: colors.gray[200], flex: 1, margin: 16, flexDirection: 'row', alignItems: "center", justifyContent: "space-around", padding: 8, borderRadius: 20, alignSelf: "center", maxWidth: 400 }}>
             <IconUserCog size={24} stroke={colors.green.base} />

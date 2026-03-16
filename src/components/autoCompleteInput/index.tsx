@@ -49,8 +49,8 @@ export function AutoCompleteInput({
 
     // placeholders personalizados
     const placeholders = {
-        origin: 'Ubicación actual',
-        destination: 'Destino (Ex: Bata ou Malabo)',
+        origin: 'Digite la ubicación de origen ',
+        destination: 'Digite la ubicación de destino',
     };
 
     // ação ao selecionar um local
@@ -186,7 +186,7 @@ export function AutoCompleteInput({
             ) : (
                 <>
                     <TextInput
-                        placeholder={`Digite ${type === 'origin' ? 'sua localização' : 'seu destino'} manualmente`}
+                        placeholder= {placeholders[type]} //{`Digite ${type === 'origin' ? 'sua localização' : 'seu destino'} manualmente`}
                         value={manualInput}
                         onChangeText={handleChange}
                         style={styles.input}

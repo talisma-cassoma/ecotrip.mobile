@@ -14,6 +14,8 @@ import { avatars } from "@/assets/avatars";
 import { api } from "@/services/api";
 import AvatarPicker from "@/components/avatarPicker";
 import { PasswordInput } from "@/components/passwordInput";
+import { G } from "react-native-svg";
+import { GoogleOauthButton } from "@/components/googleOauthButton";
 
 export default function PassengerSignUp() {
 
@@ -84,16 +86,7 @@ export default function PassengerSignUp() {
           contentContainerStyle={{ paddingBottom: 40 }}
           showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
         >
-          <Button style={{ justifyContent: "space-between" }} onPress={() => Alert.alert("Funcionalidad no implementada")}>
-            <View style={{ width: 60, alignItems: "center", justifyContent: "center", backgroundColor: colors.green.dark, borderRadius: 10, height: "100%", }}>
-              <Button.Icon icon={IconBrandGoogleFilled} />
-            </View>
-            <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-              <Button.Title>
-                <Text style={{ color: '#FFF', fontSize: 16, fontFamily: fontFamily.semiBold }}>cadastro con google</Text>
-              </Button.Title>
-            </View>
-          </Button>
+          <GoogleOauthButton />
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 20 }} >
             <View style={styles.bar} />

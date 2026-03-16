@@ -17,6 +17,8 @@ services:
       - EXPO_PUBLIC_GOOGLE_MAPS_APIKEY=${EXPO_PUBLIC_GOOGLE_MAPS_APIKEY}
       - EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL}
     working_dir: /app
+    env_file:
+      - .env
 
 volumes:
   gradle_cache:

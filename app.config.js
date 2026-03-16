@@ -6,10 +6,11 @@ export default ({ config }) => ({
     slug: "ecotrip",
     version: "1.0.0",
     orientation: "default",
-    icon: "./assets/images/adaptiveicon.png",
-    scheme: "myapp",
+    icon: "./assets/images/icon.png",
+    scheme: "ecotrip",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
+    owner: "talismadev",
     
     splash: {
       image: "./assets/images/icon.png",
@@ -54,11 +55,11 @@ export default ({ config }) => ({
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#232323",
-          "image": "./assets/images/adaptiveicon.png",
+          "backgroundColor": "#257F49",
+          "image": "./assets/images/icon.png",
           "dark": {
-            "image": "./assets/images/adaptiveicon.png",
-            "backgroundColor": "#000000"
+            "image": "./assets/images/icon.png",
+            "backgroundColor": "#257F49"
           },
           "imageWidth": 200
         }
