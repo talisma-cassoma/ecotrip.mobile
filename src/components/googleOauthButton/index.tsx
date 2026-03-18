@@ -1,58 +1,85 @@
 import * as React from "react";
 import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { Button } from "@/components/button";
 import { colors, fontFamily } from "@/styles/theme";
 import { IconBrandGoogleFilled } from "@tabler/icons-react-native";
-import * as AuthSession from "expo-auth-session";
+import { useSSO, useUser, useAuth } from "@clerk/clerk-expo";
+import { useUserAuth } from "@/hooks/useUserAuth";
+import { useState, useEffect } from "react";
+import { api } from "@/services/api";
+import { storeUser } from "@/configs/database";
+import { router } from "expo-router";
+import * as Linking from "expo-linking";
 
 WebBrowser.maybeCompleteAuthSession();
 
+const redirectUrl = Linking.createURL("/sso-callback");
+
 export function GoogleOauthButton() {
+  const { startSSOFlow } = useSSO();  // apenas inicia o OAuth
+  const { user } = useUser();         // apenas lê os dados do usuário
+  const { getToken } = useAuth();     // pega o token de autenticação
+  const { login } = useUserAuth();  // seu storage local
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-    //iosClientId: "ID_IOS.apps.googleusercontent.com",
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-    // Expo Go:
-    redirectUri: AuthSession.makeRedirectUri({
-      scheme: "ecotrip",
-      //path: "oauth2redirect", // opcional
-    }),
-  });
+  const { signOut } = useAuth();
 
-  React.useEffect(() => {
-    if (response?.type === "success") {
-      const { authentication } = response;
-      if (authentication?.accessToken) {
-        getUserInfo(authentication.accessToken);
-      }
-    }
-  }, [response]);
-
-  const getUserInfo = async (token: string) => {
+  async function handleGoogleSignIn() {
     try {
-      const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const user = await res.json();
-      console.log("DADOS DO USUÁRIO:", user);
+      setIsLoading(true);
+
+      // inicia login OAuth Google via Clerk
+      const { createdSessionId, setActive, authSessionResult } =
+        await startSSOFlow({ strategy: "oauth_google", redirectUrl });
+
+      if (authSessionResult?.type !== "success") {
+        console.log("Login cancelado");
+        setIsLoading(false);
+        return;
+      }
+
+      // ativa a sessão no Clerk
+      if (setActive && createdSessionId) {
+        await setActive({ session: createdSessionId });
+      } else {
+        // This is an unexpected state, you might want to handle it
+        throw new Error("Failed to activate session");
+      }
+
+      // After session is active, user object should be updated
+      // We will add a small delay to ensure the user object is updated
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
     } catch (error) {
-      console.log("Erro ao buscar dados:", error);
+      console.error("Erro na criação do passageiro:", error);
+      //Alert.alert("Erro ao registrar", "Verifique os dados e tente novamente.");
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+
+    try {
+      WebBrowser.warmUpAsync();
+    } catch (err) {
+      console.log("WebBrowser warmUpAsync erro:", err);
+    }
+
+    return () => {
+      WebBrowser.coolDownAsync().catch(err => {
+        console.log("WebBrowser coolDownAsync erro:", err);
+      });
+    }
+  }, []);
 
   return (
     <Button
-      style={{
-        justifyContent: "space-between",
-        backgroundColor: colors.green.dark,
-      }}
-      disabled={!request}
-      onPress={() => {
-        promptAsync();
-      }}
+      style={{ justifyContent: "center", backgroundColor: colors.green.dark }}
+      disabled={isLoading}
+      isLoading={isLoading}
+      onPress={handleGoogleSignIn}
     >
       <View
         style={{
@@ -66,16 +93,9 @@ export function GoogleOauthButton() {
       >
         <Button.Icon icon={IconBrandGoogleFilled} />
       </View>
-
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <Button.Title>
-          <Text
-            style={{
-              color: colors.white,
-              fontSize: 16,
-              fontFamily: fontFamily.semiBold,
-            }}
-          >
+          <Text style={{ color: colors.white, fontSize: 16, fontFamily: fontFamily.semiBold }}>
             Login com Google
           </Text>
         </Button.Title>

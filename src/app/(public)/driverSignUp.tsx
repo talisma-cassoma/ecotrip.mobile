@@ -4,7 +4,7 @@ import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
 import React, { useState } from 'react';
 import { Image, View, Text, TextInput, StyleSheet, ScrollView, Alert, useWindowDimensions, TouchableOpacity } from 'react-native';
-import { storeUser } from "../configs/database"
+import { storeUser } from "../../configs/database"
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { api } from "@/services/api";
 import AvatarPicker from "@/components/avatarPicker";
@@ -77,7 +77,7 @@ export default function DriverSignUp() {
 
       setUser(storedUser)
 
-      router.replace("./(protected)/driver/driverScreen");
+      router.replace("/(protected)/driver/driverScreen");
 
     } catch (error) {
       console.error('Erro na criação do conductor:', error);

@@ -3,7 +3,7 @@ import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, Alert, Image, useWindowDimensions, TouchableOpacity } from 'react-native';
-import { storeUser } from "../configs/database"
+import { storeUser } from "../../configs/database"
 import {
   IconBrandGoogleFilled,
   IconEye,

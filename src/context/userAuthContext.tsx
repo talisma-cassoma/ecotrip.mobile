@@ -3,6 +3,7 @@ import { useContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthUser } from "@/types";
 import { COLLECTION_USERS, storeUser } from "@/configs/database";
+import { useAuth, useUser } from "@clerk/clerk-expo";
 
 interface AuthContextProps {
   user: AuthUser | null;
@@ -20,48 +21,73 @@ export const AuthContext = createContext<AuthContextProps>(
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { signOut } = useAuth();
+  const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
 
   const isLoggedIn = !!user;
 
   // 🔥 Bootstrapping — hydrate session FIRST, only then isLoaded = true
-  useEffect(() => {
-    let mounted = true;
+useEffect(() => {
+  let mounted = true;
 
-    const hydrate = async () => {
-      try {
-        const saved = await AsyncStorage.getItem(COLLECTION_USERS);
+  const hydrate = async () => {
+    try {
+      // 1️⃣ Primeiro: tenta carregar do storage
+      const saved = await AsyncStorage.getItem(COLLECTION_USERS);
+      console.log("saved user: ", saved)
 
-        if (!mounted) return;
-
-        if (saved) {
-          const parsed = JSON.parse(saved) as AuthUser;
-          setUser(parsed);
-        } else {
-          setUser(null);
-        }
-      } catch (e) {
-        console.error("Auth hydrate failed", e);
-        setUser(null);
-      } finally {
-        if (mounted) setIsLoaded(true);
+      if (saved && mounted) {
+        setUser(JSON.parse(saved));
+        
       }
-    };
 
-    hydrate();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+      // 2️⃣ Depois: espera Clerk
+      if (!clerkLoaded) return;
 
+      // 3️⃣ Se houver Clerk user → sobrescreve
+      if (clerkUser && mounted) {
+        const newUser: AuthUser = {
+          name: clerkUser.fullName ?? "",
+          email: clerkUser.primaryEmailAddress?.emailAddress ?? "",
+          image: clerkUser.imageUrl,
+          telephone: "",
+          role: { type: "passenger" },
+        };
+
+        setUser(newUser);
+        //await storeUser(newUser); // 🔥 sincroniza com storage
+      }
+
+      // 4️⃣ Se NÃO houver Clerk → mantém ou limpa
+      if (!clerkUser && mounted && !saved) {
+        setUser(null);
+      }
+
+    } catch (e) {
+      console.error("Auth hydrate failed", e);
+      setUser(null);
+    } finally {
+      if (mounted) setIsLoaded(true);
+    }
+  };
+
+  hydrate();
+
+  return () => {
+    mounted = false;
+  };
+}, [clerkUser, clerkLoaded]);
   // 🔐 Login
   const login = async (userData: AuthUser) => {
-    await storeUser(userData);
     setUser(userData);
+    await storeUser(userData);
   };
+
 
   // 🚪 Logout
   const logout = async () => {
     await AsyncStorage.removeItem(COLLECTION_USERS);
+    await signOut(); // limpa token, sessão e storage local do Clerk
     setUser(null);
   };
 

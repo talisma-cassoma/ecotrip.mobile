@@ -4,7 +4,7 @@ import { COLLECTION_USERS } from '../configs/database';
 import { Alert } from "react-native"
 
 
-const URL = false ? 'http://192.168.11.101:3000' : 'https://ecotrip-api.onrender.com'
+const URL = true ? 'http://192.168.11.101:3000' : 'https://ecotrip-api.onrender.com'
 
 export const socketUrl =URL
 
@@ -19,7 +19,13 @@ export const api = axios.create({
 
 // Interceptor de requisição: adiciona o access_token
 api.interceptors.request.use(async (config) => {
-  const excludedRoutes = ['/login', '/passenger/create', '/driver/create', '/refresh', '/ping']; // rotas sem token
+  const excludedRoutes = 
+  ['/login', 
+    '/passenger/create', 
+    '/driver/create', 
+    '/refresh', '/ping', 
+    '/passenger/oauth/create'
+  ]; // rotas sem token
 
   if (!excludedRoutes.some(route => config.url?.includes(route))) {
     const user = await AsyncStorage.getItem(COLLECTION_USERS);

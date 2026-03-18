@@ -12,11 +12,11 @@ export default ({ config }) => ({
     newArchEnabled: true,
     owner: "talismadev",
     
-    splash: {
-      image: "./assets/images/icon.png",
-      resizeMode: "contain",
-      backgroundColor: "#257F49"
-    },
+    // splash: {
+    //   image: "./assets/images/icon1.png",
+    //   resizeMode: "contain",
+    //   backgroundColor: "#257F49"
+    // },
 
     ios: {
       supportsTablet: true,
@@ -28,7 +28,7 @@ export default ({ config }) => ({
       /*...config.expo?.android,*/
       package: "com.talismadev.ecotrip",
       adaptiveIcon: {
-        foregroundImage: "./assets/images/icon.png",
+        foregroundImage: "./assets/images/icon1.png",
         backgroundColor: "#257F49",
       },
       permissions: [
@@ -56,9 +56,9 @@ export default ({ config }) => ({
         "expo-splash-screen",
         {
           "backgroundColor": "#257F49",
-          "image": "./assets/images/icon.png",
+          "image": "./assets/images/icon1.png",
           "dark": {
-            "image": "./assets/images/icon.png",
+            "image": "./assets/images/icon1.png",
             "backgroundColor": "#257F49"
           },
           "imageWidth": 200

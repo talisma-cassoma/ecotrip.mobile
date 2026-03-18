@@ -2,49 +2,46 @@ import React, { useEffect, useRef } from "react";
 import { Slot, router } from "expo-router";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { Loading } from "@/components/loading";
+import { useAuth } from "@clerk/clerk-expo";
+
 
 
 export default function ProtectedLayout() {
   const { user, isLoggedIn, isLoaded } = useUserAuth();
   const hasNavigated = useRef(false);
 
-  useEffect(() => {
-    // Aguardar até que o contexto termine de carregar
-    if (!isLoaded) {
-      console.log("⏳ Aguardando carregamento do usuário...");
-      return;
-    }
+  console.log("ola daqui _layout")
+  
+  console.log("DEBUG LAYOUT:", {
+  isLoaded,
+  user,
+  hasNavigated: hasNavigated.current
+});
+  
+useEffect(() => {
+  if (!isLoaded || hasNavigated.current) return;
 
-    if (hasNavigated.current) {
-      console.log("✅ Navegação já realizada");
-      return;
-    }
+  // 🚨 Espera user estar resolvido MESMO
+  if (user === undefined) return;
 
-    //console.log("🔍 Protected layout - isLoggedIn:", isLoggedIn, "user:", user);
+  console.log("USER NO LAYOUT:", user);
 
-    // Se não autenticado, redireciona para login
-    if (!isLoggedIn) {
-      console.log("❌ Usuário não autenticado, redirecionando para /login");
-      router.replace("/login");
-      hasNavigated.current = true;
-      return;
-    }
-
-    // Usuário autenticado — redireciona conforme papel
-    if (user?.role.type === "driver") {
-      console.log("✅ Redirecionando driver para /driverScreen");
-      router.replace("/(protected)/driver/driverScreen");
-      
-    } else if (user?.role.type === "passenger") {
-      console.log("✅ Redirecionando passenger para /passengerScreen");
-      router.replace("/(protected)/passenger/passengerScreen");
-     
-    } else {
-      console.warn("⚠️ Papel de usuário desconhecido, redirecionando para /login");
-      router.replace("/login");   
-    }
+  if (!user) {
+    router.replace("/(public)/login");
     hasNavigated.current = true;
-  }, [isLoaded, isLoggedIn, user?.role.type]);
+    return;
+  }
+
+  if (user.role.type === "driver") {
+    router.replace("/driver/driverScreen");
+  } else if (user.role.type === "passenger") {
+    router.replace("/passenger/passengerScreen");
+  } else {
+    router.replace("/(public)/login");
+  }
+
+  hasNavigated.current = true;
+}, [isLoaded, user]);
 
   // Timeout de segurança
   useEffect(() => {
@@ -60,7 +57,5 @@ export default function ProtectedLayout() {
   }, [isLoaded]);
 
   // Mostrar conteúdo baseado no tipo de usuário
-    return (  
-      isLoaded ? <Slot />:<Loading />
-  );
+   return isLoaded ? <Slot /> : <Loading />
 }

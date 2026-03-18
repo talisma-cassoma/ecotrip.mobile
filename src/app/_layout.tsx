@@ -1,10 +1,9 @@
 import { Stack } from "expo-router";
-import { colors } from "@/styles/theme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { AuthProvider} from "@/context/userAuthContext";
+import { AuthProvider } from "@/context/userAuthContext";
 import { ToastProvider } from "@/context/toastContext";
-
-
+import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
+import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import {
   useFonts,
   Rubik_600SemiBold,
@@ -14,6 +13,12 @@ import {
 } from "@expo-google-fonts/rubik";
 
 import { Loading } from "@/components/loading";
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY as string;
+
+if (!publishableKey) {
+  throw new Error('Add your Clerk Publishable Key to the .env file');
+}
 
 export default function ProtectedLayout() {
   const [fontsLoaded] = useFonts({
@@ -26,18 +31,20 @@ export default function ProtectedLayout() {
   if (!fontsLoaded) {
     return <Loading />;
   }
-  
-  
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ToastProvider>
-      < AuthProvider> 
-        <Stack screenOptions={{
-          headerShown: false,
-        }}>
-        </Stack>
-      </AuthProvider>
-    </ToastProvider>
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <ToastProvider>
+          <AuthProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            />
+          </AuthProvider>
+        </ToastProvider>
+      </ClerkProvider>
     </GestureHandlerRootView>
   );
 }
