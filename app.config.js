@@ -28,8 +28,8 @@ export default ({ config }) => ({
       /*...config.expo?.android,*/
       package: "com.talismadev.ecotrip",
       adaptiveIcon: {
-        foregroundImage: "./assets/images/icon1.png",
-        backgroundColor: "#2d9858",
+        foregroundImage: "./assets/images/icon.png",
+        backgroundColor: "#FFF",
       },
       permissions: [
         "android.permission.ACCESS_COARSE_LOCATION",
@@ -55,11 +55,11 @@ export default ({ config }) => ({
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#2d9858",
-          "image": "./assets/images/icon1.png",
+          "backgroundColor": "#FFF",
+          "image": "./assets/images/icon.png",
           "dark": {
-            "image": "./assets/images/icon1.png",
-            "backgroundColor": "#2d9858"
+            "image": "./assets/images/icon.png",
+            "backgroundColor": "#000"
           },
           "imageWidth": 200
         }
