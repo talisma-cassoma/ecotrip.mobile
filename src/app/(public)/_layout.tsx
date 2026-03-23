@@ -3,6 +3,8 @@ import { ToastProvider } from "@/context/toastContext";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { Redirect, Stack } from 'expo-router'
 import { useUserAuth } from "@/hooks/useUserAuth";
+import { useEffect } from "react";
+
 
 export default function AuthRoutesLayout() {
   const { user, isLoaded } = useUserAuth();
@@ -20,6 +22,7 @@ export default function AuthRoutesLayout() {
 
     return <Redirect href="/passenger/passengerScreen" />;
   }
+
 
   // ❌ Se não tem user → fica no public
   return <Stack screenOptions={{ headerShown: false, }}/>;

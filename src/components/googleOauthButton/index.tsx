@@ -26,6 +26,7 @@ export function GoogleOauthButton() {
   const { signOut } = useAuth();
 
   async function handleGoogleSignIn() {
+    // await signOut()
     try {
       setIsLoading(true);
 
@@ -34,6 +35,7 @@ export function GoogleOauthButton() {
         await startSSOFlow({ strategy: "oauth_google", redirectUrl });
 
       if (authSessionResult?.type !== "success") {
+        console.log("redirectUrl:", redirectUrl);
         console.log("Login cancelado");
         setIsLoading(false);
         return;
@@ -68,10 +70,10 @@ export function GoogleOauthButton() {
     }
 
     return () => {
-      WebBrowser.coolDownAsync().catch(err => {
+      WebBrowser.coolDownAsync().catch((err) => {
         console.log("WebBrowser coolDownAsync erro:", err);
       });
-    }
+    };
   }, []);
 
   return (
@@ -96,7 +98,7 @@ export function GoogleOauthButton() {
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <Button.Title>
           <Text style={{ color: colors.white, fontSize: 16, fontFamily: fontFamily.semiBold }}>
-            Login com Google
+            Login con Google
           </Text>
         </Button.Title>
       </View>

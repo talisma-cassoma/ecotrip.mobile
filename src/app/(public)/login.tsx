@@ -186,7 +186,7 @@ export default function Login() {
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 20}
     >
       <View style={styles.container}>
         <Image
@@ -256,6 +256,8 @@ export default function Login() {
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
+            autoComplete="email"
+            //autoCorrect={true}
           />
           <PasswordInput
             style={styles.input}

@@ -2,9 +2,14 @@ import React from "react";
 import { Image, Text, StyleSheet, View } from "react-native";
 import { colors, fontFamily } from "@/styles/theme";
 import { Loading } from "@/components/loading";
+import { useUserAuth } from "@/hooks/useUserAuth";
+import { Redirect, Stack } from 'expo-router'
 
 
 export default function ProtectedIndex() {
+
+    const { user, isLoaded } = useUserAuth();
+    if (isLoaded) return <Redirect href="/passenger/passengerScreen" />;
 
     return (
         <View style={{ flex: 1, flexDirection: "column", padding: 24, justifyContent: 'center', }}>

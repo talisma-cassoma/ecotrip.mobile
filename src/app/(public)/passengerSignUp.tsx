@@ -2,7 +2,10 @@ import { router } from "expo-router";
 import { fontFamily, colors } from "@/styles/theme";
 import { Button } from "@/components/button";
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Alert, Image, useWindowDimensions, TouchableOpacity } from 'react-native';
+import {
+  View, Text, TextInput, StyleSheet, ScrollView, Alert, Image,
+  useWindowDimensions, TouchableOpacity, KeyboardAvoidingView, Platform
+} from 'react-native';
 import { storeUser } from "../../configs/database"
 import {
   IconBrandGoogleFilled,
@@ -75,82 +78,88 @@ export default function PassengerSignUp() {
 
 
   return (
-    <View style={styles.container}>
-      <Image source={require("@/assets/logo.png")} style={{ width: 150, height: 150, marginTop: 24, marginBottom: 2, alignSelf: 'center' }} />
-      <Text style={styles.title}>EcoTrip</Text>
-      <Text style={styles.subtitle}>Introduce tu correo y una contraseña para crear una cuenta</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : 'height'}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 20}
+    >
+      <View style={styles.container}>
+        <Image source={require("@/assets/logo.png")} style={{ width: 150, height: 150, marginTop: 24, marginBottom: 2, alignSelf: 'center' }} />
+        <Text style={styles.title}>EcoTrip</Text>
+        <Text style={styles.subtitle}>Introduce tu correo y una contraseña para crear una cuenta</Text>
 
-      <View style={{ minHeight: dimensions.height / 2, marginBottom: 16 }}>
-        <ScrollView
-          style={{ flex: 1, padding: 24 }}
-          contentContainerStyle={{ paddingBottom: 40 }}
-          showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
-        >
-          <GoogleOauthButton />
+        <View style={{ minHeight: dimensions.height / 2, marginBottom: 16 }}>
+          <ScrollView
+            style={{ flex: 1, padding: 24 }}
+            contentContainerStyle={{ paddingBottom: 40 }}
+            showsVerticalScrollIndicator={false} // <- aqui você esconde a barra
+          >
+            <GoogleOauthButton />
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 20 }} >
-            <View style={styles.bar} />
-            <Text style={styles.label}>ou</Text>
-            <View style={styles.bar} />
-          </View>
-          <AvatarPicker
-            mode="both"
-            avatars={avatars}
-            onChange={(source) => {
-              if (typeof source === "object" && "uri" in source) {
-                setImage(source.uri as string);
-              }
-            }}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="tu nombre"
-            placeholderTextColor="#aaa"
-            keyboardType="default"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="email@ejemplo.com"
-            placeholderTextColor="#aaa"
-            keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="telefono"
-            placeholderTextColor="#aaa"
-            value={telephone}
-            keyboardType="phone-pad"
-            onChangeText={setTelephone}
-            autoCapitalize="words"
-          />
-          <PasswordInput
-            style={styles.input}
-            placeholder="********"
-            placeholderTextColor="#aaa"
-            value={password}
-            onChangeText={setPassword}
-            isVisible={false}
-          />
-          <Button onPress={handlePassengerSignUp} isLoading={isLoading}>
-            <Button.Title>Registrarse como Pasajero</Button.Title>
-          </Button>
-        </ScrollView>
-        <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
-          <Text style={styles.label}>
-            ¿Ya tienes cuenta?
-            <Text onPress={() => router.replace("/login")} style={{ color: colors.green.dark }}>
-              Inicia sesión
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 20 }} >
+              <View style={styles.bar} />
+              <Text style={styles.label}>ou</Text>
+              <View style={styles.bar} />
+            </View>
+            <AvatarPicker
+              mode="both"
+              avatars={avatars}
+              onChange={(source) => {
+                if (typeof source === "object" && "uri" in source) {
+                  setImage(source.uri as string);
+                }
+              }}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="tu nombre"
+              placeholderTextColor="#aaa"
+              keyboardType="default"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="email@ejemplo.com"
+              placeholderTextColor="#aaa"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoComplete="email"
+              //autoCorrect={true}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="telefono"
+              placeholderTextColor="#aaa"
+              value={telephone}
+              keyboardType="phone-pad"
+              onChangeText={setTelephone}
+              autoCapitalize="words"
+            />
+            <PasswordInput
+              style={styles.input}
+              placeholder="********"
+              placeholderTextColor="#aaa"
+              value={password}
+              onChangeText={setPassword}
+              isVisible={false}
+            />
+            <Button onPress={handlePassengerSignUp} isLoading={isLoading}>
+              <Button.Title>Registrarse como Pasajero</Button.Title>
+            </Button>
+          </ScrollView>
+          <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
+            <Text style={{ fontWeight: 'bold', color: colors.green.light}} onPress={() => router.replace("/login")}>
+              ¿Ya tienes cuenta? Inicia sesión
             </Text>
-          </Text>
-        </TouchableOpacity>
+
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   )
 };
 

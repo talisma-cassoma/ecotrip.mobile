@@ -12,11 +12,11 @@ export default ({ config }) => ({
     newArchEnabled: true,
     owner: "talismadev",
     
-    // splash: {
-    //   image: "./assets/images/icon1.png",
-    //   resizeMode: "contain",
-    //   backgroundColor: "#257F49"
-    // },
+    splash: {
+      image: "./assets/images/icon1.png",
+      resizeMode: "contain",
+      backgroundColor: "#257F49"
+    },
 
     ios: {
       supportsTablet: true,
@@ -29,7 +29,7 @@ export default ({ config }) => ({
       package: "com.talismadev.ecotrip",
       adaptiveIcon: {
         foregroundImage: "./assets/images/icon1.png",
-        backgroundColor: "#257F49",
+        backgroundColor: "#2d9858",
       },
       permissions: [
         "android.permission.ACCESS_COARSE_LOCATION",
@@ -52,18 +52,18 @@ export default ({ config }) => ({
     plugins: [
       "expo-router",
       "expo-font",
-      [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#257F49",
-          "image": "./assets/images/icon1.png",
-          "dark": {
-            "image": "./assets/images/icon1.png",
-            "backgroundColor": "#257F49"
-          },
-          "imageWidth": 200
-        }
-      ],
+      // [
+      //   "expo-splash-screen",
+      //   {
+      //     "backgroundColor": "#2d9858",
+      //     "image": "./assets/images/icon.png",
+      //     "dark": {
+      //       "image": "./assets/images/icon.png",
+      //       "backgroundColor": "#2d9858"
+      //     },
+      //     "imageWidth": 200
+      //   }
+      // ],
       [
         "expo-location",
         {
