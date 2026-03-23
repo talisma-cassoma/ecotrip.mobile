@@ -12,11 +12,11 @@ export default ({ config }) => ({
     newArchEnabled: true,
     owner: "talismadev",
     
-    splash: {
-      image: "./assets/images/icon1.png",
-      resizeMode: "contain",
-      backgroundColor: "#257F49"
-    },
+    // splash: {
+    //   image: "./assets/images/icon1.png",
+    //   resizeMode: "contain",
+    //   backgroundColor: "#257F49"
+    // },
 
     ios: {
       supportsTablet: true,
