@@ -52,18 +52,18 @@ export default ({ config }) => ({
     plugins: [
       "expo-router",
       "expo-font",
-      // [
-      //   "expo-splash-screen",
-      //   {
-      //     "backgroundColor": "#2d9858",
-      //     "image": "./assets/images/icon.png",
-      //     "dark": {
-      //       "image": "./assets/images/icon.png",
-      //       "backgroundColor": "#2d9858"
-      //     },
-      //     "imageWidth": 200
-      //   }
-      // ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#2d9858",
+          "image": "./assets/images/icon1.png",
+          "dark": {
+            "image": "./assets/images/icon1.png",
+            "backgroundColor": "#2d9858"
+          },
+          "imageWidth": 200
+        }
+      ],
       [
         "expo-location",
         {
