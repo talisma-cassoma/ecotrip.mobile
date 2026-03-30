@@ -99,7 +99,7 @@ export default ({ config }) => ({
 
     // Configuração de Updates centralizada (Apenas uma vez)
     updates: {  
-      url: process.env.EAS_PUBLIC_UPDATES_URL || "1.0.0",
+      url: process.env.EAS_PUBLIC_UPDATES_URL || "appVersion", 
     },
 
     // Runtime Version baseada na versão do App (Importante para OTA)
