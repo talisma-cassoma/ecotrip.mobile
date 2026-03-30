@@ -99,7 +99,7 @@ export default ({ config }) => ({
 
     // Configuração de Updates centralizada (Apenas uma vez)
     updates: {  
-      url: process.env.EAS_PUBLIC_UPDATES_URL , 
+      url: process.env.EAS_PUBLIC_UPDATES_URL ||"https://u.expo.dev/4f078bc7-ebc6-44f5-bdcc-43249fcd0a01", 
     },
 
     // Runtime Version baseada na versão do App (Importante para OTA)
@@ -112,7 +112,7 @@ export default ({ config }) => ({
         origin: false
       },
       eas: {
-        projectId: process.env.EAS_PROJECT_ID,
+        projectId: "4f078bc7-ebc6-44f5-bdcc-43249fcd0a01",
       },
       // Variáveis de ambiente para o seu código JS
       EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL,
