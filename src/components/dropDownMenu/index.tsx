@@ -56,11 +56,11 @@ export function DropDownMenu() {
 const styles = StyleSheet.create({
     wrapper: {
         position: "absolute",
-        top: 120,
-        left: 0,
+        top: 58,
+        left: -20,
         zIndex: 10,
         alignItems: "center",
-        width: 150,
+        width: 160,
     },
     dropdownWrapper: {
         backgroundColor: 'transparent',

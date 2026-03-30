@@ -1,3 +1,4 @@
+
 export default ({ config }) => ({
   ...config,
   expo: {
@@ -29,7 +30,7 @@ export default ({ config }) => ({
       package: "com.talismadev.ecotrip",
       adaptiveIcon: {
         foregroundImage: "./assets/images/icon.png",
-        backgroundColor: "#FFF",
+        backgroundColor: "#FFFFFF",
       },
       permissions: [
         "android.permission.ACCESS_COARSE_LOCATION",
@@ -45,8 +46,8 @@ export default ({ config }) => ({
 
     web: {
       bundler: "metro",
-      output: "static",
-      favicon: ""
+      output: "server", //"static",
+      favicon: "./assets/images/icon1.png"
     },
 
     plugins: [
@@ -55,11 +56,11 @@ export default ({ config }) => ({
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FFF",
+          "backgroundColor": "#000000", //aqui
           "image": "./assets/images/icon.png",
           "dark": {
             "image": "./assets/images/icon.png",
-            "backgroundColor": "#000"
+            "backgroundColor": "#000000"
           },
           "imageWidth": 200
         }
@@ -98,12 +99,12 @@ export default ({ config }) => ({
 
     // Configuração de Updates centralizada (Apenas uma vez)
     updates: {  
-      url: "https://u.expo.dev/4f078bc7-ebc6-44f5-bdcc-43249fcd0a01"
+      url: process.env.EAS_PUBLIC_UPDATES_URL || "1.0.0",
     },
 
     // Runtime Version baseada na versão do App (Importante para OTA)
     runtimeVersion: {
-      policy: "appVersion"
+      policy:  process.env.EAS_PUBLIC_RUNTIME_VERSION_POLICY,
     },
 
     extra: {
@@ -111,7 +112,7 @@ export default ({ config }) => ({
         origin: false
       },
       eas: {
-        projectId: "4f078bc7-ebc6-44f5-bdcc-43249fcd0a01"
+        projectId: process.env.EAS_PROJECT_ID,
       },
       // Variáveis de ambiente para o seu código JS
       EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL,

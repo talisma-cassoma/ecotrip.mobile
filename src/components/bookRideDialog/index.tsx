@@ -110,7 +110,7 @@ export function BookRideDialog() {
             <TouchableOpacity onPress={handleGetLocation} activeOpacity={0.8} disabled={locatePressed}>
               <IconCurrentLocation
                 size={20}
-                color={locatePressed ? '#007bc9' : '#aaa'}
+                color={locatePressed ? colors.green.light : '#aaa'}
               />
             </TouchableOpacity>
             {/* Wrapper para a linha tracejada */}

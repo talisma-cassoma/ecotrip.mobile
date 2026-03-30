@@ -1,6 +1,9 @@
 services:
   builder:
-    image: erayalakese/eas-like-local-builder:latest
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: ecotrip_builder_image
     container_name: ecotrip_builder
 
     dns:

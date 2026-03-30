@@ -25,5 +25,5 @@ export default function AuthRoutesLayout() {
 
 
   // ❌ Se não tem user → fica no public
-  return <Stack screenOptions={{ headerShown: false, }}/>;
+  return <Stack screenOptions={{ headerShown: false }}/>;
 }

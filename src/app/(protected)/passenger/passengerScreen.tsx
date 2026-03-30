@@ -24,6 +24,7 @@ import { IconArrowRight } from "@tabler/icons-react-native"
 import { TripRequestProps, AvailableDriverCompProps } from "@/types";
 import { PriceInput } from "@/components/priceInput";
 import { formatDistance, formatDuration } from "@/utils/converter";
+import LoadingDrivers from "@/components/loadingDrivers"
 
 
 
@@ -366,6 +367,7 @@ const mockRides: RidesProps[] = [
   },
 ]
 const mockCategories: CategoriesProps = [
+  { id: "abce52cf-b33b-4b3c-8972-eb72c66c2234", name: "Viajes recentes" },
   { id: "146b1a88-b3d3-4232-8b8f-c1f006f1e86d", name: "Alimentación" },
   { id: "52e81585-f71a-44cd-8bd0-49771e45da44", name: "Compras" },
   { id: "57d6e5ff-35f6-4d21-a521-84f23d511d25", name: "Alojamiento" },
@@ -885,9 +887,9 @@ export default function PassengerScreen() {
                   />
                 )}
                 ListEmptyComponent={
-                  <View style={{ padding: 54, alignItems: 'center' }}>
-                    <Text style={s.title}>Aguardando motoristas...</Text>
-                  </View>
+                  <View style={{ padding: 44, alignItems: 'center' }}>
+                    <LoadingDrivers/> 
+                    </View>
                 }
               />
             )}

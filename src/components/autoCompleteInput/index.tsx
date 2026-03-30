@@ -260,6 +260,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: colors.gray[600],
         paddingVertical: 0,
+        borderBottomWidth: 1,
+        borderColor: colors.gray[300],
+        borderRadius: 8,
     },
     suggestionsWrapper: {
         position: 'absolute',

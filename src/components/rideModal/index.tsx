@@ -37,6 +37,7 @@ export function RideModal({ data }: RideModalProps) {
       enablePanDownToClose={false} 
     >
       <BookRideDialog />
+      <Text style={[s.title, {margin:40 }]}>Lugares cercanos de interes</Text>
       <BottomSheetFlatList
         data={data}
         keyExtractor={(item: PlaceProps, index: number) => item.id + index}
@@ -53,9 +54,9 @@ export function RideModal({ data }: RideModalProps) {
           />
         )}
         contentContainerStyle={s.content}
-        ListHeaderComponent={() => (
-          <Text style={s.title}>Lugares cercanos de interes</Text>
-        )}
+        // ListHeaderComponent={() => (
+        //   <Text style={s.title}>Lugares cercanos de interes</Text>
+        // )}
         showsVerticalScrollIndicator={false}
       />
     </BottomSheet>
