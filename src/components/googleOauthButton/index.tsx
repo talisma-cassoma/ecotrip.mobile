@@ -14,7 +14,7 @@ import * as Linking from "expo-linking";
 
 WebBrowser.maybeCompleteAuthSession();
 
-const redirectUrl = Linking.createURL("/sso-callback");
+const redirectUrl = Linking.createURL("sso-callback");
 
 export function GoogleOauthButton() {
   const { startSSOFlow } = useSSO();  // apenas inicia o OAuth

@@ -1,16 +1,14 @@
 import { useEffect, useState, useRef } from "react"
-import { View, Alert, Text, useWindowDimensions, StyleSheet } from "react-native"
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps"
-
+import { View, Alert, Text, useWindowDimensions, StyleSheet, Platform } from "react-native"
 import { api } from "@/services/api"
 import { fontFamily, colors } from "@/styles/theme"
-
 import { RideModal } from "@/components/rideModal"
 import { PlaceProps } from "@/types"
 import { Categories, CategoriesProps } from "@/components/categories"
 import { useTrip } from "@/context/tripContext"
 import { DropDownMenu } from "@/components/dropDownMenu"
-import { MapsDirections } from "@/components/mapsDirections"
+import MapDirections from "@/components/mapsDirections/MapDirections"
+import MapView, { Callout, Marker, PROVIDER_GOOGLE }  from "@/components/mapView/MapView"
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { IconArrowLeft } from "@tabler/icons-react-native";
 import { AxiosError } from "axios";
@@ -18,14 +16,12 @@ import { router } from "expo-router";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { usePassenger } from "@/context/passengerContext";
 import { AvailableDriver } from "@/components/availableDriver";
-import { BookingTripCard } from "@/components/bookingTripCard";
 import { Button } from "@/components/button";
 import { IconArrowRight } from "@tabler/icons-react-native"
 import { TripRequestProps, AvailableDriverCompProps } from "@/types";
 import { PriceInput } from "@/components/priceInput";
 import { formatDistance, formatDuration } from "@/utils/converter";
-import LoadingDrivers from "@/components/loadingDrivers"
-
+import { LoadingDrivers } from "@/components/loadingDrivers"
 
 
 const mockRides: RidesProps[] = [
@@ -568,8 +564,10 @@ type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; status?: number; message: string };
 
+
 export default function PassengerScreen() {
-  const mapRef = useRef<MapView>(null)
+
+  const mapRef = useRef<any>(null);
 
   const [categories, setCategories] = useState<CategoriesProps>(mockCategories)
   const [category, setCategory] = useState("")
@@ -743,88 +741,94 @@ export default function PassengerScreen() {
     <>
       <View style={{ flex: 1, backgroundColor: "#CECECE" }}>
         <DropDownMenu />
-        <MapView
-          ref={mapRef}
-          customMapStyle={whiteMapStyle}
-          provider={PROVIDER_GOOGLE}
-          zoomControlEnabled={true}
-          zoomEnabled={true}
-          style={{ flex: 1 }}
-          initialRegion={{
-            latitude: 1.8575468799281134,
-            longitude: 9.773508861048843,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          }}
-        >
-          <Marker
-            identifier="current"
-            coordinate={{
+        {Platform.OS === 'web' ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text>O mapa não está disponível na versão Web.</Text>
+          </View>
+        ) : (
+          <MapView
+            ref={mapRef}
+            customMapStyle={whiteMapStyle}
+            provider={PROVIDER_GOOGLE}
+            zoomControlEnabled={true}
+            zoomEnabled={true}
+            style={{ flex: 1 }}
+            initialRegion={{
               latitude: 1.8575468799281134,
-              longitude: 9.773508861048843
+              longitude: 9.773508861048843,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
             }}
-          // image={require("@/assets/location.png")}
-          />
-
-          {rides.map((item) => (
+          >
             <Marker
-              key={item.id}
-              identifier={item.id}
+              identifier="current"
               coordinate={{
-                latitude: item.latitude,
-                longitude: item.longitude,
+                latitude: 1.8575468799281134,
+                longitude: 9.773508861048843
               }}
-              image={require("@/assets/pin.png")}
-            >
-              <Callout>
-                <View>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: colors.gray[600],
-                      fontFamily: fontFamily.medium,
-                    }}
-                  >
-                    {item.name}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: colors.gray[600],
-                      fontFamily: fontFamily.regular,
-                    }}
-                  >
-                    {item.address}
-                  </Text>
-                </View>
-              </Callout>
-            </Marker>
-          ))}
+            // image={require("@/assets/location.png")}
+            />
 
-          {originCoords?.latitude && destinationCoords?.latitude && (
-            <>
-              <MapsDirections />
+            {rides.map((item) => (
               <Marker
-                key={`origin-${originCoords.latitude}-${originCoords.longitude}`}
+                key={item.id}
+                identifier={item.id}
                 coordinate={{
-                  latitude: originCoords.latitude,
-                  longitude: originCoords.longitude
-                }}
-                image={require("@/assets/location.png")}
-                title="Starting Point"
-              />
-              <Marker
-                key={`destination-${destinationCoords.latitude}-${destinationCoords.longitude}`}
-                coordinate={{
-                  latitude: destinationCoords.latitude,
-                  longitude: destinationCoords.longitude
+                  latitude: item.latitude,
+                  longitude: item.longitude,
                 }}
                 image={require("@/assets/pin.png")}
-                title="Destination Point"
-              />
-            </>
-          )}
-        </MapView>
+              >
+                <Callout>
+                  <View>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        color: colors.gray[600],
+                        fontFamily: fontFamily.medium,
+                      }}
+                    >
+                      {item.name}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: colors.gray[600],
+                        fontFamily: fontFamily.regular,
+                      }}
+                    >
+                      {item.address}
+                    </Text>
+                  </View>
+                </Callout>
+              </Marker>
+            ))}
+
+            {originCoords?.latitude && destinationCoords?.latitude && (
+              <>
+                <MapDirections />
+                <Marker
+                  key={`origin-${originCoords.latitude}-${originCoords.longitude}`}
+                  coordinate={{
+                    latitude: originCoords.latitude,
+                    longitude: originCoords.longitude
+                  }}
+                  image={require("@/assets/location.png")}
+                  title="Starting Point"
+                />
+                <Marker
+                  key={`destination-${destinationCoords.latitude}-${destinationCoords.longitude}`}
+                  coordinate={{
+                    latitude: destinationCoords.latitude,
+                    longitude: destinationCoords.longitude
+                  }}
+                  image={require("@/assets/pin.png")}
+                  title="Destination Point"
+                />
+              </>
+            )}
+          </MapView>
+        )}
         {!newTrip?.trip ? (
           <>
             <Categories
@@ -840,7 +844,7 @@ export default function PassengerScreen() {
             snapPoints={[snapPoints.min, snapPoints.max]}
             backgroundStyle={s.container}
           >
-            <Button style={{ margin: 10, width: 40, height: 40 }} onPress={async() => await cancelTripByPassenger()}>
+            <Button style={{ margin: 10, width: 40, height: 40 }} onPress={async () => await cancelTripByPassenger()}>
               <Button.Icon icon={IconArrowLeft} />
             </Button>
             {originCoords && destinationCoords && (
@@ -887,9 +891,9 @@ export default function PassengerScreen() {
                   />
                 )}
                 ListEmptyComponent={
-                  <View style={{ padding: 44, alignItems: 'center' }}>
-                    <LoadingDrivers/> 
-                    </View>
+                  <View style={{ padding: 10, alignItems: 'center' }}>
+                    <LoadingDrivers />
+                  </View>
                 }
               />
             )}
@@ -916,3 +920,5 @@ const s = StyleSheet.create({
     fontFamily: fontFamily.regular,
   },
 });
+
+

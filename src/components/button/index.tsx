@@ -14,7 +14,7 @@ type ButtonProps = TouchableOpacityProps & {
   isLoading?: boolean
 }
 
-function Button({ children, style, isLoading = false, ...rest }: ButtonProps) {
+export function Button({ children, style, isLoading = false, ...rest }: ButtonProps) {
   return (
     <TouchableOpacity
       style={[s.container, style]}
@@ -46,4 +46,4 @@ function Icon({ icon: Icon }: IconProps) {
 Button.Title = Title
 Button.Icon = Icon
 
-export { Button }
+

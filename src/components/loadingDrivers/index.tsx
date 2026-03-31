@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, Animated } from 'react-native';
 import { colors } from '@/styles/colors';
 
-export default function LoadingDrivers() {
+export function LoadingDrivers() {
   const fullText = 'Aguardando motoristas...';
   const [displayedText, setDisplayedText] = useState('');
 
@@ -55,7 +55,7 @@ export default function LoadingDrivers() {
       alignItems: 'center',
     }}
   >
-    <Text style={{ padding: 20, fontSize: 16 }}>
+    <Text style={{ marginBottom: 10, fontSize: 16 }}>
       {displayedText}
     </Text>
 

@@ -49,7 +49,7 @@ export const MockMapDirections: React.FC<MockMapDirectionsProps> = ({
     return null;
 };
 
-export function MapsDirections () {
+export default function MapDirections () {
     const mapRef = useRef<MapView>(null);
     const {
         setDistance,
