@@ -9,6 +9,8 @@ dist/
 web-build/
 expo-env.d.ts
 release_outputs/
+android/
+ios/
 
 # Native
 *.orig.*
