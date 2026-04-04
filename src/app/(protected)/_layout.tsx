@@ -10,13 +10,13 @@ export default function ProtectedLayout() {
   const { user, isLoggedIn, isLoaded } = useUserAuth();
   const hasNavigated = useRef(false);
 
-  console.log("ola daqui _layout")
+//   console.log("ola daqui _layout")
   
-  console.log("DEBUG LAYOUT:", {
-  isLoaded,
-  user,
-  hasNavigated: hasNavigated.current
-});
+//   console.log("DEBUG LAYOUT:", {
+//   isLoaded,
+//   user,
+//   hasNavigated: hasNavigated.current
+// });
   
 useEffect(() => {
   if (!isLoaded || hasNavigated.current) return;
@@ -24,7 +24,7 @@ useEffect(() => {
   // 🚨 Espera user estar resolvido MESMO
   if (user === undefined) return;
 
-  console.log("USER NO LAYOUT:", user);
+  // console.log("USER NO LAYOUT:", user);
 
   if (!user) {
     router.replace("/(public)/login");

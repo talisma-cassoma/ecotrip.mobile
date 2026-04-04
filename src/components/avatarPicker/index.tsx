@@ -20,49 +20,69 @@ type Mode = "avatar" | "gallery" | "both";
 
 interface AvatarPickerProps {
   mode?: Mode;
-  avatars: ImageSourcePropType[];
-  onChange: (source: ImageSourcePropType | { uri: string }) => void;
+  avatars: any[];
+  onChange: (source: any) => void;
 }
+type Avatar = {
+  id: string;
+  uri: string;
+};
 
-const AvatarPicker: React.FC<AvatarPickerProps> = ({
+export function AvatarPicker({
   mode = "both",
   avatars,
   onChange,
-}) => {
-  const [selected, setSelected] = useState<ImageSourcePropType | { uri: string } | null>(null);
+}: AvatarPickerProps) {
+  const [selected, setSelected] = useState<Avatar | null>(null);
   const [isOpen, setIsOpen] = useState(true);
 
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
+  // 📸 Escolher imagem da galeria
+ const pickImage = async () => {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ["images"],
+    quality: 1,
+  });
 
-    if (!result.canceled) {
-      const source = { uri: result.assets[0].uri };
-      setSelected(source);
-      onChange(source);
-      setIsOpen(false);
-    }
-  };
+  if (!result.canceled) {
+    const avatar: Avatar = {
+      id: "gallery-" + Date.now(),
+      uri: result.assets[0].uri,
+    };
 
-  const selectAvatar = (avatar: ImageSourcePropType) => {
+    console.log("📸 Galeria:", avatar);
+
     setSelected(avatar);
     onChange(avatar);
-    setIsOpen(false);
+  }
+};
+
+  // 👤 Selecionar avatar da lista
+const selectAvatar = (avatar: Avatar) => {
+  console.log("👤 Selecionado:", avatar);
+
+  setSelected(avatar);
+  onChange(avatar);
+};
+
+  // 🔄 Abrir/fechar lista
+  const toggle = () => {
+    console.log("🔄 Toggle aberto/fechado. Estado atual:", isOpen);
+
+    LayoutAnimation.configureNext(
+      LayoutAnimation.create(
+        400,
+        LayoutAnimation.Types.easeInEaseOut,
+        LayoutAnimation.Properties.opacity
+      )
+    );
+
+    setIsOpen((prev) => !prev);
   };
 
-  const toggle = () => {
-    // Animate next layout change
-  LayoutAnimation.configureNext(
-    LayoutAnimation.create(
-      400, // duration in ms
-      LayoutAnimation.Types.easeInEaseOut,
-      LayoutAnimation.Properties.opacity
-    )
-  );
-  setIsOpen(prev => !prev);
-  };
+  // 🔍 Comparar seleção
+const isSelectedItem = (item: Avatar) => {
+  return selected?.id === item.id;
+};
 
   return (
     <View style={styles.container}>
@@ -75,29 +95,43 @@ const AvatarPicker: React.FC<AvatarPickerProps> = ({
         </TouchableOpacity>
       )}
 
-      {/* Content below */}
+      {/* Conteúdo */}
       {isOpen && (
         <>
+          {/* Lista de avatares */}
           {mode !== "gallery" && (
             <FlatList
               data={avatars}
               horizontal
               showsHorizontalScrollIndicator={false}
               keyExtractor={(_, index) => index.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => selectAvatar(item)}>
-                  <Image source={item} style={styles.avatar} />
-                </TouchableOpacity>
-              )}
+              renderItem={({ item }) => {
+                const selectedItem = isSelectedItem(item);
+
+                return (
+                  <TouchableOpacity
+                    onPress={() => selectAvatar(item)}
+                  >
+                    <Image
+                      source={{ uri: item.uri }}
+                      style={[
+                        styles.avatar,
+                        selectedItem && styles.selectedAvatar,
+                      ]}
+                    />
+                  </TouchableOpacity>
+                );
+              }}
             />
           )}
 
+          {/* Botão galeria */}
           {mode !== "avatar" && (
             <TouchableOpacity
               style={styles.button}
               onPress={async () => {
                 await pickImage();
-                toggle();
+                setIsOpen(false);
               }}
             >
               <Text style={styles.buttonText}>
@@ -110,10 +144,7 @@ const AvatarPicker: React.FC<AvatarPickerProps> = ({
       )}
     </View>
   );
-};
-
-export default AvatarPicker;
-
+}
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
@@ -140,5 +171,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontWeight: "600",
+  },
+    selectedAvatar: {
+    borderWidth: 3,
+    borderColor: "#00AA00",
   },
 });

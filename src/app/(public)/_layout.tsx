@@ -9,7 +9,7 @@ import { useEffect } from "react";
 export default function AuthRoutesLayout() {
   const { user, isLoaded } = useUserAuth();
 
-  console.log("PUBLIC LAYOUT:", { user, isLoaded });
+  // console.log("PUBLIC LAYOUT:", { user, isLoaded });
 
   // ⏳ Espera contexto carregar
   if (!isLoaded) return null;

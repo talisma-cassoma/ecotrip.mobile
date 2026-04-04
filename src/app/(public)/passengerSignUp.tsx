@@ -15,17 +15,17 @@ import {
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { avatars } from "@/assets/avatars";
 import { api } from "@/services/api";
-import AvatarPicker from "@/components/avatarPicker";
+import { AvatarPicker } from "@/components/avatarPicker";
 import { PasswordInput } from "@/components/passwordInput";
 import { G } from "react-native-svg";
 import { GoogleOauthButton } from "@/components/googleOauthButton";
 
 export default function PassengerSignUp() {
 
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('')
-  const [password, setPassword] = useState('');
-  const [telephone, setTelephone] = useState('');
+  const [email, setEmail] = useState('fofo@gmail.com');
+  const [name, setName] = useState('fofo rodriguez');
+  const [password, setPassword] = useState('fofo123456');
+  const [telephone, setTelephone] = useState('+5491133334444');
   const dimensions = useWindowDimensions()
   const [isLoading, setIsLoading] = useState(false)
   const [image, setImage] = useState<string>('')
@@ -37,24 +37,40 @@ export default function PassengerSignUp() {
   const handlePassengerSignUp = async () => {
     setIsLoading(true);
 
-    const newUser = {
-      name: name,
-      email: email,
-      password: password,
-      role,
-      telephone: telephone,
-      image: image,
-    };
+    const formData = new FormData();
+
+      // campos normais
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("password", password);
+      formData.append("telephone", telephone);
+
+      // 👇 IMPORTANTE: enviar objeto como string
+      formData.append("role", "passenger");
+
+      // 👇 AQUI ESTÁ A CHAVE
+      if (image) {
+        formData.append("avatar", {
+          uri: image,
+          name: "avatar.jpg",
+          type: "image/jpeg",
+        } as any);
+      }
 
     try {
-      const response = await api.post('/passenger/create', newUser);
+      console.log("Avatar URI:", formData.get("avatar"));
+      const response = await api.post('/passenger/create', formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       const { passenger } = response.data;
 
       if (passenger) {
         const storedUser = await storeUser({
           name: passenger.user.name,
           email: passenger.user.email,
-          image: image,
+          image: passenger.user.image,
           telephone: passenger.user.telephone,
           access_token: passenger.session.access_token,
           refresh_token: passenger.session.refresh_token,
@@ -75,7 +91,6 @@ export default function PassengerSignUp() {
       setIsLoading(false); // garante que o loading será desativado mesmo se der erro
     }
   };
-
 
   return (
     <KeyboardAvoidingView
@@ -107,6 +122,9 @@ export default function PassengerSignUp() {
               onChange={(source) => {
                 if (typeof source === "object" && "uri" in source) {
                   setImage(source.uri as string);
+                } else {
+                  // avatar local
+                  setImage(Image.resolveAssetSource(source).uri);
                 }
               }}
             />
@@ -128,7 +146,7 @@ export default function PassengerSignUp() {
               onChangeText={setEmail}
               autoCapitalize="none"
               autoComplete="email"
-              //autoCorrect={true}
+            //autoCorrect={true}
             />
             <TextInput
               style={styles.input}
@@ -152,7 +170,7 @@ export default function PassengerSignUp() {
             </Button>
           </ScrollView>
           <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
-            <Text style={{ fontWeight: 'bold', color: colors.green.light}} onPress={() => router.replace("/login")}>
+            <Text style={{ fontWeight: 'bold', color: colors.green.light }} onPress={() => router.replace("/login")}>
               ¿Ya tienes cuenta? Inicia sesión
             </Text>
 
@@ -162,7 +180,6 @@ export default function PassengerSignUp() {
     </KeyboardAvoidingView>
   )
 };
-
 
 const styles = StyleSheet.create({
   container: {

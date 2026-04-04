@@ -10,13 +10,13 @@ import {
 import { storeUser } from "../../configs/database"
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { api } from "@/services/api";
-import AvatarPicker from "@/components/avatarPicker";
+import { AvatarPicker } from "@/components/avatarPicker";
 import { avatars } from "@/assets/avatars";
 import { PasswordInput } from "@/components/passwordInput";
 
 export default function DriverSignUp() {
-  const [email, setEmail] = useState('talismac@gmail.om');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('talismacx1200@gmail.com');
+  const [password, setPassword] = useState('12345678BC');
   const [telephone, setTelephone] = useState('+5491133334444');
   const [licenseNumber, setLicenseNumber] = useState('XYZ123456');
   const [vehiclePlate, setVehiclePlate] = useState('JKL-5678');
@@ -37,24 +37,40 @@ export default function DriverSignUp() {
     setIsLoading(true)
 
     try {
-      const newUser = {
-        name: driverName,
-        email: email,
-        password: password,
-        telephone: telephone,
-        image: image,
-        role: {
-          type: 'driver',
-          data: {
-            car_model: vehicleModel,
-            car_plate: vehiclePlate,
-            car_color: vehicleColor,
-            license_number: licenseNumber,
-          }
+
+      const formData = new FormData();
+
+      // campos normais
+      formData.append("name", driverName);
+      formData.append("email", email);
+      formData.append("password", password);
+      formData.append("telephone", telephone);
+
+      // 👇 IMPORTANTE: enviar objeto como string
+      formData.append("role", JSON.stringify({
+        type: 'driver',
+        data: {
+          car_model: vehicleModel,
+          car_plate: vehiclePlate,
+          car_color: vehicleColor,
+          license_number: licenseNumber,
         }
+      }));
+
+      // 👇 AQUI ESTÁ A CHAVE
+      if (image) {
+        formData.append("avatar", {
+          uri: image,
+          name: "avatar.jpg",
+          type: "image/jpeg",
+        } as any);
       }
 
-      const response = await api.post('/driver/create', newUser);
+      const response = await api.post('/driver/create', formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       const { driver } = response.data
 
       console.log("response", response.data);
@@ -63,7 +79,7 @@ export default function DriverSignUp() {
         id: driver.user.id,
         name: driver.user.name,
         email: driver.user.email,
-        image: image,
+        image: driver.user.image,
         telephone: driver.user.telephone,
         access_token: driver.session.access_token,
         refresh_token: driver.session.refresh_token,
@@ -112,6 +128,9 @@ export default function DriverSignUp() {
               onChange={(source) => {
                 if (typeof source === "object" && "uri" in source) {
                   setImage(source.uri as string);
+                } else {
+                  // avatar local
+                  setImage(Image.resolveAssetSource(source).uri);
                 }
               }}
             />
@@ -171,7 +190,7 @@ export default function DriverSignUp() {
               onChangeText={setEmail}
               autoCapitalize="none"
               autoComplete="email"
-              //autoCorrect={true}
+            //autoCorrect={true}
             />
             <PasswordInput
               style={styles.input}
@@ -186,7 +205,7 @@ export default function DriverSignUp() {
             </Button>
           </ScrollView>
         </View >
-        <TouchableOpacity style={{ marginTop: 20, flexDirection: 'row', justifyContent: 'center'}} onPress={() => router.replace("/login")}>
+        <TouchableOpacity style={{ marginTop: 20, flexDirection: 'row', justifyContent: 'center' }} onPress={() => router.replace("/login")}>
           <Text style={{ fontWeight: 'bold', color: colors.green.light }} onPress={() => router.replace("/login")}>
             ¿Ya tienes cuenta? Inicia sesión
           </Text>

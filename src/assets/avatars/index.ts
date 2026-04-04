@@ -8,11 +8,27 @@ import { ImageSourcePropType } from "react-native";
 //   "https://cdn-icons-png.freepik.com/512/4825/4825015.png"
 // ];
 	
-export const avatars: ImageSourcePropType[] = [
-  require("./young_black_man.png"),
-  require("./young_black-woman.png"),
-  require("./black_hair_white_woman.png"),
-  require("./blond_white_woman.png"),
-  require("./old_man.png"),
+import { Image } from "react-native";
 
+export const avatars = [
+  {
+    id: "1",
+    uri: Image.resolveAssetSource(require("./young_black_man.png")).uri,
+  },
+  {
+    id: "2",
+    uri: Image.resolveAssetSource(require("./young_black-woman.png")).uri,
+  },
+  {
+    id: "3",
+    uri: Image.resolveAssetSource(require("./black_hair_white_woman.png")).uri,
+  },
+  {
+    id: "4",
+    uri: Image.resolveAssetSource(require("./blond_white_woman.png")).uri,
+  },
+  {
+    id: "5",
+    uri: Image.resolveAssetSource(require("./old_man.png")).uri,
+  },
 ];
